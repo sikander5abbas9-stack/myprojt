@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalStorage Example</title>
+</head>
+<body>
+    <h1>LocalStorage Data Retrieval</h1>
+    
+    <label for="nameInput">Enter Name:</label>
+    <input type="text" id="nameInput" placeholder="Your name">
+    <button onclick="retrieveData()">Retrieve Data</button>
+
+    <p id="output"></p>
+
+    <script>
+        // Function to retrieve data from localStorage
+        function retrieveData() {
+            // Get the name from the input field
+            var name = document.getElementById('nameInput').value;
+
+            // Retrieve data from localStorage using the name as the key
+            var data = localStorage.getItem(name);
+
+            // Display the data
+            var output = document.getElementById('output');
+            if (data) {
+                output.textContent = "Data for " + name + ": " + data;
+            } else {
+                output.textContent = "No data found for " + name;
+            }
+        }
+
+        // Example: Storing some data in localStorage
+        localStorage.setItem("John", "Age: 30, Occupation: Engineer");
+        localStorage.setItem("Alice", "Age: 25, Occupation: Designer");
+    </script>
+</body>
+</html>

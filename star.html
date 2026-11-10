@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urdu Abjad Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: left;
+            
+            background-color: #f4f4f4;
+        }
+        input {
+            font-size: 20px;
+            padding: 10px;
+            width: 60%;
+            margin-bottom: 10px;
+            text-align: right;
+            border: 2px solid #088178;
+            border-radius: 5px;
+            outline: none;
+        }
+        #result, #spirit, #totalSpirit, #starName {
+            font-size: 22px;
+            margin-top: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Urdu Abjad Calculator</h2>
+<input type="text" id="urduText" placeholder="Write Urdu Text Here" oninput="calculateAbjad()">
+<div id="result"></div>
+<div id="spirit"></div>
+
+<h2>Repeat Urdu Abjad Calculator</h2>
+<input type="text" id="urduText2" placeholder="Write Urdu Text Here" oninput="calculateAbjad2()">
+<div id="result2"></div>
+<div id="spirit2"></div>
+
+<h2>Total Spirit Number and Star Name</h2>
+<div id="totalSpirit"></div>
+<div id="starName"></div>
+
+<script>
+    const abjadValues = {
+        'ا': 1, 'ب': 2, 'پ': 2, 'ج': 3, 'چ': 3, 'د': 4, 'ڈ': 4, 'ه': 5, 'و': 6, 'ز': 7,
+        'ح': 8, 'ط': 9, 'ى': 10, 'ی': 10, 'ک': 20, 'گ': 20, 'ل': 30, 'م': 40, 'ن': 50,
+        'س': 60, 'ع': 70, 'ف': 80, 'ص': 90, 'ق': 100, 'ر': 200, 'ش': 300, 'ت': 400,
+        'ث': 500, 'خ': 600, 'ذ': 700, 'ض': 800, 'ظ': 900, 'غ': 1000
+    };
+
+    const starNames = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+
+    function calculateAbjad() {
+        let text = document.getElementById("urduText").value;
+        let sum = 0;
+
+        for (let char of text) {
+            if (abjadValues[char]) {
+                sum += abjadValues[char];
+            }
+        }
+
+        document.getElementById("result").innerText = `Total Abjad Value: ${sum}`;
+        let spirit = getSpiritNumber(sum);
+        document.getElementById("spirit").innerText = `Spirit Number: ${spirit}`;
+        calculateTotalSpirit();
+    }
+
+    function calculateAbjad2() {
+        let text = document.getElementById("urduText2").value;
+        let sum = 0;
+
+        for (let char of text) {
+            if (abjadValues[char]) {
+                sum += abjadValues[char];
+            }
+        }
+
+        document.getElementById("result2").innerText = `Total Abjad Value: ${sum}`;
+        let spirit = getSpiritNumber(sum);
+        document.getElementById("spirit2").innerText = `Spirit Number: ${spirit}`;
+        calculateTotalSpirit();
+    }
+
+    function getSpiritNumber(num) {
+        while (num >= 10) {
+            let digits = num.toString().split('').map(Number);
+            num = digits.reduce((a, b) => a + b, 0);
+        }
+        return num;
+    }
+
+    function calculateTotalSpirit() {
+        let spirit1 = parseInt(document.getElementById("spirit").innerText.replace("Spirit Number: ", "")) || 0;
+        let spirit2 = parseInt(document.getElementById("spirit2").innerText.replace("Spirit Number: ", "")) || 0;
+        let totalSpirit = spirit1 + spirit2;
+        totalSpirit = getSpiritNumber(totalSpirit);
+        document.getElementById("totalSpirit").innerText = `Total Spirit Number: ${totalSpirit}`;
+        if (totalSpirit >= 1 && totalSpirit <= 12) {
+            document.getElementById("starName").innerText = `Star Name: ${starNames[totalSpirit - 1]}`;
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Table</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            direction: ltr;
+            text-align: right;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding-bottom: 100px;
+        }
+
+        .table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 100%;
+            overflow-x: auto;
+            text-align: center;
+            direction: rtl;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        th {
+            background-color: #088178;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        td {
+            font-size: 15px;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+            transition: background-color 0.3s ease;
+        }
+
+        #total-row {
+            font-weight: bold;
+            background-color: #eee;
+            color: #333;
+        }
+      
+        .bottom-nav {
+            display: flex;
+            padding: 15px 7px;
+            background-color: #FFFFFFF5;
+            position: fixed;
+            bottom: 0px;
+            width: 97%;
+            margin: 5px 1.5%;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 35px;
+            z-index: 10;
+        }
+
+        .bottom-nav input[type="number"] {
+            padding: 10px;
+            font-size: 20px;
+            width: 55%;
+            margin: 0 5px;
+            text-align: left;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            outline: none;
+            border-radius: 30px;
+        }
+
+        .bottom-nav input[type="number"]:focus {
+            border-color: #088178;
+            box-shadow: 0 0 5px rgba(8, 129, 120, 0.4);
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-controls button {
+            padding: 10px 15px;
+            font-size: 20px;
+            background-color: #fff;
+            border: 1px solid #ddc;
+            border-radius: 50px;
+            transition: background-color 0.3s;
+            border-radius: 50px;
+        }
+
+        .quantity-controls button:hover {
+            background-color: #088178;
+            color: white;
+            border: none;
+        }
+
+        .quantity-controls span {
+            font-weight: bold;
+            font-size: 20px;
+            color: #333;
+        }
+        #decreaseQuantity {
+          font-size: 30px;
+          padding: 4px 17px;
+        }
+        
+        #submit {
+          padding: 2px 9px;
+          padding-bottom: 7px;
+          font-size: 25px;
+        }
+
+        .grand-total {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            color: #088178;
+        }
+
+        .btn {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #screenshotBtn {
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #088178;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        #screenshotBtn:hover {
+            background-color: #06665a;
+        }
+    </style>
+</head>
+<body>
+    <div class="table-container">
+        <table id="shopTable">
+            <thead>
+                <tr>
+                    <th colspan="5" data-type="sale">sale</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Rows added dynamically -->
+            </tbody>
+            <tfoot>
+                <tr id="total-row">
+                    <td colspan="3">کل رقم</td>
+                    <td id="totalitems">0</td>
+                    <td id="totalAmount">0</td>
+                </tr>
+            </tfoot>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th data-type="kamai">کمائی</th>
+                    <th data-type="eating">کھانے کے آئٹمز</th>
+                    <th data-type="homeUse">گھر کے استعمال</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="kamaiAmount">0</td>
+                    <td id="eatingAmount">0</td>
+                    <td id="homeUseAmount">0</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="grand-total">
+                    <td colspan="2">گرینڈ ٹوٹل</td>
+                    <td id="grandTotal">0</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="btn">
+        <button id="screenshotBtn" onclick="takeScreenshot()">Download Table Screenshot</button>
+    </div>
+    <div class="bottom-nav">
+      <input type="number" id="amountInput" placeholder="typing" >
+      
+        <div class="quantity-controls">
+          <button id="decreaseQuantity" aria-label="Decrease Quantity">-</button>
+          <span id="quantityDisplay">1</span>
+          <button id="increaseQuantity" aria-label="Increase Quantity">+</button>
+          <button id="submit" class="submit">⁠☞</button>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Extract ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableId = urlParams.get("id") || "defaultTable";
+
+        let currentActiveBox = null;
+        let currentBoxType = "sale";
+
+        let kamaiTotal = 0;
+        let eatingTotal = 0;
+        let homeUseTotal = 0;
+        let saleTotal = 0;
+        let items = 0;
+        let total = 0;
+
+        let currentRow = null;
+        let currentColumn = 0;
+        let quantity = 1;
+
+        let editingCell = null;
+        let touchStartTime = 0;
+        let touchTimeout = null;
+
+        // Initialize the table with one row
+        function initializeTable() {
+            const tableBody = document.getElementById("tableBody");
+            if (tableBody.rows.length === 0) {
+                addNewRow();
+            }
+        }
+
+        // Function to activate the box when table header (th) is clicked
+        function activateBoxAndAddAmount(type, element) {
+            if (currentActiveBox) {
+                currentActiveBox.style.backgroundColor = "";
+            }
+            currentActiveBox = element;
+            currentBoxType = type || "sale";
+            currentActiveBox.style.backgroundColor = "#088189";
+            document.getElementById("amountInput").focus();
+        }
+
+        // Event listener for clicking th elements
+        const thElements = document.querySelectorAll("th");
+        thElements.forEach(th => {
+            th.addEventListener("click", function() {
+                const type = th.getAttribute("data-type");
+                activateBoxAndAddAmount(type, th);
+            });
+        });
+
+        // Function to handle editing a TD
+        function editCell(cell) {
+            const content = cell.innerText;
+            const match = content.match(/\((\d+)\)-(\d+)/);
+            if (match) {
+                const qty = parseInt(match[1]);
+                const amount = parseFloat(match[2]);
+                if (!isNaN(amount)) {
+                    document.getElementById("amountInput").value = amount;
+                    quantity = qty;
+                    updateQuantityDisplay();
+                    document.getElementById("amountInput").focus();
+                    editingCell = cell;
+                }
+            }
+        }
+
+        // Function to update the edited cell
+        function updateCell(amount, quantity) {
+            if (editingCell) {
+                editingCell.innerText = `(${quantity})-${amount}`;
+                editingCell = null;
+                updateTotals();
+                saveDataToLocalStorage();
+            }
+        }
+
+        // Event listener for amount input
+        document.getElementById("amountInput").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                processInput();
+            }
+        });
+
+        // Process input from keyboard or button
+        function processInput() {
+            const input = document.getElementById("amountInput").value;
+            const amount = parseFloat(input);
+
+            if (!isNaN(amount)) {
+                if (editingCell) {
+                    updateCell(amount, quantity);
+                } else {
+                    addAmount(amount, quantity, currentBoxType);
+                }
+                document.getElementById("amountInput").value = "";
+                quantity = 1;
+                updateQuantityDisplay();
+                saveDataToLocalStorage();
+            }
+        }
+
+        // Quantity Controls
+        document.getElementById("increaseQuantity").addEventListener("click", function() {
+            document.getElementById("amountInput").focus();
+            quantity++;
+            updateQuantityDisplay();
+        });
+
+        document.getElementById("decreaseQuantity").addEventListener("click", function() {
+            document.getElementById("amountInput").focus();
+            if (quantity > 1) {
+                quantity--;
+                updateQuantityDisplay();
+            }
+        });
+
+        // Update quantity display
+        function updateQuantityDisplay() {
+            document.getElementById("quantityDisplay").innerText = quantity;
+        }
+
+        // Add amount to the corresponding box
+        function addAmount(amount, quantity, type) {
+            if (type === "kamai") {
+                kamaiTotal += amount;
+                document.getElementById("kamaiAmount").innerText = kamaiTotal;
+            } else if (type === "eating") {
+                eatingTotal += amount;
+                document.getElementById("eatingAmount").innerText = eatingTotal;
+            } else if (type === "homeUse") {
+                homeUseTotal += amount;
+                document.getElementById("homeUseAmount").innerText = homeUseTotal;
+            } else {
+                const firstEmptyCell = findFirstEmptyCell();
+                if (firstEmptyCell) {
+                    firstEmptyCell.innerText = `(${quantity})-${amount}`;
+                } else {
+                    addNewRow();
+                    const newRow = document.querySelector("#tableBody tr:last-child");
+                    newRow.cells[0].innerText = `(${quantity})-${amount}`;
+                }
+
+                items += quantity;
+                total += amount;
+                document.getElementById("totalAmount").innerText = total;
+                document.getElementById("totalitems").innerText = items;
+            }
+
+            const grandTotal = total - kamaiTotal - eatingTotal - homeUseTotal;
+            document.getElementById("grandTotal").innerText = grandTotal;
+            saveDataToLocalStorage();
+        }
+
+        // Function to find the first empty TD in the table
+        function findFirstEmptyCell() {
+            const rows = document.querySelectorAll("#tableBody tr");
+            for (let row of rows) {
+                for (let cell of row.cells) {
+                    if (cell.innerText === "") {
+                        return cell;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Add a new row to the table
+        function addNewRow() {
+            const tableBody = document.getElementById("tableBody");
+            const newRow = document.createElement("tr");
+            for (let i = 0; i < 5; i++) {
+                const cell = document.createElement("td");
+                newRow.appendChild(cell);
+            }
+            tableBody.appendChild(newRow);
+            return newRow;
+        }
+
+        // Function to handle touch events for editing and deleting
+        function setupTouchHandlers() {
+            const tableBody = document.getElementById("tableBody");
+
+            tableBody.addEventListener("touchstart", function(e) {
+                const cell = e.target.closest("td");
+                if (!cell) return;
+
+                touchStartTime = Date.now();
+                touchTimeout = setTimeout(() => {
+                    // Long press - delete the cell
+                    deleteCellAndShift(cell);
+                    updateTotals();
+                    saveDataToLocalStorage();
+                }, 500);
+            }, {passive: true});
+
+            tableBody.addEventListener("touchend", function(e) {
+                const cell = e.target.closest("td");
+                if (!cell) return;
+
+                clearTimeout(touchTimeout);
+                
+                // Check if it was a short tap (not a long press)
+                if (Date.now() - touchStartTime < 300) {
+                    // Short tap - edit the cell
+                    editCell(cell);
+                }
+            }, {passive: true});
+
+            // Prevent context menu on long press
+            tableBody.addEventListener("contextmenu", function(e) {
+                e.preventDefault();
+            });
+        }
+
+        // Function to delete a cell and shift all subsequent cells
+        function deleteCellAndShift(deletedCell) {
+            const tableBody = document.getElementById("tableBody");
+            const rows = Array.from(tableBody.rows);
+            let found = false;
+            let remainingCells = [];
+
+            // First collect all cells after the deleted one
+            for (let row of rows) {
+                const cells = Array.from(row.cells);
+                for (let cell of cells) {
+                    if (cell === deletedCell) {
+                        found = true;
+                        continue;
+                    }
+                    if (found) {
+                        remainingCells.push(cell.innerText);
+                    }
+                }
+            }
+
+            // Now clear the deleted cell and shift all subsequent cells
+            found = false;
+            let cellIndex = 0;
+            
+            for (let row of rows) {
+                const cells = Array.from(row.cells);
+                for (let i = 0; i < cells.length; i++) {
+                    if (cells[i] === deletedCell) {
+                        found = true;
+                        cells[i].innerText = "";
+                    }
+                    if (found) {
+                        if (cellIndex < remainingCells.length) {
+                            cells[i].innerText = remainingCells[cellIndex];
+                            cellIndex++;
+                        } else {
+                            cells[i].innerText = "";
+                        }
+                    }
+                }
+            }
+
+            // Remove completely empty rows (except the first one)
+            cleanEmptyRows();
+        }
+
+        // Function to clean up empty rows
+        function cleanEmptyRows() {
+            const tableBody = document.getElementById("tableBody");
+            const rows = Array.from(tableBody.rows);
+            
+            // Start from the end and move backwards
+            for (let i = rows.length - 1; i > 0; i--) {
+                const row = rows[i];
+                const isEmpty = Array.from(row.cells).every(cell => cell.innerText === "");
+                if (isEmpty) {
+                    tableBody.removeChild(row);
+                }
+            }
+        }
+
+        function updateTotals() {
+            let newTotal = 0;
+            let newItems = 0;
+
+            const tableBody = document.getElementById("tableBody");
+            const rows = tableBody.getElementsByTagName("tr");
+
+            for (let row of rows) {
+                for (let cell of row.cells) {
+                    const content = cell.innerText;
+                    if (content) {
+                        const match = content.match(/\((\d+)\)-(\d+)/);
+                        if (match) {
+                            const qty = parseInt(match[1]);
+                            const amount = parseFloat(match[2]);
+                            if (!isNaN(amount)) {
+                                newTotal += amount;
+                                newItems += qty;
+                            }
+                        }
+                    }
+                }
+            }
+
+            total = newTotal;
+            items = newItems;
+            document.getElementById("totalAmount").innerText = total;
+            document.getElementById("totalitems").innerText = items;
+
+            const grandTotal = total - kamaiTotal - eatingTotal - homeUseTotal;
+            document.getElementById("grandTotal").innerText = grandTotal;
+        }
+
+        // Function to save data to localStorage
+        function saveDataToLocalStorage() {
+            const data = {
+                kamaiTotal,
+                eatingTotal,
+                homeUseTotal,
+                saleTotal,
+                items,
+                total,
+                tableBody: getTableData(),
+            };
+            localStorage.setItem(tableId, JSON.stringify(data));
+        }
+
+        // Function to load data from localStorage
+        function loadDataFromLocalStorage() {
+            const data = JSON.parse(localStorage.getItem(tableId));
+            if (data) {
+                kamaiTotal = data.kamaiTotal;
+                eatingTotal = data.eatingTotal;
+                homeUseTotal = data.homeUseTotal;
+                saleTotal = data.saleTotal;
+                items = data.items;
+                total = data.total;
+
+                setTableData(data.tableBody);
+
+                document.getElementById("kamaiAmount").innerText = kamaiTotal;
+                document.getElementById("eatingAmount").innerText = eatingTotal;
+                document.getElementById("homeUseAmount").innerText = homeUseTotal;
+                document.getElementById("totalAmount").innerText = total;
+                document.getElementById("totalitems").innerText = items;
+                document.getElementById("grandTotal").innerText = total - kamaiTotal - eatingTotal - homeUseTotal;
+            }
+        }
+
+        // Function to get table data
+        function getTableData() {
+            const tableBody = document.getElementById("tableBody");
+            const rows = tableBody.getElementsByTagName("tr");
+            const data = [];
+
+            for (let row of rows) {
+                const rowData = [];
+                for (let cell of row.cells) {
+                    rowData.push(cell.innerText);
+                }
+                data.push(rowData);
+            }
+
+            return data;
+        }
+
+        // Function to set table data
+        function setTableData(data) {
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            for (let rowData of data) {
+                const row = document.createElement("tr");
+                for (let cellData of rowData) {
+                    const cell = document.createElement("td");
+                    cell.innerText = cellData;
+                    row.appendChild(cell);
+                }
+                tableBody.appendChild(row);
+            }
+
+            // Ensure at least one row exists
+            if (tableBody.rows.length === 0) {
+                addNewRow();
+            }
+        }
+
+        // Screenshot function
+        function takeScreenshot() {
+  const tableElement = document.querySelector(".table-container");
+  html2canvas(tableElement).then((canvas) => {
+    const dataUrl = canvas.toDataURL("image/png");
+    const base64Data = dataUrl.split(',')[1]; // Remove the data URL prefix
+    const byteCharacters = atob(base64Data); // Decode base64
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers); // Convert to byte array
+    
+    // Call the Java function to save the screenshot
+    AndroidFileHandler.saveScreenshotAsFile(byteArray, "table-screenshot.png");
+  });
+}
+
+        // Initialize the app
+        function init() {
+            setupTouchHandlers();
+            loadDataFromLocalStorage();
+            initializeTable();
+
+            // Activate keyboard on any click
+            document.addEventListener("click", function() {
+                document.getElementById("amountInput").focus();
+            });
+
+            // Submit button functionality
+            document.getElementById("submit").addEventListener("click", function() {
+                processInput();
+            });
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>

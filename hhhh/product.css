@@ -1,0 +1,261 @@
+       * {
+         padding: 0;
+         margin: 0;
+         box-sizing: border-box;
+       }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #088178;
+            overflow: hidden;
+        }
+ .space {
+   width: 100%;
+   height: 50vh;
+   background-color: #000;
+   z-index: 1000;
+   
+ }
+       .slider-container {
+    z-index: 1; /* Isko low rakhein */
+    width: 100%;
+    height: 50vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #088178;
+    padding: 10px auto;
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 30px 30px 0 0;
+    z-index: 10; 
+    position: relative;
+    background-color: #fff;
+}
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.5s ease;
+            
+            z-index: 1;
+            height: 50vh;
+        }
+
+        .slide {
+            min-width: 100%;
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            margin: 10px auto;
+        }
+
+        .slide img, .slide video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+ .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        z-index: 1000;
+        background-color: #fff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    .loading .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #088178;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+
+        .product-info {
+            text-align: left;
+            width: 100%;
+            
+        }
+        #details {
+          margin: 20px;
+        }
+
+        .product-info h2 {
+            color: #333;
+            font-size: 28px;
+            margin: 10px auto;
+        }
+
+        .product-info p {
+            color: #606063;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .product-info .price {
+            font-size: 24px;
+            color: #088178;
+            font-weight: bold;
+        }
+
+        .product-info .cut-price {
+            font-size: 20px;
+            text-decoration: line-through;
+            color: #999;
+            margin-left: 10px;
+        }
+
+        .image-number {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .price-add-to-cart {
+          z-index: 999;
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .bynow, .add-to-cart {
+            background-color: #088178;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .add-to-cart:hover {
+            background-color: #E65B50;
+        }
+        
+        
+   #product1 {
+            overflow-y: auto;
+            display: flex;
+            text-align: center;
+            justify-content: space-evenly;
+            padding: 3%;
+            gap: 3%;
+        }
+        .pro-container, .pro-container-two {
+            width: 50%;
+        }
+        #product1 .pro {
+            width: auto;
+            height: auto;
+            border-radius: 12px;
+            margin: 10px 0;
+            transition: 0.2s ease;
+            position: relative;
+        }
+        #product1 .pro .img {
+    width: 100%;
+    height: 170px; /* Same height as skeleton */
+    object-fit: cover;
+    border-radius: 12px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+        #product1 .pro .details {
+            text-align: start;
+        }
+        #product1 .pro p {
+            color: #313474;
+            padding-top: 6px;
+        }
+        #product1 .pro h5 {
+            margin: 3px 0;
+            color: #313474;
+            font-size: 14px;
+            font-weight: 450;
+        }
+        #product1 .pro .star {
+            display: flex;
+            padding: 5px 0;
+            gap: 4px;
+            font-size: 13px;
+        }
+        #product1 .pro .star .st {
+            color: #FECC83;
+            width: 12px;
+            font-size: 17px;
+            
+        }
+        #product1 .pro h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0D115B;
+        }
+
+
+        /* Skeleton Loader Styles */
+        .skeleton {
+            background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 300% 100%;
+            animation: loading 3.5s infinite;
+            border-radius: 12px;
+            margin: 10px 0;
+        }
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+
+        /* Skeleton Image Placeholder */
+/* Fixed Height and Width for Skeleton Placeholder */
+.skeleton-image {
+    background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 300% 100%;
+    animation: loading 3.5s infinite;
+    border-radius: 12px;
+    width: 100%;
+    height: 220px; /* Fixed height to prevent layout shift */
+    position: relative;
+}

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Points Paper Creator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f9c74f;
+      --danger: #f94144;
+      --paper: #fff;
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px var(--shadow);
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+    
+    .toolbar {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn.add {
+      background: var(--accent);
+      box-shadow: 0 4px 10px rgba(247, 37, 133, 0.3);
+    }
+    
+    .btn.add:hover {
+      box-shadow: 0 6px 15px rgba(247, 37, 133, 0.4);
+    }
+    
+    .btn.download {
+      background: var(--success);
+      box-shadow: 0 4px 10px rgba(76, 201, 240, 0.3);
+    }
+    
+    .btn.download:hover {
+      box-shadow: 0 6px 15px rgba(76, 201, 240, 0.4);
+    }
+    
+    .btn.reset {
+      background: var(--danger);
+      box-shadow: 0 4px 10px rgba(249, 65, 68, 0.3);
+    }
+    
+    .btn.reset:hover {
+      box-shadow: 0 6px 15px rgba(249, 65, 68, 0.4);
+    }
+    
+    .paper-management {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .paper-management input {
+      padding: 12px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      font-size: 16px;
+      min-width: 250px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    
+    .paper-management input:focus {
+      border-color: var(--primary);
+    }
+    
+    .swiper {
+      width: 100%;
+      height: 320mm;
+      padding: 20px 0;
+    }
+    
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    
+    .paper {
+      width: 210mm;
+      min-height: 297mm;
+      background: var(--paper);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      padding: 30px;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .paper:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    
+    .paper-title {
+      text-align: center;
+      margin: 20px 0 30px;
+      color: var(--secondary);
+      font-size: 2.2rem;
+      position: relative;
+      padding-bottom: 15px;
+      outline: none;
+    }
+    
+    .paper-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 30%;
+      right: 30%;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--primary), transparent);
+    }
+    
+    .points-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 25px;
+      padding: 20px 0;
+    }
+    
+    .point-box {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid var(--primary);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      min-height: 150px;
+    }
+    
+    .point-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .point-box textarea {
+      width: 100%;
+      border: none;
+      resize: none;
+      font-size: 16px;
+      line-height: 1.6;
+      background: transparent;
+      min-height: 120px;
+      outline: none;
+      font-family: inherit;
+    }
+    
+    .point-actions {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      gap: 10px;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+    
+    .point-box:hover .point-actions {
+      opacity: 1;
+    }
+    
+    .point-actions button {
+      background: var(--light);
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--dark);
+      transition: all 0.2s ease;
+    }
+    
+    .point-actions button:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #dee2e6;
+    }
+    
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #adb5bd;
+    }
+    
+    .swiper-button-next, .swiper-button-prev {
+      color: var(--primary);
+      background: rgba(255, 255, 255, 0.9);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .swiper-button-next:after, .swiper-button-prev:after {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark);
+      color: white;
+      padding: 12px 25px;
+      border-radius: 50px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .paper {
+        width: 100%;
+        padding: 20px;
+      }
+      
+      .points-container {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .toolbar, .paper-management {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn, .paper-management input {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .swiper {
+        height: 400mm;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .paper-title {
+        font-size: 1.8rem;
+      }
+      
+      .point-box {
+        padding: 15px;
+      }
+    }
+    
+    /* Animation for new points */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Points Paper Creator</h1>
+      <p class="subtitle">Create beautiful notes with customizable points</p>
+    </header>
+    
+    <div class="paper-management">
+      <input type="text" id="paperNameInput" placeholder="Enter paper name">
+      <button class="btn" id="createPaperBtn">
+        <i class="fas fa-plus"></i>
+        Create New Paper
+      </button>
+    </div>
+    
+    <div class="toolbar">
+      <button class="btn add" id="addPointBtn">
+        <i class="fas fa-plus"></i>
+        Add New Point
+      </button>
+      <button class="btn download" id="downloadBtn">
+        <i class="fas fa-download"></i>
+        Download Paper
+      </button>
+      <button class="btn reset" id="resetBtn">
+        <i class="fas fa-trash"></i>
+        Reset Paper
+      </button>
+    </div>
+    
+    <div class="swiper">
+      <div class="swiper-wrapper" id="papersContainer">
+        <!-- Papers will be dynamically added here -->
+      </div>
+      <!-- Add navigation buttons -->
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Swiper
+      const swiper = new Swiper('.swiper', {
+        direction: 'horizontal',
+        loop: false,
+        slidesPerView: 1,
+        spaceBetween: 30,
+        centeredSlides: true,
+        
+        // Navigation arrows
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+      });
+      
+      const addPointBtn = document.getElementById('addPointBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const createPaperBtn = document.getElementById('createPaperBtn');
+      const paperNameInput = document.getElementById('paperNameInput');
+      const papersContainer = document.getElementById('papersContainer');
+      const toast = document.getElementById('toast');
+      
+      let papersData = JSON.parse(localStorage.getItem('pointsPapers')) || [];
+      let activePaperIndex = 0;
+      
+      // Function to show toast notification
+      function showToast(message, duration = 2000) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, duration);
+      }
+      
+      // Initialize the app
+      function initApp() {
+        // Load papers from localStorage or create default
+        if (papersData.length === 0) {
+          createNewPaper("My Points Paper");
+        } else {
+          papersData.forEach(paper => {
+            renderPaper(paper);
+          });
+        }
+        
+        // Update Swiper after adding slides
+        setTimeout(() => {
+          swiper.update();
+        }, 100);
+      }
+      
+      // Create a new paper
+      function createNewPaper(name) {
+        const newPaper = {
+          id: Date.now(),
+          name: name,
+          points: []
+        };
+        
+        papersData.push(newPaper);
+        saveToLocalStorage();
+        renderPaper(newPaper);
+        
+        // Update Swiper and go to the new slide
+        swiper.update();
+        swiper.slideTo(papersData.length - 1);
+        activePaperIndex = papersData.length - 1;
+        
+        return newPaper;
+      }
+      
+      // Render a paper to the DOM
+      function renderPaper(paperData) {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        slide.dataset.id = paperData.id;
+        
+        slide.innerHTML = `
+          <div class="paper">
+            <h2 class="paper-title" contenteditable="true">${paperData.name}</h2>
+            
+            <div class="points-container">
+              ${paperData.points.length > 0 ? paperData.points.map(point => `
+                <div class="point-box">
+                  <textarea>${point.text}</textarea>
+                  <div class="point-actions">
+                    <button class="move-up" title="Move up"><i class="fas fa-arrow-up"></i></button>
+                    <button class="move-down" title="Move down"><i class="fas fa-arrow-down"></i></button>
+                    <button class="delete-point" title="Delete"><i class="fas fa-times"></i></button>
+                  </div>
+                </div>
+              `).join('') : `
+                <div class="empty-state">
+                  <i class="fas fa-sticky-note"></i>
+                  <h3>No points yet</h3>
+                  <p>Click "Add New Point" to create your first point</p>
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+        
+        papersContainer.appendChild(slide);
+        
+        // Add event listeners for the paper title
+        const paperTitle = slide.querySelector('.paper-title');
+        paperTitle.addEventListener('blur', function() {
+          updatePaperName(paperData.id, this.textContent);
+        });
+        
+        paperTitle.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.blur();
+          }
+        });
+        
+        // Add event listeners to point actions if points exist
+        if (paperData.points.length > 0) {
+          const pointBoxes = slide.querySelectorAll('.point-box');
+          pointBoxes.forEach((pointBox, index) => {
+            setupPointEventListeners(pointBox, paperData.id, index);
+          });
+        }
+        
+        // Auto-resize textareas
+        const textareas = slide.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+          textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            updatePointText(paperData.id, Array.from(textareas).indexOf(this), this.value);
+          });
+          
+          // Set initial height
+          setTimeout(() => {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+          }, 100);
+        });
+      }
+      
+      // Set up event listeners for a point box
+      function setupPointEventListeners(pointBox, paperId, pointIndex) {
+        const moveUpBtn = pointBox.querySelector('.move-up');
+        const moveDownBtn = pointBox.querySelector('.move-down');
+        const deleteBtn = pointBox.querySelector('.delete-point');
+        const textarea = pointBox.querySelector('textarea');
+        
+        moveUpBtn.addEventListener('click', function() {
+          movePoint(paperId, pointIndex, 'up');
+        });
+        
+        moveDownBtn.addEventListener('click', function() {
+          movePoint(paperId, pointIndex, 'down');
+        });
+        
+        deleteBtn.addEventListener('click', function() {
+          deletePoint(paperId, pointIndex);
+        });
+        
+        textarea.addEventListener('input', function() {
+          updatePointText(paperId, pointIndex, this.value);
+        });
+      }
+      
+      // Update paper name
+      function updatePaperName(paperId, newName) {
+        const paper = papersData.find(p => p.id === paperId);
+        if (paper) {
+          paper.name = newName;
+          saveToLocalStorage();
+        }
+      }
+      
+      // Update point text
+      function updatePointText(paperId, pointIndex, text) {
+        const paper = papersData.find(p => p.id === paperId);
+        if (paper && paper.points[pointIndex]) {
+          paper.points[pointIndex].text = text;
+          saveToLocalStorage();
+        }
+      }
+      
+      // Move a point up or down
+      function movePoint(paperId, pointIndex, direction) {
+        const paper = papersData.find(p => p.id === paperId);
+        if (paper) {
+          if (direction === 'up' && pointIndex > 0) {
+            // Move point up
+            const temp = paper.points[pointIndex];
+            paper.points[pointIndex] = paper.points[pointIndex - 1];
+            paper.points[pointIndex - 1] = temp;
+          } else if (direction === 'down' && pointIndex < paper.points.length - 1) {
+            // Move point down
+            const temp = paper.points[pointIndex];
+            paper.points[pointIndex] = paper.points[pointIndex + 1];
+            paper.points[pointIndex + 1] = temp;
+          }
+          
+          saveToLocalStorage();
+          refreshPaper(paperId);
+        }
+      }
+      
+      // Delete a point
+      function deletePoint(paperId, pointIndex) {
+        const paper = papersData.find(p => p.id === paperId);
+        if (paper) {
+          paper.points.splice(pointIndex, 1);
+          saveToLocalStorage();
+          refreshPaper(paperId);
+        }
+      }
+      
+      // Add a new point to the active paper
+      function addPointToActivePaper() {
+        const activeSlide = document.querySelector('.swiper-slide-active');
+        if (!activeSlide) return;
+        
+        const paperId = parseInt(activeSlide.dataset.id);
+        const paper = papersData.find(p => p.id === paperId);
+        
+        if (paper) {
+          // Create new point
+          const newPoint = { text: '' };
+          paper.points.push(newPoint);
+          saveToLocalStorage();
+          
+          // Refresh the paper display
+          refreshPaper(paperId);
+          
+          // Focus on the new textarea
+          setTimeout(() => {
+            const textareas = activeSlide.querySelectorAll('textarea');
+            if (textareas.length > 0) {
+              textareas[textareas.length - 1].focus();
+            }
+          }, 100);
+        }
+      }
+      
+      // Refresh a paper's display
+      function refreshPaper(paperId) {
+        const paper = papersData.find(p => p.id === paperId);
+        if (!paper) return;
+        
+        // Find the slide and remove it
+        const slide = document.querySelector(`.swiper-slide[data-id="${paperId}"]`);
+        if (slide) {
+          slide.remove();
+        }
+        
+        // Re-render the paper
+        renderPaper(paper);
+        
+        // Update Swiper
+        swiper.update();
+        
+        // Slide to the updated paper
+        const paperIndex = papersData.findIndex(p => p.id === paperId);
+        if (paperIndex >= 0) {
+          swiper.slideTo(paperIndex);
+          activePaperIndex = paperIndex;
+        }
+      }
+      
+      // Reset the active paper
+      function resetActivePaper() {
+        const activeSlide = document.querySelector('.swiper-slide-active');
+        if (!activeSlide) return;
+        
+        const paperId = parseInt(activeSlide.dataset.id);
+        const paper = papersData.find(p => p.id === paperId);
+        
+        if (paper && paper.points.length > 0) {
+          if (confirm('Are you sure you want to remove all points from this paper?')) {
+            paper.points = [];
+            saveToLocalStorage();
+            refreshPaper(paperId);
+            showToast('All points removed from paper');
+          }
+        } else {
+          showToast('No points to remove');
+        }
+      }
+      
+      // Download the active paper as an image
+      async function downloadActivePaper() {
+        const activeSlide = document.querySelector('.swiper-slide-active');
+        if (!activeSlide) return;
+        
+        const paperId = parseInt(activeSlide.dataset.id);
+        const paper = papersData.find(p => p.id === paperId);
+        
+        if (!paper || paper.points.length === 0) {
+          showToast('Add some points before downloading', 3000);
+          return;
+        }
+        
+        try {
+          const paperElement = activeSlide.querySelector('.paper');
+          const canvas = await html2canvas(paperElement, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            useCORS: true,
+            logging: false
+          });
+          
+          const dataURL = canvas.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = dataURL;
+          link.download = `${paper.name.replace(/\s+/g, '_')}_Points_Paper.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          showToast('Paper downloaded successfully!');
+        } catch (error) {
+          console.error('Error capturing screenshot:', error);
+          showToast('Error downloading paper. Please try again.', 3000);
+        }
+      }
+      
+      // Save data to localStorage
+      function saveToLocalStorage() {
+        localStorage.setItem('pointsPapers', JSON.stringify(papersData));
+      }
+      
+      // Event listeners
+      addPointBtn.addEventListener('click', addPointToActivePaper);
+      
+      downloadBtn.addEventListener('click', downloadActivePaper);
+      
+      resetBtn.addEventListener('click', resetActivePaper);
+      
+      createPaperBtn.addEventListener('click', function() {
+        const name = paperNameInput.value.trim() || `Paper ${papersData.length + 1}`;
+        createNewPaper(name);
+        paperNameInput.value = '';
+        showToast(`New paper "${name}" created!`);
+      });
+      
+      paperNameInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          createPaperBtn.click();
+        }
+      });
+      
+      // Update active paper index when slide changes
+      swiper.on('slideChange', function() {
+        activePaperIndex = swiper.activeIndex;
+      });
+      
+      // Initialize the application
+      initApp();
+    });
+  </script>
+</body>
+</html>

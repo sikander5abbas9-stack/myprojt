@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sir Majid - Physics & Mathematics Educator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="logo-container">
+            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="Profile Picture" class="logo-img">
+            <div class="logo-text"></div>
+        </div>
+        
+        <nav class="nav-links">
+            <a href="#about" class="nav-link">
+                <i class="fas fa-user"></i>
+                <span>About</span>
+            </a>
+            <a href="#teachers" class="nav-link">
+                <i class="fas fa-users"></i>
+                <span>Other Teachers</span>
+            </a>
+            <a href="#testimonials" class="nav-link">
+                <i class="fas fa-comment-dots"></i>
+                <span>Testimonials</span>
+            </a>
+            <a href="#contact" class="nav-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="profile-container">
+            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="Sir Majid" class="profile-img">
+            <div class="profile-badge">
+                <i class="fas fa-award"></i>
+            </div>
+        </div>
+        
+        <h1 class="hero-title" id="heroTitle">Loading...</h1>
+        <h2 class="hero-subtitle" id="heroSubtitle">Physics & Mathematics Educator</h2>
+        <p class="hero-text" id="heroText">Making physics and mathematics accessible through problem-solving focused teaching with real-world applications.</p>
+        
+        <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">
+                <i class="fas fa-envelope"></i>
+                Contact Me
+            </a>
+            <a href="#teachers" class="btn btn-outline">
+                <i class="fas fa-users"></i>
+                Meet Other Teachers
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section" id="about">
+        <h2 class="section-title">About Me</h2>
+        
+        <div class="about-content">
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Teaching Physics">
+            </div>
+            
+            <div class="about-text-content">
+                <p class="about-text" id="aboutText1">
+                    Loading...
+                </p>
+                <p class="about-text" id="aboutText2">
+                    Loading...
+                </p>
+                
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-number" id="yearsExp">0</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="studentsTaught">0</div>
+                        <div class="stat-label">Students Taught</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="successRate">0</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Other Teachers Section -->
+    <section class="section section-alt" id="teachers">
+        <h2 class="section-title">Our Faculty Members</h2>
+        
+        <div class="teachers-container" id="teachersContainer">
+            <!-- Teachers will be loaded dynamically from JavaScript -->
+        </div>
+    </section>
+
+    <!-- Teacher Profile Section (Hidden by default) -->
+    <section class="section" id="teacherProfile" style="display: none;">
+        <div class="teacher-profile" id="teacherProfileContent">
+            <!-- Teacher profile will be loaded dynamically -->
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="#teachers" class="back-to-teachers">
+                <i class="fas fa-arrow-left"></i>
+                Back to All Teachers
+            </a>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="section testimonials-section" id="testimonials">
+        <h2 class="section-title">Student Testimonials</h2>
+        
+        <div class="testimonials-container" id="testimonialsContainer">
+            <!-- Testimonials will be loaded dynamically from JavaScript -->
+        </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section class="feedback-section" id="feedback">
+        <div class="feedback-container">
+            <h2 class="feedback-title">Share Your Feedback</h2>
+            
+            <form id="feedbackForm">
+                <div class="feedback-form">
+                    <div class="form-group">
+                        <label for="feedbackName" class="form-label">Name</label>
+                        <input type="text" id="feedbackName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedbackEmail" class="form-label">Email</label>
+                        <input type="email" id="feedbackEmail" class="form-control">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="feedbackMessage" class="form-label">Your Feedback</label>
+                        <textarea id="feedbackMessage" class="form-control" required></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label class="form-label">Rating</label>
+                        <div class="rating-container" id="ratingStars">
+                            <i class="far fa-star rating-star" data-rating="1"></i>
+                            <i class="far fa-star rating-star" data-rating="2"></i>
+                            <i class="far fa-star rating-star" data-rating="3"></i>
+                            <i class="far fa-star rating-star" data-rating="4"></i>
+                            <i class="far fa-star rating-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="feedbackRating" value="0">
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Feedback
+                </button>
+            </form>
+        </div>
+        
+        <div class="user-feedback-container" id="userFeedbackContainer">
+            <!-- User feedback will be loaded here from localStorage -->
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section" id="contact">
+        <h2 class="section-title">Contact Me</h2>
+        
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-title">Phone</div>
+                        <div class="contact-detail">+92 300 7654321</div>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-title">Email</div>
+                        <div class="contact-detail">majid@physicsteacher.com</div>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-title">WhatsApp</div>
+                        <div class="contact-detail">+92 300 7654321</div>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-title">Address</div>
+                        <div class="contact-detail">Block 7, Gulistan-e-Johar, Karachi, Pakistan</div>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-text">
+                        <div class="contact-title">Availability</div>
+                        <div class="contact-detail">Mon-Sat: 10:00 AM - 7:00 PM</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" id="subject" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea id="message" class="form-control" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Sir Majid</div>
+            
+            <div class="footer-links">
+                <a href="#about" class="footer-link">
+                    <i class="fas fa-user"></i>
+                    <span>About</span>
+                </a>
+                <a href="#teachers" class="footer-link">
+                    <i class="fas fa-users"></i>
+                    <span>Other Teachers</span>
+                </a>
+                <a href="#testimonials" class="footer-link">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Testimonials</span>
+                </a>
+                <a href="#contact" class="footer-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+                <a href="#feedback" class="footer-link">
+                    <i class="fas fa-star"></i>
+                    <span>Feedback</span>
+                </a>
+            </div>
+            
+            <div class="social-links">
+                <a href="#" class="social-link">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="social-link">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="social-link">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#" class="social-link">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="#" class="social-link">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="social-link">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+            </div>
+            
+            <div class="copyright">
+                &copy; <span id="currentYear"></span> Sir Majid. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Teacher Data Array
+        const teachers = [
+            {
+                id: 'majid',
+                name: 'Sir Majid',
+                title: 'Physics & Mathematics Specialist',
+                specialty: 'Physics & Math',
+                image: 'https://randomuser.me/api/portraits/men/41.jpg',
+                bio: 'Physics and mathematics educator with 8 years of experience helping students understand complex concepts through practical applications and problem-solving techniques.',
+                experience: '8 years',
+                students: '600+',
+                successRate: '96%',
+                education: 'M.Sc. in Physics & Mathematics, University of Karachi',
+                teachingApproach: 'Problem-solving focused with real-world applications',
+                contact: 'majid@physicsteacher.com',
+                stats: {
+                    yearsExp: 8,
+                    studentsTaught: 600,
+                    successRate: 96
+                },
+                aboutText1: 'With 8 years of dedicated teaching experience, I specialize in making physics and mathematics accessible through problem-solving techniques and real-world applications. My approach focuses on helping students develop analytical thinking skills that go beyond textbook problems.',
+                aboutText2: 'I believe that every student can excel in physics and mathematics when taught with the right methods. My teaching philosophy combines conceptual understanding with practical problem-solving to prepare students for academic success and real-world challenges.',
+                heroTitle: 'Sir Majid',
+                heroSubtitle: 'Physics & Mathematics Educator',
+                heroText: 'Making physics and mathematics accessible through problem-solving focused teaching with real-world applications.'
+            },
+            {
+                id: 'adeel-shamsi',
+                name: 'Syed Mohamed Adeel Shamsi',
+                title: 'Senior Biology Educator',
+                specialty: 'Biology',
+                image: 'https://i.ibb.co/ZRhRgFx3/Screenshot-2024-05-28-19-04-20-53.jpg',
+                bio: 'With over 10 years of experience in teaching biology, I specialize in making complex concepts accessible through innovative teaching methods.',
+                experience: '10+ years',
+                students: '500+',
+                successRate: '98%',
+                education: 'M.Sc. in Biology, University of Karachi',
+                teachingApproach: 'Concept-based learning with practical applications',
+                contact: 'adeelshamsi@biologyteacher.com'
+            },
+            {
+                id: 'shadad',
+                name: 'Sir Shadad',
+                title: 'Mathematics Expert',
+                specialty: 'Mathematics',
+                image: 'https://randomuser.me/api/portraits/men/32.jpg',
+                bio: 'Mathematics educator specializing in calculus, algebra, and geometry.',
+                experience: '7 years',
+                students: '450+',
+                successRate: '95%',
+                education: 'M.Sc. in Mathematics',
+                teachingApproach: 'Step-by-step problem solving',
+                contact: 'shadad@mathteacher.com'
+            },
+            {
+                id: 'shadad-iqbal',
+                name: 'Sir Shadad Iqbal',
+                title: 'Computer Science & Chemistry Expert',
+                specialty: 'CS & Chemistry',
+                image: 'https://randomuser.me/api/portraits/men/45.jpg',
+                bio: 'Expertise in both computer science and chemistry.',
+                experience: '6 years',
+                students: '400+',
+                successRate: '94%',
+                education: 'Ph.D. in Computer Science & Chemistry',
+                teachingApproach: 'Project-based learning',
+                contact: 'shadadiqbal@csteacher.com'
+            },
+            {
+                id: 'monir-shamsi',
+                name: 'Sir Monir Shamsi',
+                title: 'English & Urdu Language Expert',
+                specialty: 'English & Urdu',
+                image: 'https://i.ibb.co/1FmTwz1/Screenshot-2024-11-07-21-53-44-79.jpg',
+                bio: 'Language specialist with expertise in academic writing.',
+                experience: '9 years',
+                students: '550+',
+                successRate: '97%',
+                education: 'MA in English Literature & Urdu',
+                teachingApproach: 'Interactive communication-based learning',
+                contact: 'monirshamsi@languageteacher.com'
+            }
+        ];
+
+        // Testimonials Data
+        const testimonials = [
+            {
+                id: 1,
+                text: "Sir Majid's teaching methods made Physics understandable for the first time. His problem-solving approach and real-world examples helped me score 92% in my final exams after struggling with the subject for years!",
+                urduText: "سر مجید کی تدریسی صلاحیتوں نے طبیعیات کو میرا پسندیدہ مضمون بنا دیا۔ ان کے مسائل حل کرنے کا طریقہ اور حقیقی زندگی کی مثالیں مشکل سے مشکل تصورات کو بھی آسان بنا دیتی ہیں۔",
+                author: {
+                    name: "Ahmed Khan",
+                    title: "Engineering Student",
+                    image: "https://randomuser.me/api/portraits/men/22.jpg"
+                }
+            },
+            {
+                id: 2,
+                name: "Fatima Ali",
+                text: "I was terrified of mathematics before joining sir's classes. His way of breaking down complex problems into simple steps changed everything. Now I'm pursuing a degree in Physics!",
+                urduText: "میں سر کے کلاسز میں شامل ہونے سے پہلے ریاضی سے خوفزدہ تھی۔ پیچیدہ مسائل کو سادہ مراحل میں توڑنے کا ان کا طریقہ سب کچھ بدل دیا۔ اب میں طبیعیات میں ڈگری حاصل کر رہی ہوں!",
+                author: {
+                    name: "Fatima Ali",
+                    title: "Physics Student",
+                    image: "https://randomuser.me/api/portraits/women/33.jpg"
+                }
+            },
+            {
+                id: 3,
+                text: "The way sir connects physics concepts to everyday life is amazing. I never have to memorize formulas now - I understand where they come from and how to apply them.",
+                urduText: "سر کا طریقہ کہ وہ طبیعیاتی تصورات کو روزمرہ زندگی کی مثالوں سے جوڑتے ہیں، حیرت انگیز ہے۔ اب مجھے فارمولے یاد رکھنے کی ضرورت نہیں ہے - میں سمجھتا ہوں کہ وہ کہاں سے آتے ہیں اور انہیں کیسے استعمال کرنا ہے۔",
+                author: {
+                    name: "Bilal Ahmed",
+                    title: "Medical Student",
+                    image: "https://randomuser.me/api/portraits/men/44.jpg"
+                }
+            },
+            {
+                id: 4,
+                text: "Sir's classes transformed my approach to problem-solving. Mathematics went from being my weakest to strongest subject thanks to his clear explanations and systematic approach.",
+                urduText: "سر کے کلاسز نے میرے مسائل حل کرنے کے طریقہ کار کو تبدیل کر دیا۔ ریاضی میرے کمزور ترین سے مضبوط ترین مضمون میں تبدیل ہو گئی ان کی واضح وضاحتوں اور منظم انداز کی بدولت۔",
+                author: {
+                    name: "Sana Javed",
+                    title: "Architecture Student",
+                    image: "https://randomuser.me/api/portraits/women/55.jpg"
+                }
+            }
+        ];
+
+        // Modern JavaScript with ES6+ features
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set current year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+            
+            // Back to top button
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Load Majid's data
+            loadMajidData();
+            
+            // Load teachers
+            loadTeachers();
+            
+            // Load testimonials
+            loadTestimonials();
+            
+            // Check URL for teacher profile
+            checkUrlForTeacherProfile();
+            
+            // Setup contact form
+            setupContactForm();
+            
+            // Setup feedback form and display
+            setupFeedbackSystem();
+            
+            // Setup scroll animations
+            setupScrollAnimations();
+        });
+
+        // Load Majid's data dynamically
+        const loadMajidData = () => {
+            const majid = teachers.find(teacher => teacher.id === 'maid');
+            if (!majid) return;
+
+            // Set hero section data
+            document.getElementById('heroTitle').textContent = majid.heroTitle;
+            document.querySelector('.logo-text').textContent = majid.heroTitle;
+            
+            document.getElementById('heroSubtitle').textContent = majid.heroSubtitle;
+            document.getElementById('heroText').textContent = majid.heroText;
+            
+            // Set about section data
+            document.getElementById('aboutText1').textContent = majid.aboutText1;
+            document.getElementById('aboutText2').textContent = majid.aboutText2;
+            
+            // Set about section stats
+            animateValue(document.getElementById('yearsExp'), 0, majid.stats.yearsExp, 2000);
+            animateValue(document.getElementById('studentsTaught'), 0, majid.stats.studentsTaught, 2000);
+            animateValue(document.getElementById('successRate'), 0, majid.stats.successRate, 2000);
+        };
+
+        // Animate statistics counting
+        const animateValue = (element, start, end, duration) => {
+            let startTime = null;
+            
+            const animation = (currentTime) => {
+                if (!startTime) startTime = currentTime;
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = progress === 1 ? `${value}+` : value;
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(animation);
+                }
+            };
+            
+            window.requestAnimationFrame(animation);
+        };
+
+        // Load testimonials
+        const loadTestimonials = () => {
+            const testimonialsContainer = document.getElementById('testimonialsContainer');
+            
+            testimonials.forEach(testimonial => {
+                const testimonialElement = document.createElement('div');
+                testimonialElement.className = 'testimonial';
+                
+                testimonialElement.innerHTML = `
+                    <p class="testimonial-text">${testimonial.text}</p>
+                    <p class="testimonial-text testimonial-urdu">${testimonial.urduText}</p>
+                    <div class="testimonial-author">
+                        <img src="${testimonial.author.image}" alt="${testimonial.author.name}" class="author-img">
+                        <div class="author-info">
+                            <div class="author-name">${testimonial.author.name}</div>
+                            <div class="author-title">${testimonial.author.title}</div>
+                        </div>
+                    </div>
+                `;
+                
+                testimonialsContainer.appendChild(testimonialElement);
+                
+                // Trigger animation after a short delay
+                setTimeout(() => {
+                    testimonialElement.classList.add('active');
+                }, testimonial.id * 100);
+            });
+        };
+
+        // Load teachers into the teachers container
+        const loadTeachers = () => {
+            const teachersContainer = document.getElementById('teachersContainer');
+            
+            teachers.forEach(teacher => {
+                // Skip Majid from the teachers list since he's the main profile
+                if (teacher.id === 'majid') return;
+                
+                const teacherCard = document.createElement('div');
+                teacherCard.className = 'teacher-card';
+                teacherCard.dataset.id = teacher.id;
+                
+                teacherCard.innerHTML = `
+                    <div class="teacher-img-container">
+                        <img src="${teacher.image}" alt="${teacher.name}" class="teacher-img">
+                        <span class="teacher-specialty">${teacher.specialty}</span>
+                    </div>
+                    <h3 class="teacher-name">${teacher.name}</h3>
+                    <div class="teacher-subject">${teacher.title}</div>
+                    <p class="teacher-bio">${teacher.bio}</p>
+                    <a href="#teacher=${teacher.id}" class="view-profile">View Profile</a>
+                `;
+                
+                teachersContainer.appendChild(teacherCard);
+                
+                // Add click event to teacher card
+                teacherCard.addEventListener('click', () => {
+                    showTeacherProfile(teacher.id);
+                    window.location.hash = `teacher=${teacher.id}`;
+                });
+            });
+        };
+
+        // Show teacher profile
+        const showTeacherProfile = (teacherId) => {
+            const teacher = teachers.find(t => t.id === teacherId);
+            if (!teacher) return;
+            
+            const teacherProfileContent = document.getElementById('teacherProfileContent');
+            
+            teacherProfileContent.innerHTML = `
+                <div class="profile-header">
+                    <img src="${teacher.image}" alt="${teacher.name}" class="profile-picture">
+                    <h2 class="profile-name">${teacher.name}</h2>
+                    <div class="profile-title">${teacher.title}</div>
+                </div>
+                
+                <div class="profile-details">
+                    <div class="profile-about detail-card">
+                        <h3 class="detail-title">About</h3>
+                        <div class="detail-content">${teacher.bio}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3 class="detail-title">Experience</h3>
+                        <div class="detail-content">${teacher.experience} teaching experience</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3 class="detail-title">Students</h3>
+                        <div class="detail-content">${teacher.students} students taught</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3 class="detail-title">Success Rate</h3>
+                        <div class="detail-content">${teacher.successRate} student success rate</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3 class="detail-title">Education</h3>
+                        <div class="detail-content">${teacher.education}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3 class="detail-title">Teaching Approach</h3>
+                        <div class="detail-content">${teacher.teachingApproach}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <h3 class="detail-title">Contact</h3>
+                        <div class="detail-content">Email: ${teacher.contact}</div>
+                    </div>
+                </div>
+            `;
+            
+            // Hide teachers section and show profile
+            document.getElementById('teachers').style.display = 'none';
+            document.getElementById('teacherProfile').style.display = 'block';
+            
+            // Scroll to profile
+            document.getElementById('teacherProfile').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Check URL for teacher profile
+        const checkUrlForTeacherProfile = () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#teacher=')) {
+                const teacherId = hash.split('=')[1];
+                showTeacherProfile(teacherId);
+            } else {
+                // Show teachers section by default
+                document.getElementById('teachers').style.display = 'block';
+                document.getElementById('teacherProfile').style.display = 'none';
+            }
+        };
+
+        // Handle back button for teacher profiles
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#teacher=')) {
+                const teacherId = hash.split('=')[1];
+                showTeacherProfile(teacherId);
+            } else if (hash === '#teachers') {
+                document.getElementById('teachers').style.display = 'block';
+                document.getElementById('teacherProfile').style.display = 'none';
+                document.getElementById('teachers').scrollIntoView({ behavior: 'smooth' });
+            } else if (hash === '') {
+                document.getElementById('teachers').style.display = 'block';
+                document.getElementById('teacherProfile').style.display = 'none';
+            }
+        });
+
+        // Contact form submission
+        const setupContactForm = () => {
+            const contactForm = document.getElementById('contactForm');
+            
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value;
+                
+                // Here you would typically send the data to a server
+                console.log('Contact form submitted:', { name, email, subject, message });
+                
+                // Show success message
+                alert('Your message has been sent successfully! I will get back to you soon.');
+                contactForm.reset();
+            });
+        };
+
+        // Feedback system
+        const setupFeedbackSystem = () => {
+            const feedbackForm = document.getElementById('feedbackForm');
+            const ratingStars = document.querySelectorAll('.rating-star');
+            const feedbackRating = document.getElementById('feedbackRating');
+            const userFeedbackContainer = document.getElementById('userFeedbackContainer');
+            
+            // Rating stars interaction
+            ratingStars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.getAttribute('data-rating'));
+                    feedbackRating.value = rating;
+                    
+                    // Update star display
+                    ratingStars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.remove('far');
+                            s.classList.add('fas', 'active');
+                        } else {
+                            s.classList.remove('fas', 'active');
+                            s.classList.add('far');
+                        }
+                    });
+                });
+            });
+            
+            // Load feedback from localStorage
+            const loadFeedback = () => {
+                const feedbacks = JSON.parse(localStorage.getItem('teacherFeedbacks')) || [];
+                userFeedbackContainer.innerHTML = '';
+                
+                if (feedbacks.length === 0) {
+                    userFeedbackContainer.innerHTML = `
+                        <div class="user-feedback" style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                            <p>No feedback yet. Be the first to share your experience!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Display latest feedbacks first
+                feedbacks.reverse().forEach((feedback, index) => {
+                    const feedbackElement = document.createElement('div');
+                    feedbackElement.className = 'user-feedback';
+                    
+                    // Create stars based on rating
+                    let stars = '';
+                    for (let i = 1; i <= 5; i++) {
+                        if (i <= feedback.rating) {
+                            stars += '<i class="fas fa-star"></i>';
+                        } else {
+                            stars += '<i class="far fa-star"></i>';
+                        }
+                    }
+                    
+                    // Get initials for avatar
+                    const nameParts = feedback.name.split(' ');
+                    const initials = nameParts.map(part => part[0]).join('').toUpperCase();
+                    
+                    feedbackElement.innerHTML = `
+                        <div class="user-rating">${stars}</div>
+                        <p class="user-feedback-text">"${feedback.message}"</p>
+                        <div class="user-info">
+                            <div class="user-avatar">${initials}</div>
+                            <div>
+                                <div class="user-name">${feedback.name}</div>
+                                <div class="feedback-date">${new Date(feedback.date).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    userFeedbackContainer.appendChild(feedbackElement);
+                    
+                    // Trigger animation after a short delay
+                    setTimeout(() => {
+                        feedbackElement.classList.add('active');
+                    }, index * 100);
+                });
+            };
+            
+            // Form submission
+            feedbackForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('feedbackName').value;
+                const email = document.getElementById('feedbackEmail').value;
+                const message = document.getElementById('feedbackMessage').value;
+                const rating = parseInt(feedbackRating.value);
+                
+                if (rating === 0) {
+                    alert('Please provide a rating by clicking on the stars');
+                    return;
+                }
+                
+                // Create feedback object
+                const feedback = {
+                    name,
+                    email,
+                    message,
+                    rating,
+                    date: new Date().toISOString()
+                };
+                
+                // Get existing feedbacks from localStorage
+                let feedbacks = JSON.parse(localStorage.getItem('teacherFeedbacks')) || [];
+                
+                // Add new feedback
+                feedbacks.push(feedback);
+                
+                // Save back to localStorage
+                localStorage.setItem('teacherFeedbacks', JSON.stringify(feedbacks));
+                
+                // Show success message
+                alert('Thank you for your valuable feedback!');
+                
+                // Reset form
+                feedbackForm.reset();
+                ratingStars.forEach(star => {
+                    star.classList.remove('fas', 'active');
+                    star.classList.add('far');
+                });
+                feedbackRating.value = 0;
+                
+                // Reload feedback display
+                loadFeedback();
+            });
+            
+            // Initial load of feedback
+            loadFeedback();
+        };
+
+        // Scroll animations
+        const setupScrollAnimations = () => {
+            const animateElements = document.querySelectorAll('.testimonial, .user-feedback, .teacher-card, .stat-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            animateElements.forEach(element => {
+                observer.observe(element);
+            });
+        };
+    </script>
+</body>
+</html>

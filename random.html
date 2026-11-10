@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dynamic WhatsApp-Style Swipe with Iframes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            width: 100vw;
+            height: 100vh;
+            border: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            touch-action: pan-y;
+        }
+        
+        .button-container {
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .button-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .button-container button {
+            flex: 0 0 auto;
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .button-container button.active {
+            background: #2E7D32;
+            transform: scale(1.05);
+        }
+        
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slides {
+            display: flex;
+            height: 100%;
+            position: relative;
+            transition: transform 0.3s ease-out;
+        }
+        
+        .slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .slide-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <!-- Navigation buttons will be added dynamically -->
+        <div class="button-container" id="buttonContainer"></div>
+        
+        <!-- Swipeable content will be added dynamically -->
+        <div class="slides-container" id="slidesContainer">
+            <div class="slides" id="slides"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration for dynamic tabs
+        const tabConfig = [
+            { id: 'product1', title: 'Product 1' },
+            { id: 'product2', title: 'Product 2' },
+            { id: 'product3', title: 'Product 3' },
+            { id: 'product4', title: 'Product 4' },
+            { id: 'product5', title: 'Product 5' }
+        ];
+
+        const buttonContainer = document.getElementById('buttonContainer');
+        const slidesContainer = document.getElementById('slidesContainer');
+        const slides = document.getElementById('slides');
+        
+        let currentIndex = 0;
+        let startPosX = 0;
+        let startPosY = 0;
+        let currentTranslate = 0;
+        let prevTranslate = 0;
+        let isDragging = false;
+        let isScrolling = false;
+        let animationID;
+        
+        // Initialize the dynamic tabs and slides
+        function initializeTabs() {
+            // Clear existing content
+            buttonContainer.innerHTML = '';
+            slides.innerHTML = '';
+            
+            // Create buttons and slides for each tab
+            tabConfig.forEach((tab, index) => {
+                // Create button
+                const button = document.createElement('button');
+                button.textContent = tab.title;
+                button.addEventListener('click', () => goToSlide(index));
+                if (index === 0) button.classList.add('active');
+                buttonContainer.appendChild(button);
+                
+                // Create slide with iframe
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                
+                const iframe = document.createElement('iframe');
+                iframe.className = 'slide-iframe';
+                iframe.src = `product.html?id=${tab.id}`;
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allowfullscreen', '');
+                
+                slide.appendChild(iframe);
+                slides.appendChild(slide);
+            });
+            
+            // Set initial position
+            setSlidePosition();
+        }
+        
+        // Button navigation
+        function goToSlide(index) {
+            currentIndex = index;
+            setSlidePosition();
+            updateActiveButton();
+        }
+        
+        // Update active button
+        function updateActiveButton() {
+            const buttons = document.querySelectorAll('.button-container button');
+            buttons.forEach((btn, index) => {
+                btn.classList.toggle('active', index === currentIndex);
+            });
+        }
+        
+        // Set slide position with animation
+        function setSlidePosition() {
+            currentTranslate = -currentIndex * slidesContainer.clientWidth;
+            slides.style.transform = `translateX(${currentTranslate}px)`;
+            slides.style.transition = 'transform 0.3s ease-out';
+        }
+        
+        // Touch event handlers
+        slidesContainer.addEventListener('touchstart', touchStart, { passive: true });
+        slidesContainer.addEventListener('touchmove', touchMove, { passive: false });
+        slidesContainer.addEventListener('touchend', touchEnd, { passive: true });
+        
+        // Mouse event handlers for desktop
+        slidesContainer.addEventListener('mousedown', mouseStart);
+        window.addEventListener('mousemove', mouseMove);
+        window.addEventListener('mouseup', mouseEnd);
+        
+        function touchStart(e) {
+            startPosX = e.touches[0].clientX;
+            startPosY = e.touches[0].clientY;
+            prevTranslate = currentTranslate;
+            isDragging = true;
+            isScrolling = false;
+            slides.style.transition = 'none';
+            animationID = requestAnimationFrame(animation);
+        }
+        
+        function mouseStart(e) {
+            startPosX = e.clientX;
+            startPosY = e.clientY;
+            prevTranslate = currentTranslate;
+            isDragging = true;
+            isScrolling = false;
+            slides.style.transition = 'none';
+            animationID = requestAnimationFrame(animation);
+            e.preventDefault(); // Prevent text selection
+        }
+        
+        function touchMove(e) {
+            if (!isDragging) return;
+            
+            const currentPosX = e.touches[0].clientX;
+            const currentPosY = e.touches[0].clientY;
+            handleMove(currentPosX, currentPosY, e);
+        }
+        
+        function mouseMove(e) {
+            if (!isDragging) return;
+            handleMove(e.clientX, e.clientY, e);
+        }
+        
+        function handleMove(currentPosX, currentPosY, event) {
+            const diffX = currentPosX - startPosX;
+            const diffY = currentPosY - startPosY;
+            
+            // Check if user is trying to scroll vertically
+            if (!isScrolling && Math.abs(diffY) > Math.abs(diffX)) {
+                isScrolling = true;
+                isDragging = false;
+                cancelAnimationFrame(animationID);
+                slides.style.transform = `translateX(${prevTranslate}px)`;
+                return;
+            }
+            
+            // Only proceed if this is a horizontal swipe
+            if (isScrolling) return;
+            
+            if (event.cancelable) event.preventDefault();
+            
+            currentTranslate = prevTranslate + diffX;
+            
+            // Prevent overscrolling at boundaries with resistance
+            const maxTranslate = 0;
+            const minTranslate = -(tabConfig.length - 1) * slidesContainer.clientWidth;
+            const resistance = 0.7;
+            
+            if (currentTranslate > maxTranslate) {
+                currentTranslate = maxTranslate + (currentTranslate - maxTranslate) * resistance;
+            } else if (currentTranslate < minTranslate) {
+                currentTranslate = minTranslate + (currentTranslate - minTranslate) * resistance;
+            }
+        }
+        
+        function touchEnd() {
+            handleEnd();
+        }
+        
+        function mouseEnd() {
+            handleEnd();
+        }
+        
+        function handleEnd() {
+            if (!isDragging || isScrolling) {
+                isDragging = false;
+                isScrolling = false;
+                return;
+            }
+            
+            cancelAnimationFrame(animationID);
+            isDragging = false;
+            
+            const movedBy = currentTranslate - prevTranslate;
+            const threshold = slidesContainer.clientWidth * 0.3;
+            
+            // Determine if we should change slides
+            if (movedBy < -threshold && currentIndex < tabConfig.length - 1) {
+                currentIndex++;
+            } else if (movedBy > threshold && currentIndex > 0) {
+                currentIndex--;
+            }
+            
+            setSlidePosition();
+            updateActiveButton();
+        }
+        
+        // Smooth animation during drag
+        function animation() {
+            slides.style.transform = `translateX(${currentTranslate}px)`;
+            animationID = requestAnimationFrame(animation);
+        }
+        
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                setSlidePosition();
+            }, 100);
+        });
+        
+        // Initialize the tabs and slides
+        initializeTabs();
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Box with Local Storage</title>
+</head>
+<body>
+    <h1>Text Box with Local Storage</h1>
+    <input type="text" id="textBox" placeholder="Type something...">
+    <button id="clearButton">Clear Storage</button>
+    <p id="displayId"></p>
+
+    <script>
+        // URL se ID nikalne ke liye function
+        function getIDFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            if (id) {
+                document.getElementById('displayId').innerText = "ID: " + id;
+                return id;
+            } else {
+                document.getElementById('displayId').innerText = "URL mein koi ID nahi mili.";
+                return null;
+            }
+        }
+
+        // Text box ka value local storage mein save karne ke liye function
+        function saveTextToLocalStorage() {
+            const id = getIDFromURL();
+            if (id) {
+                const textBox = document.getElementById('textBox');
+                const key = `${id}`; // Local storage key URL ID ke hisab se
+                textBox.value = localStorage.getItem(key) || ''; // Agar pehle se kuch save hai to load karo
+                textBox.addEventListener('input', () => {
+                    localStorage.setItem(key, textBox.value); // Typing ke sath sath save karo
+                });
+
+                // Clear storage button
+                document.getElementById('clearButton').addEventListener('click', () => {
+                    localStorage.removeItem(key);
+                    textBox.value = '';
+                    alert('Storage cleared for ID: ' + id);
+                });
+            }
+        }
+
+        // Page load hone par function ko call karna
+        window.onload = saveTextToLocalStorage;
+    </script>
+</body>
+</html>

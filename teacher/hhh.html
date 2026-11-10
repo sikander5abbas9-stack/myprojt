@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Faculty Members</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header id="header">
+        <div class="logo-container">
+            <div class="logo-text">Our Faculty</div>
+        </div>
+    </header>
+
+    <section class="teachers-section">
+        <h1 class="section-title">Our Faculty Members</h1>
+        
+        <div class="teachers-container" id="teachersContainer">
+            <!-- Teachers will be loaded dynamically -->
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="copyright">
+                &copy; <span id="currentYear"></span> Our Faculty. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to load JSON data
+        async function loadJSON(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error loading JSON:', error);
+                return null;
+            }
+        }
+
+        // Function to render teachers
+        function renderTeachers(teachersData, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!teachersData || !container) {
+                console.error('Invalid data or container');
+                return;
+            }
+            
+            container.innerHTML = ''; // Clear existing content
+            
+            teachersData.forEach(teacher => {
+                const teacherCard = document.createElement('div');
+                teacherCard.className = 'teacher-card';
+                
+                teacherCard.innerHTML = `
+                    <div class="teacher-img-container">
+                        <img src="${teacher.image}" alt="${teacher.name}" class="teacher-img">
+                        <span class="teacher-specialty">${teacher.specialty}</span>
+                    </div>
+                    <h3 class="teacher-name">${teacher.name}</h3>
+                    <div class="teacher-subject">${teacher.title}</div>
+                    <p class="teacher-bio">${teacher.bio}</p>
+                    <a href="teachers/#${teacher.id}" class="view-profile">View Profile</a>
+                `;
+                
+                container.appendChild(teacherCard);
+            });
+        }
+
+        // Function to set current year in footer
+        function setCurrentYear(elementId) {
+            const yearElement = document.getElementById(elementId);
+            if (yearElement) {
+                yearElement.textContent = new Date().getFullYear();
+            }
+        }
+
+        // Main initialization function
+        async function init() {
+            // Set current year
+            setCurrentYear('currentYear');
+            
+            // Load and render teachers
+            const teachersData = await loadJSON('js/teachers.json');
+            if (teachersData) {
+                renderTeachers(teachersData, 'teachersContainer');
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

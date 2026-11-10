@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot & Save</title>
+    <script src="html2canvas.min.js"></script>  <!-- Offline Library -->
+    <style>
+        #screenshotArea {
+            border: 2px solid black;
+            padding: 10px;
+            display: inline-block;
+            background: white;
+        }
+        #textDisplay {
+            min-width: 200px;
+            min-height: 100px;
+            display: block;
+            white-space: pre-wrap;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter Text</h2>
+
+    <!-- Screenshot Area -->
+    <div id="screenshotArea">
+        <span id="textDisplay">Type something...</span>
+    </div>
+
+    <br><br>
+    <textarea id="textBox" rows="5" cols="30" oninput="updateTextDisplay()"></textarea>
+    <br><br>
+    <button onclick="takeScreenshot()">Take Screenshot & Save</button>
+
+    <script>
+        function updateTextDisplay() {
+            document.getElementById("textDisplay").textContent = document.getElementById("textBox").value;
+        }
+
+        function takeScreenshot() {
+            const element = document.getElementById("screenshotArea");
+
+            html2canvas(element).then(canvas => {
+                const imageData = canvas.toDataURL("image/png");
+                saveImageToApp(imageData);
+            }).catch(error => {
+                console.error("Screenshot Error:", error);
+                alert("Error taking screenshot!");
+            });
+        }
+
+        function saveImageToApp(imageData) {
+            if (window.AndroidFunction) {
+                console.log("Calling Android Function!");
+                window.AndroidFunction.saveScreenshot(imageData);
+            } else {
+                console.error("Android Function Not Found!");
+                alert("Android function not available!");
+            }
+        }
+    </script>
+</body>
+</html>

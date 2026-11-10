@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Video Downloader</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #FF0050;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #e6004a;
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        #video-preview {
+            margin: 20px 0;
+            display: none;
+        }
+        #video-preview video {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        #status {
+            margin: 15px 0;
+            min-height: 20px;
+            color: #666;
+        }
+        .error {
+            color: #ff3333;
+        }
+        .success {
+            color: #00aa00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TikTok Video Downloader</h1>
+        <p>Paste your TikTok video link below:</p>
+        
+        <input type="text" id="tiktokLink" placeholder="https://vm.tiktok.com/ABC123..." />
+        <button id="fetchBtn" onclick="fetchVideo()">Fetch Video</button>
+        
+        <div id="video-preview">
+            <video id="preview-player" controls autoplay muted></video>
+            <br>
+            <button id="downloadBtn" onclick="downloadVideo()" disabled>Download Video</button>
+        </div>
+        
+        <div id="status">Enter a TikTok link to begin</div>
+    </div>
+
+    <script>
+        let videoUrl = "";
+
+        async function fetchVideo() {
+            const link = document.getElementById('tiktokLink').value.trim();
+            const fetchBtn = document.getElementById('fetchBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const statusDiv = document.getElementById('status');
+            const preview = document.getElementById('preview-player');
+            const previewContainer = document.getElementById('video-preview');
+
+            if (!link.includes('tiktok.com')) {
+                statusDiv.innerHTML = '<span class="error">Please enter a valid TikTok URL</span>';
+                return;
+            }
+
+            fetchBtn.disabled = true;
+            fetchBtn.textContent = 'Fetching...';
+            statusDiv.innerHTML = 'Fetching video...';
+
+            try {
+                // API request
+                const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(link)}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.data && data.data.play) {
+                    videoUrl = data.data.play;
+
+                    // Show video preview
+                    preview.src = videoUrl;
+                    previewContainer.style.display = 'block';
+
+                    // **Auto Play fix**
+                    preview.autoplay = true;
+                    preview.muted = false;
+                    preview.load();
+                    preview.play();
+
+                    // Enable download button
+                    downloadBtn.disabled = false;
+                    fetchBtn.textContent = 'Fetch Video';
+                    statusDiv.innerHTML = '<span class="success">Video ready! You can now download.</span>';
+
+                } else {
+                    throw new Error('Video not found');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<span class="error">Error: ${error.message || 'Failed to fetch video'}</span>`;
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        async function downloadVideo() {
+            if (!videoUrl) {
+                alert("No video found! Fetch a video first.");
+                return;
+            }
+
+            try {
+                const statusDiv = document.getElementById('status');
+                const downloadBtn = document.getElementById('downloadBtn');
+
+                downloadBtn.textContent = 'Downloading...';
+                statusDiv.innerHTML = '<span class="success">Downloading video...</span>';
+
+                // Fetch video data as Blob
+                const response = await fetch(videoUrl);
+                const blob = await response.blob();
+
+                // Convert Blob into a downloadable file
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'tiktok_video.mp4';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Clean up memory
+                URL.revokeObjectURL(blobUrl);
+
+                downloadBtn.textContent = 'Download Complete!';
+                setTimeout(() => {
+                    downloadBtn.textContent = 'Download Video';
+                }, 2000);
+                statusDiv.innerHTML = '<span class="success">Download complete!</span>';
+
+            } catch (error) {
+                console.error("Download failed:", error);
+                document.getElementById('status').innerHTML = `<span class="error">Download failed: ${error.message}</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

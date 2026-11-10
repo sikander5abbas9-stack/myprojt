@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+        body {
+            font-family: Helvetica, Sans-Serif;
+            
+        }
+        
+        #product1 {
+            overflow-y: auto;
+            display: flex;
+            text-align: center;
+            justify-content: space-evenly;
+            padding: 14px 0.5%;
+            
+            
+        }
+        .pro-container, .pro-container-two {
+            width: 50%;
+           
+        }
+        #product1 .pro {
+            width: auto;
+            height: auto;
+            border-radius: 12px;
+           background-color: #f5f5f5;
+            transition: 0.2s ease;
+            position: relative;
+            text-align: start;
+            margin: 8% 2%;
+        }
+        #product1 .pro .img {
+            width: 100%;
+            max-height: 270px;
+            
+            object-fit: cover;
+            border-radius: 12px;
+       #FFFFFF     transition: opacity 0.3s ease-in-out;
+        }
+
+       .details {
+         
+         padding: 5px;
+         padding-top: 0;
+       }
+        #product1 .pro h4 {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #313474;
+            width: 25%;
+            padding: 1px;
+            margin-bottom: 1.5px;
+            background-color: #e9e9e9;
+            border-radius: 12px;
+            text-align: center;
+        }
+                #product1 .pro h5 {
+          color: #0d115b;
+          font-size: 16px;
+          font-weight: 650;
+
+        }
+        /* Skeleton Loader Styles */
+        
+        .skeleton {
+            background: linear-gradient(-50deg, #f0f0f0 30%, #e9e9e9 40%, #f0f0f0 75%);
+            background-size: 300% 100%;
+            animation: loading 3.5s infinite;
+            border-radius: 12px;
+            margin: 5px 0;
+        }
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+        .skeleton-image {
+            background: linear-gradient(-50deg, #f0f0f0 30%, #e9e9e9 40%, #f0f0f0 75%);
+            background-size: 300% 100%;
+            animation: loading 3.5s infinite;
+            border-radius: 12px;
+            width: 100%;
+            height: 220px;
+            position: relative;
+        }
+    </style>
+    
+</head>
+<body>
+   
+  
+    
+    <main class="container">
+        <section class="product-div">
+            <div id="product1" class="section-p1">
+                <div class="pro-container"></div>
+                <div class="pro-container-two"></div>
+            </div>
+        </section>
+    </main>
+
+ <!-- Modal for Preview -->
+<div id="preview-modal" style="display: none; position: absolute; top: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; justify-content: center; align-items: center;">
+  <div style=" width: 100%; padding: 20px; position: relative;">
+    <button onclick="closeModal()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 18px;">&times;</button>
+    <img id="modal-image" style="width: 100%; object-fit: cover; border-radius: 12px;" alt="Product Preview">
+    <h4 id="modal-type" style="margin: 10px 0; font-size: 14px; color: #555;"></h4>
+    <h5 id="modal-title" style="margin: 5px 0; font-size: 18px; color: #333; font-weight: bold;"></h5>
+  </div>
+  <br>
+  <br>
+  <br><br><br>
+</div>
+
+    <!-- Firebase App and Firestore SDK -->
+
+    <script src="https://www.gstatic.com/firebasejs/9.x/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x/firebase-database.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyCODU5GVwDHlnb8lyc-w7fcqx25_MS55KA",
+  authDomain: "gzjsvkzhhsjhsb.firebaseapp.com",
+  projectId: "gzjsvkzhhsjhsb",
+  storageBucket: "gzjsvkzhhsjhsb.firebasestorage.app",
+  messagingSenderId: "969885928112",
+  appId: "1:969885928112:web:5121178f1d0c1125ad8975"
+};
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+
+
+
+
+        let containerOne = document.querySelector('.pro-container');
+        let containerTwo = document.querySelector('.pro-container-two');
+        let productsArray = [];
+        let batchSize = 6; // Products per batch
+        let currentBatch = 0;
+
+        // Show skeleton loader
+        function showSkeletonLoader(container) {
+            container.innerHTML = '';
+            for (let i = 0; i < batchSize; i++) {
+                const skeletonDiv = document.createElement('div');
+                skeletonDiv.classList.add('pro');
+
+                const skeletonImage = document.createElement('div');
+                skeletonImage.classList.add('skeleton-image'); // Skeleton for image
+
+                const skeletonDetails = document.createElement('div');
+                skeletonDetails.classList.add('details');
+                skeletonDetails.innerHTML = `
+                    <div class="skeleton skeleton-box" style="height: 10px; width: 35%;"></div>
+                    <div class="skeleton skeleton-box" style="height: 30px; width: 95%; margin: 5px 0;">
+                `;
+
+                skeletonDiv.appendChild(skeletonImage);
+                skeletonDiv.appendChild(skeletonDetails);
+                container.appendChild(skeletonDiv);
+            }
+        }
+
+        // Shuffle function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Load Image with Skeleton
+        // Load Image with Skeleton and Delay
+       function loadImageWithSkeleton(imgElement, imageUrl, delay = 3000) {
+          // Skeleton placeholder
+          const skeletonImage = document.createElement('div');
+          skeletonImage.classList.add('skeleton', 'skeleton-image');
+          imgElement.parentElement.insertBefore(skeletonImage, imgElement);
+        
+          // Preload the image
+          const tempImage = new Image();
+          tempImage.src = imageUrl;
+        
+          // Image loaded
+          tempImage.onload = () => {
+            // Replace skeleton with the actual image
+            imgElement.src = imageUrl;
+            imgElement.style.opacity = 1;
+            skeletonImage.remove(); // Remove skeleton
+          };
+        
+          // Handle loading delay (optional)
+          setTimeout(() => {
+            if (tempImage.complete && tempImage.naturalWidth > 0) {
+              imgElement.src = imageUrl;
+              imgElement.style.opacity = 1;
+              skeletonImage.remove(); // Remove skeleton
+            }
+          }, delay);
+        
+          // Error case
+          tempImage.onerror = () => {
+            skeletonImage.remove(); // Remove skeleton
+            imgElement.alt = "Image failed to load";
+          };
+        }
+
+        // Load products batch
+        async function loadProductsBatch() {
+            if (currentBatch * batchSize >= productsArray.length) return; // No more products
+
+            const startIndex = currentBatch * batchSize;
+            const endIndex = startIndex + batchSize;
+            const batch = productsArray.slice(startIndex, endIndex);
+
+            // Clear skeleton loader
+            if (currentBatch === 0) {
+                containerOne.innerHTML = '';
+                containerTwo.innerHTML = '';
+            }
+
+            batch.forEach((product, index) => {
+                const productElement = createProductElement(product.data, product.id);
+                if ((startIndex + index) % 2 === 0) {
+                    containerOne.appendChild(productElement);
+                } else {
+                    containerTwo.appendChild(productElement);
+                }
+            });
+
+            currentBatch++;
+        }
+
+        // Load all products from Firebase initially
+        async function loadAllProducts() {
+          const productsRef = collection(db, "data");
+          try {
+            const querySnapshot = await getDocs(productsRef);
+            if (!querySnapshot.empty) {
+              querySnapshot.forEach(doc => {
+                const productData = doc.data();
+                const productId = doc.id;
+                productsArray.push({ data: productData, id: productId });
+              });
+        
+              productsArray = shuffleArray(productsArray);
+              loadProductsBatch(); // Pehli batch load karein
+            } else {
+              containerOne.innerHTML = '<p>No products available.</p>';
+            }
+          } catch (error) {
+            console.error("Error loading products from Firestore: ", error);
+          }
+        }
+
+        // Infinite scrolling
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                loadProductsBatch();
+            }
+        });
+
+
+// Create a product element
+function createProductElement(product, productId) {
+  const productDiv = document.createElement('div');
+  productDiv.classList.add('pro');
+  productDiv.innerHTML = `
+        <img class="img" alt=" " style="opacity: 0; transition: opacity 0.3s ease;" onclick="routing('${productId}')">
+        
+        <div class="details">
+            <h4>${product.type}</h4>
+            <h5>${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</h5>
+        </div>
+    `;
+
+  console.log(productId);
+
+  // Select the image element
+  const imgElement = productDiv.querySelector('.img');
+
+  // Load image with skeleton and delay
+  loadImageWithSkeleton(imgElement, product.image, 9000); // 9 seconds delay
+
+  return productDiv;
+}
+
+// Routing function
+window.routing = function(productId) {
+  window.location.href = `product.html?id=${productId}`;
+};
+        // Load initial products with skeleton loader
+        showSkeletonLoader(containerOne);
+showSkeletonLoader(containerTwo);
+loadAllProducts();
+
+       
+     </script>
+     <script type="module" src="index1.js"></script>
+</body>
+</html>
+
+

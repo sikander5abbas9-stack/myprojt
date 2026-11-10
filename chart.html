@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Islamic Studies MCQs - A4 PDF Layout | Sikandar Abbas</title>
+    <!-- html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Fonts for Urdu/Arabic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 12px;
+            font-family: 'Noto Sans Arabic', 'Arial', 'Amiri', sans-serif;
+        }
+
+        /* Toolbar for PDF actions */
+        .toolbar {
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .toolbar button {
+            background: #2d3e5f;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+            font-family: sans-serif;
+        }
+
+        .toolbar button:hover {
+            background: #0f172a;
+            transform: scale(0.97);
+        }
+
+        .info-badge {
+            background: #334155;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pdf-container {
+            background: white;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* A4 Page Style */
+        .a4-page {
+            background: #ffffff;
+            position: relative;
+            page-break-after: always;
+            break-inside: avoid;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            min-height: 1123px; /* A4 proportion */
+        }
+
+        /* Header with logo and author */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #111;
+            padding: 12px 20px 8px 20px;
+            background: white;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .circle-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            background: #f1f5f9;
+        }
+
+        .author-name {
+            font-size: 0.9rem;
+            color: #2c3e4e;
+            font-weight: bold;
+            background: #f8fafc;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .title-tag {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        /* Footer with page number */
+        .page-footer {
+            border-top: 1px solid #333;
+            padding: 8px 20px;
+            margin-top: auto;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            font-size: 11pt;
+            background: white;
+        }
+
+        /* Content area */
+        .page-content {
+            padding: 16px 24px 24px 24px;
+            flex: 1;
+        }
+
+        /* Section title styling */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin: 20px 0 16px 0;
+            background: #f1f5f9;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-family: 'Noto Sans Arabic', 'Amiri', sans-serif;
+            border-right: 6px solid #1e293b;
+        }
+
+        /* Question card style (clean reference layout) */
+        .question-card {
+            margin-bottom: 20px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            page-break-inside: avoid;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .question-id {
+            font-weight: bold;
+            font-size: 16px;
+            background: #eef2ff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .marks-badge {
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c5282;
+            background: #eef2ff;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        /* Options grid - clean layout like reference image */
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+            margin-right: 20px;
+        }
+
+        .option {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f9fafb;
+            padding: 4px 12px;
+            border-radius: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .option-letter {
+            font-weight: 800;
+            color: #1e293b;
+            background: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .correct-answer {
+            background: #dcfce7;
+            border-color: #22c55e;
+            font-weight: 500;
+        }
+
+        .correct-answer .option-letter {
+            background: #22c55e;
+            color: white;
+        }
+
+        hr {
+            margin: 6px 0;
+        }
+
+        @media print {
+            .toolbar {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .a4-page {
+                box-shadow: none;
+                margin: 0;
+                page-break-after: always;
+                min-height: auto;
+            }
+            .question-card {
+                break-inside: avoid;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-content {
+                padding: 12px;
+            }
+            .question-text {
+                font-size: 14px;
+            }
+            .options-grid {
+                flex-direction: column;
+                gap: 6px;
+            }
+            .option {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="toolbar">
+    <div class="info-badge">📄 A4 Portrait | Sikandar Abbas | Islamic MCQs</div>
+    <button id="downloadPdfBtn">📥 Download as PDF</button>
+    <button id="printBtn">🖨️ Print / Save PDF</button>
+</div>
+<div class="pdf-container" id="pdfContainer"></div>
+
+<script>
+// mcqs-data.js
+// Complete Islamic Studies MCQs Database
+// Author: Sikandar Abbas
+// Total Questions: 100+ (including all sections)
+
+const mcqsDatabase = [
+    // ==============================================
+    // SECTION 1: آداب تلاوت (Questions 1-5)
+    // ==============================================
+    {
+        id: 1,
+        text: "تلاوت شروع کرنے سے پہلے پڑھنا چاہیے:",
+        options: ["تسمیہ", "تعوذ", "درود", "حمد"],
+        correctAnswer: "تعوذ",
+        marks: 1,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 2,
+        text: "قرآن مجید کی تلاوت کرنی چاہیے:",
+        options: ["تیزی سے", "تجوید کے ساتھ", "بغیر سمجھے", "صرف بلند آواز میں"],
+        correctAnswer: "تجوید کے ساتھ",
+        marks: 1,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 3,
+        text: "سجدہ تلاوت والی آیت پر سجدہ کرنا ہے:",
+        options: ["نفل", "سنت", "ضروری/واجب", "مستحب"],
+        correctAnswer: "ضروری/واجب",
+        marks: 2,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 4,
+        text: "تدریس قرآن مجید کا بنیادی مقصد ہے:",
+        options: ["معلومات", "کردار سازی", "مقابلہ", "صرف ترجمہ"],
+        correctAnswer: "کردار سازی",
+        marks: 3,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 5,
+        text: "تلاوت کے وقت دل میں ہونی چاہیے:",
+        options: ["دنیا کی فکر", "اللہ کے کلام کی عظمت", "اپنی تعریف", "خوف"],
+        correctAnswer: "اللہ کے کلام کی عظمت",
+        marks: 1,
+        section: "آداب تلاوت"
+    },
+
+    // ==============================================
+    // SECTION 2: سورة مريم (Questions 6-15)
+    // ==============================================
+    {
+        id: 6,
+        text: "سُوْرَةُ مَرْيَمَ میں آیات کی تعداد ہے:",
+        options: ["88", "98", "112", "135"],
+        correctAnswer: "98",
+        marks: 4,
+        section: "سورة مريم"
+    },
+    {
+        id: 7,
+        text: "سُوْرَةُ مَرْيَمَ ہے:",
+        options: ["مکی", "مدنی", "مکی مدنی", "کوفی"],
+        correctAnswer: "مکی",
+        marks: 4,
+        section: "سورة مريم"
+    },
+    {
+        id: 8,
+        text: "حبشہ کے بادشاہ کا لقب تھا:",
+        options: ["قیصر", "نجاشی", "کسریٰ", "فرعون"],
+        correctAnswer: "نجاشی",
+        marks: 5,
+        section: "سورة مريم"
+    },
+    {
+        id: 9,
+        text: "نجاشی کا اصل نام تھا:",
+        options: ["اصحمہ", "ابرہہ", "جعفر", "زید"],
+        correctAnswer: "اصحمہ",
+        marks: 5,
+        section: "سورة مريم"
+    },
+    {
+        id: 10,
+        text: "حبشہ کی طرف پہلی ہجرت نبوت کے کون سے سال ہوئی؟",
+        options: ["تیسرے", "چوتھے", "پانچویں", "چھٹے"],
+        correctAnswer: "پانچویں",
+        marks: 6,
+        section: "سورة مريم"
+    },
+    {
+        id: 11,
+        text: "حبشہ ہجرت کرنے والے قافلے میں کتنے مرد تھے؟",
+        options: ["10", "11", "12", "15"],
+        correctAnswer: "11",
+        marks: 7,
+        section: "سورة مريم"
+    },
+    {
+        id: 12,
+        text: "نجاشی کے دربار میں کس نے تقریر کی؟",
+        options: ["حضرت عثمانؓ", "حضرت جعفر بن ابی طالبؓ", "حضرت علیؓ", "حضرت ابوبکرؓ"],
+        correctAnswer: "حضرت جعفر بن ابی طالبؓ",
+        marks: 6,
+        section: "سورة مريم"
+    },
+    {
+        id: 13,
+        text: "شاہِ حبشہ کے دربار میں کس سورت کی تلاوت کی گئی؟",
+        options: ["طہ", "مریم", "یٰسین", "الحج"],
+        correctAnswer: "مریم",
+        marks: 8,
+        section: "سورة مريم"
+    },
+    {
+        id: 14,
+        text: "سُوْرَةُ مَرْيَمَ کا خلاصہ ہے:",
+        options: ["جہاد", "توحید، رسالت اور آخرت", "وراثت", "نماز"],
+        correctAnswer: "توحید، رسالت اور آخرت",
+        marks: 8,
+        section: "سورة مريم"
+    },
+    {
+        id: 15,
+        text: "معجزانہ طریقے سے پیدائش ہوئی:",
+        options: ["حضرت یحییٰؑ کی", "حضرت عیسیٰؑ کی", "حضرت موسیٰؑ کی", "حضرت ابراہیمؑ کی"],
+        correctAnswer: "حضرت عیسیٰؑ کی",
+        marks: 9,
+        section: "سورة مريم"
+    },
+
+    // ==============================================
+    // SECTION 3: سورة طٰہٰ (Questions 16-25)
+    // ==============================================
+    {
+        id: 16,
+        text: "سُوْرَةُ طٰہٰ میں آیات کی تعداد ہے:",
+        options: ["112", "135", "150", "182"],
+        correctAnswer: "135",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 17,
+        text: "سُوْرَةُ طٰہٰ کا نام رکھا گیا ہے:",
+        options: ["ایک جانور پر", "حروفِ مقطعات پر", "ایک شہر پر", "ایک پہاڑ پر"],
+        correctAnswer: "حروفِ مقطعات پر",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 18,
+        text: "حضرت عمرؓ نے کون سی سورت سن کر اسلام قبول کیا؟",
+        options: ["یٰسین", "طہ", "مریم", "الانبیاء"],
+        correctAnswer: "طہ",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 19,
+        text: "سُوْرَةُ طٰہٰ کے زیادہ تر حصے میں ذکر ہے:",
+        options: ["حضرت عیسیٰؑ کا", "حضرت موسیٰؑ کا", "حضرت نوحؑ کا", "حضرت آدمؑ کا"],
+        correctAnswer: "حضرت موسیٰؑ کا",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 20,
+        text: "حضرت موسیٰؑ کی زندگی کے کتنے مراحل سورہ طہ میں بیان ہوئے؟",
+        options: ["دو", "تین", "چار", "پانچ"],
+        correctAnswer: "تین",
+        marks: 11,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 21,
+        text: "\"رَبِّ زِدْنِي عِلْمًا\" کس سورت کی دعا ہے؟",
+        options: ["مریم", "طہ", "فرقان", "نمل"],
+        correctAnswer: "طہ",
+        marks: 12,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 22,
+        text: "اللہ تعالیٰ نے حضرت موسیٰؑ کو کس وادی میں جوتے اتارنے کا حکم دیا؟",
+        options: ["طوٰی", "نجد", "حطیم", "فاران"],
+        correctAnswer: "طوٰی",
+        marks: 13,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 23,
+        text: "حضرت موسیٰؑ کا عصا بن گیا تھا:",
+        options: ["شیر", "سانپ", "رسی", "پرندہ"],
+        correctAnswer: "سانپ",
+        marks: 14,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 24,
+        text: "حق کا انکار کرنے والوں کے معاملے میں کرنا چاہیے:",
+        options: ["جلد بازی", "صبر و تحمل", "لڑائی", "خاموشی"],
+        correctAnswer: "صبر و تحمل",
+        marks: 15,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 25,
+        text: "اللہ تعالیٰ نے انسان میں فطرت رکھی ہے:",
+        options: ["شرم و حیا کی", "غصے کی", "لالچ کی", "تکبر کی"],
+        correctAnswer: "شرم و حیا کی",
+        marks: 15,
+        section: "سورة طٰہٰ"
+    },
+
+    // ==============================================
+    // SECTION 4: سورة الانبياء (Questions 26-35)
+    // ==============================================
+    {
+        id: 26,
+        text: "سُوْرَةُ الْأَنْبِيَاءِ میں آیات کی تعداد ہے:",
+        options: ["100", "112", "120", "130"],
+        correctAnswer: "112",
+        marks: 16,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 27,
+        text: "سُوْرَةُ الْأَنْبِيَاءِ کو قرار دیا گیا ہے:",
+        options: ["قیمتی اثاثہ", "نور", "نصیحت", "شفا"],
+        correctAnswer: "قیمتی اثاثہ",
+        marks: 17,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 28,
+        text: "تمام جہانوں کے لیے رحمت بنا کر بھیجا گیا:",
+        options: ["حضرت موسیٰؑ کو", "حضرت محمد رسول اللہ ﷺ کو", "حضرت عیسیٰؑ کو", "حضرت نوحؑ کو"],
+        correctAnswer: "حضرت محمد رسول اللہ ﷺ کو",
+        marks: 18,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 29,
+        text: "کائنات میں ایک سے زیادہ خدا ہوتے تو کیا ہوتا؟",
+        options: ["ترقی", "فساد برپا ہوتا", "امن", "کچھ نہ ہوتا"],
+        correctAnswer: "فساد برپا ہوتا",
+        marks: 19,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 30,
+        text: "حضرت ابراہیمؑ کا لقب ہے:",
+        options: ["روح اللہ", "خلیل اللہ", "کلیم اللہ", "ابوالبشر"],
+        correctAnswer: "خلیل اللہ",
+        marks: 20,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 31,
+        text: "حضرت آدمؑ کا لقب ہے:",
+        options: ["ذبیح اللہ", "ابوالبشر", "صفی اللہ", "خلیل اللہ"],
+        correctAnswer: "ابوالبشر",
+        marks: 20,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 32,
+        text: "حضرت موسیٰؑ کا لقب ہے:",
+        options: ["کلیم اللہ", "روح اللہ", "خلیل اللہ", "حبیب اللہ"],
+        correctAnswer: "کلیم اللہ",
+        marks: 20,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 33,
+        text: "مچھلی والے نبی کا نام ہے:",
+        options: ["حضرت لوطؑ", "حضرت یونسؑ", "حضرت ادریسؑ", "حضرت داؤدؑ"],
+        correctAnswer: "حضرت یونسؑ",
+        marks: 21,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 34,
+        text: "\"لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ\" کس کی دعا ہے؟",
+        options: ["حضرت ابراہیمؑ", "حضرت یونسؑ", "حضرت موسیٰؑ", "حضرت عیسیٰؑ"],
+        correctAnswer: "حضرت یونسؑ",
+        marks: 22,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 35,
+        text: "رائی کے دانے کے برابر عمل کا حساب ہوگا:",
+        options: ["قبر میں", "قیامت کے دن", "دنیا میں", "کبھی نہیں"],
+        correctAnswer: "قیامت کے دن",
+        marks: 23,
+        section: "سورة الانبياء"
+    },
+
+    // ==============================================
+    // SECTION 5: سورة الحج (Questions 36-45)
+    // ==============================================
+    {
+        id: 36,
+        text: "سُوْرَةُ الْحَجِّ میں آیات کی تعداد ہے:",
+        options: ["60", "78", "90", "100"],
+        correctAnswer: "78",
+        marks: 24,
+        section: "سورة الحج"
+    },
+    {
+        id: 37,
+        text: "سُوْرَةُ الْحَجِّ ہے:",
+        options: ["مکی", "مدنی", "مکی مدنی", "صرف کوفی"],
+        correctAnswer: "مکی مدنی",
+        marks: 24,
+        section: "سورة الحج"
+    },
+    {
+        id: 38,
+        text: "پہلی مرتبہ جہاد کی اجازت دی گئی:",
+        options: ["سورہ بقرہ میں", "سورہ حج میں", "سورہ طہ میں", "سورہ مریم میں"],
+        correctAnswer: "سورہ حج میں",
+        marks: 25,
+        section: "سورة الحج"
+    },
+    {
+        id: 39,
+        text: "سُوْرَةُ الْحَجِّ میں کس نبی کے دور میں حج کے آغاز کا ذکر ہے؟",
+        options: ["حضرت آدمؑ", "حضرت ابراہیمؑ", "حضرت اسماعیلؑ", "حضرت محمد ﷺ"],
+        correctAnswer: "حضرت ابراہیمؑ",
+        marks: 24,
+        section: "سورة الحج"
+    },
+    {
+        id: 40,
+        text: "مشرکین کے خلاف جہاد کی اجازت مسلمانوں کے لیے تھی:",
+        options: ["بوجھ", "خوشخبری", "آزمائش", "سزا"],
+        correctAnswer: "خوشخبری",
+        marks: 25,
+        section: "سورة الحج"
+    },
+    {
+        id: 41,
+        text: "سُوْرَةُ الْحَجِّ کے شروع میں ذکر ہے:",
+        options: ["قیامت کے زلزلے کا", "بارش کا", "ہجرت کا", "نماز کا"],
+        correctAnswer: "قیامت کے زلزلے کا",
+        marks: 26,
+        section: "سورة الحج"
+    },
+    {
+        id: 42,
+        text: "خانہ کعبہ کا طواف حج کا ہے:",
+        options: ["نفل", "اہم رکن", "مستحب", "عام کام"],
+        correctAnswer: "اہم رکن",
+        marks: 27,
+        section: "سورة الحج"
+    },
+    {
+        id: 43,
+        text: "اللہ تعالیٰ کے نزدیک قربانی کا پہنچتا ہے:",
+        options: ["گوشت", "خون", "تقویٰ", "ہڈیاں"],
+        correctAnswer: "تقویٰ",
+        marks: 28,
+        section: "سورة الحج"
+    },
+    {
+        id: 44,
+        text: "اللہ کے نزدیک ایک دن کتنے سال کے برابر ہے؟",
+        options: ["100", "500", "1000", "50000"],
+        correctAnswer: "1000",
+        marks: 29,
+        section: "سورة الحج"
+    },
+    {
+        id: 45,
+        text: "منافقین اللہ کی عبادت کرتے ہیں:",
+        options: ["دل سے", "کنارے پر رہ کر", "اخلاص سے", "کبھی نہیں"],
+        correctAnswer: "کنارے پر رہ کر",
+        marks: 27,
+        section: "سورة الحج"
+    },
+
+    // ==============================================
+    // SECTION 6: سورة الفرقان (Questions 46-55)
+    // ==============================================
+    {
+        id: 46,
+        text: "فرقان کا معنی ہے:",
+        options: ["حق و باطل میں فیصلہ کرنے والا", "نور", "کتاب", "نصیحت"],
+        correctAnswer: "حق و باطل میں فیصلہ کرنے والا",
+        marks: 30,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 47,
+        text: "سُوْرَةُ الْفُرْقَانِ ہے:",
+        options: ["مکی", "مدنی", "دونوں", "کوئی نہیں"],
+        correctAnswer: "مکی",
+        marks: 30,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 48,
+        text: "سُوْرَةُ الْفُرْقَانِ کے آخر میں صفات بیان ہوئی ہیں:",
+        options: ["فرشتوں کی", "رحمان کے بندوں کی", "جادوگروں کی", "کافروں کی"],
+        correctAnswer: "رحمان کے بندوں کی",
+        marks: 31,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 49,
+        text: "رحمان کے بندے زمین پر چلتے ہیں:",
+        options: ["اکڑ کر", "عاجزی سے", "تیزی سے", "دوڑ کر"],
+        correctAnswer: "عاجزی سے",
+        marks: 31,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 50,
+        text: "اللہ تعالیٰ کے نزدیک مقام ملتا ہے:",
+        options: ["خاندان سے", "اچھے کردار سے", "مال سے", "رنگ سے"],
+        correctAnswer: "اچھے کردار سے",
+        marks: 32,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 51,
+        text: "مال خرچ کرنے میں اپنانی چاہیے:",
+        options: ["کنجوسی", "فضول خرچی", "میانہ روی", "سختی"],
+        correctAnswer: "میانہ روی",
+        marks: 31,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 52,
+        text: "قرآن مجید نازل کیا گیا ہے:",
+        options: ["عربوں کے لیے", "تمام جہانوں کے لیے", "صرف مسلمانوں کے لیے", "بوڑھوں کے لیے"],
+        correctAnswer: "تمام جہانوں کے لیے",
+        marks: 33,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 53,
+        text: "برے لوگوں کو دوست بنانے والے پچھتائیں گے:",
+        options: ["کل", "قیامت کے دن", "قبر میں", "کبھی نہیں"],
+        correctAnswer: "قیامت کے دن",
+        marks: 32,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 54,
+        text: "اللہ تعالیٰ برائیوں کو نیکیوں میں بدل دیتا ہے:",
+        options: ["نماز سے", "توبہ اور نیک عمل سے", "صدقہ سے", "رونے سے"],
+        correctAnswer: "توبہ اور نیک عمل سے",
+        marks: 34,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 55,
+        text: "جھوٹی گواہی نہ دینا صفت ہے:",
+        options: ["تاجروں کی", "رحمان کے بندوں کی", "دشمنوں کی", "کسی کی نہیں"],
+        correctAnswer: "رحمان کے بندوں کی",
+        marks: 34,
+        section: "سورة الفرقان"
+    },
+
+    // ==============================================
+    // SECTION 7: سورة الشعراء (Questions 56-60)
+    // ==============================================
+    {
+        id: 56,
+        text: "سُوْرَةُ الشُّعَرَاءِ آیات کے لحاظ سے طویل ترین سورت ہے:",
+        options: ["مدنی", "مکی", "مجموعی", "اخری"],
+        correctAnswer: "مکی",
+        marks: 35,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 57,
+        text: "سُوْرَةُ الشُّعَرَاءِ میں آیات کی تعداد ہے:",
+        options: ["182", "227", "286", "112"],
+        correctAnswer: "227",
+        marks: 35,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 58,
+        text: "سُوْرَةُ الشُّعَرَاءِ کے آخر میں نشانیاں بیان ہوئی ہیں:",
+        options: ["شاعروں کی", "ستاروں کی", "پرندوں کی", "بادلوں کی"],
+        correctAnswer: "شاعروں کی",
+        marks: 35,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 59,
+        text: "قرآن مجید کس زبان میں نازل ہوا؟",
+        options: ["فارسی", "عربی", "اردو", "عبرانی"],
+        correctAnswer: "عربی",
+        marks: 36,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 60,
+        text: "شیطان کن لوگوں پر اترتا ہے؟",
+        options: ["جھوٹے گناہ گاروں پر", "شاعروں پر", "سب پر", "جانوروں پر"],
+        correctAnswer: "جھوٹے گناہ گاروں پر",
+        marks: 37,
+        section: "سورة الشعراء"
+    },
+
+    // ==============================================
+    // SECTION 8: سورة النمل (Questions 61-65)
+    // ==============================================
+    {
+        id: 61,
+        text: "نمل کا معنی ہے:",
+        options: ["مکڑی", "چیونٹی", "شہد کی مکھی", "ہدہد"],
+        correctAnswer: "چیونٹی",
+        marks: 38,
+        section: "سورة النمل"
+    },
+    {
+        id: 62,
+        text: "سُوْرَةُ النَّمْلِ میں سب سے تفصیلی تذکرہ ہے:",
+        options: ["حضرت موسیٰؑ کا", "حضرت سلیمانؑ کا", "حضرت لوطؑ کا", "حضرت صالحؑ کا"],
+        correctAnswer: "حضرت سلیمانؑ کا",
+        marks: 39,
+        section: "سورة النمل"
+    },
+    {
+        id: 63,
+        text: "حضرت سلیمانؑ کس کے بیٹے تھے؟",
+        options: ["حضرت موسیٰؑ", "حضرت داؤدؑ", "حضرت عیسیٰؑ", "حضرت ابراہیمؑ"],
+        correctAnswer: "حضرت داؤدؑ",
+        marks: 39,
+        section: "سورة النمل"
+    },
+    {
+        id: 64,
+        text: "حضرت سلیمانؑ کو سکھائی گئی تھی:",
+        options: ["پرندوں کی بولی", "جادوگری", "طب", "شاعری"],
+        correctAnswer: "پرندوں کی بولی",
+        marks: 40,
+        section: "سورة النمل"
+    },
+    {
+        id: 65,
+        text: "سبا سے یقینی خبر لایا تھا:",
+        options: ["کوا", "ہدہد", "کبوتر", "عقاب"],
+        correctAnswer: "ہدہد",
+        marks: 41,
+        section: "سورة النمل"
+    },
+
+    // ==============================================
+    // SECTION 9: سورة القصص (Questions 66-70)
+    // ==============================================
+    {
+        id: 66,
+        text: "سُوْرَةُ الْقَصَصِ مکہ میں نازل ہونے والی سورت ہے:",
+        options: ["پہلی", "آخری", "دوسری", "درمیانی"],
+        correctAnswer: "آخری",
+        marks: 42,
+        section: "سورة القصص"
+    },
+    {
+        id: 67,
+        text: "قارون کا تعلق کس قوم سے تھا؟",
+        options: ["بنی اسرائیل", "عاد", "ثمود", "قریش"],
+        correctAnswer: "بنی اسرائیل",
+        marks: 43,
+        section: "سورة القصص"
+    },
+    {
+        id: 68,
+        text: "قارون اپنے مال و دولت کو نتیجہ قرار دیتا تھا:",
+        options: ["اللہ کے فضل کا", "اپنی محنت اور علم کا", "وراثت کا", "قسمت کا"],
+        correctAnswer: "اپنی محنت اور علم کا",
+        marks: 43,
+        section: "سورة القصص"
+    },
+    {
+        id: 69,
+        text: "حضرت موسیٰؑ کی سیرت طیبہ مشابہ ہے:",
+        options: ["حضرت عیسیٰؑ سے", "حضرت محمد ﷺ سے", "حضرت یوسفؑ سے", "حضرت داؤدؑ سے"],
+        correctAnswer: "حضرت محمد ﷺ سے",
+        marks: 44,
+        section: "سورة القصص"
+    },
+    {
+        id: 70,
+        text: "بہترین ملازم وہ ہے جو ہو:",
+        options: ["خوبصورت", "طاقتور اور امانت دار", "مالدار", "بوڑھا"],
+        correctAnswer: "طاقتور اور امانت دار",
+        marks: 45,
+        section: "سورة القصص"
+    },
+
+    // ==============================================
+    // SECTION 10: سورة العنكبوت (Questions 71-75)
+    // ==============================================
+    {
+        id: 71,
+        text: "عنکبوت کا معنی ہے:",
+        options: ["مکڑی", "مچھر", "مکھی", "بھڑ"],
+        correctAnswer: "مکڑی",
+        marks: 46,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 72,
+        text: "مشرک کی مثال دی گئی ہے جس نے بھروسہ کیا:",
+        options: ["دیوار پر", "مکڑی کے جالے پر", "رسی پر", "درخت پر"],
+        correctAnswer: "مکڑی کے جالے پر",
+        marks: 47,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 73,
+        text: "حضرت نوحؑ نے اپنی قوم کو کتنے سال تبلیغ کی؟",
+        options: ["500", "950", "1000", "40"],
+        correctAnswer: "950",
+        marks: 48,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 74,
+        text: "اللہ تعالیٰ کے نزدیک ہجرت کرنا ہے:",
+        options: ["بوجھ", "بڑی نیکی", "گناہ", "عام کام"],
+        correctAnswer: "بڑی نیکی",
+        marks: 49,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 75,
+        text: "تمام مخلوقات کا رازق ہے:",
+        options: ["کسان", "بادشاہ", "اللہ تعالیٰ", "بادل"],
+        correctAnswer: "اللہ تعالیٰ",
+        marks: 49,
+        section: "سورة العنكبوت"
+    },
+
+    // ==============================================
+    // SECTION 11: سورة الروم (Questions 76-80)
+    // ==============================================
+    {
+        id: 76,
+        text: "سُوْرَةُ الرُّومِ میں رومیوں کے غالب آنے کی پیشین گوئی کی گئی:",
+        options: ["ایرانیوں پر", "عربوں پر", "یونانیوں پر", "رومیوں پر"],
+        correctAnswer: "عربوں پر",
+        marks: 50,
+        section: "سورة الروم"
+    },
+    {
+        id: 77,
+        text: "جس دن رومیوں کو فتح ہوئی اسی دن مسلمانوں کو فتح ہوئی:",
+        options: ["احد میں", "بدر میں", "خندق میں", "مکہ میں"],
+        correctAnswer: "بدر میں",
+        marks: 51,
+        section: "سورة الروم"
+  
+    // ============================================================
+    // USING EXISTING mcqsDatabase ARRAY (from external file or inline)
+    // We assume mcqsDatabase is already loaded globally.
+    // If not, define fallback (but your existing code provides it).
+    // ============================================================
+    
+    // Helper: group mcqs by section
+    function groupBySection(mcqs) {
+        const sections = {};
+        mcqs.forEach(mcq => {
+            const sectionName = mcq.section || "General Questions";
+            if (!sections[sectionName]) sections[sectionName] = [];
+            sections[sectionName].push(mcq);
+        });
+        return sections;
+    }
+
+    // Format options with correct answer highlight (matching reference layout)
+    function formatOptions(mcq) {
+        if (!mcq.options || mcq.options.length === 0) return "";
+        const optionLabels = ['الف', 'ب', 'ج', 'د'];
+        let optionsHtml = '<div class="options-grid">';
+        mcq.options.forEach((opt, idx) => {
+            const isCorrect = (opt === mcq.correctAnswer);
+            const correctClass = isCorrect ? 'correct-answer' : '';
+            optionsHtml += `
+                <div class="option ${correctClass}">
+                    <span class="option-letter">${optionLabels[idx]}</span>
+                    <span>${opt}</span>
+                </div>
+            `;
+        });
+        optionsHtml += '</div>';
+        return optionsHtml;
+    }
+
+    // Pagination logic: each page gets max 12-15 questions + section headers
+    function generatePages(sectionsObj) {
+        const pages = [];
+        let currentPage = { elements: [], itemCount: 0 };
+        const MAX_ITEMS_PER_PAGE = 13; // comfortable for A4
+
+        for (const [sectionName, questions] of Object.entries(sectionsObj)) {
+            const sectionHeader = { type: 'section', title: sectionName, isHeader: true };
+            
+            // if adding section would exceed limit, push new page
+            if (currentPage.itemCount > 0 && currentPage.itemCount + 1 > MAX_ITEMS_PER_PAGE) {
+                pages.push({ ...currentPage });
+                currentPage = { elements: [], itemCount: 0 };
+            }
+            currentPage.elements.push(sectionHeader);
+            currentPage.itemCount += 1;
+
+            for (const q of questions) {
+                if (currentPage.itemCount >= MAX_ITEMS_PER_PAGE) {
+                    pages.push({ ...currentPage });
+                    currentPage = { elements: [], itemCount: 0 };
+                    // re-add section header on new page for continuity
+                    currentPage.elements.push(sectionHeader);
+                    currentPage.itemCount = 1;
+                }
+                currentPage.elements.push({ type: 'question', data: q });
+                currentPage.itemCount += 1;
+            }
+        }
+        if (currentPage.elements.length > 0) pages.push(currentPage);
+        return pages;
+    }
+
+    // Render a single A4 page with top bar & footer
+    function renderPage(pageData, pageNum, totalPages) {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'a4-page';
+        
+        // Header with icon and author
+        const header = document.createElement('div');
+        header.className = 'page-header';
+        header.innerHTML = `
+            <div class="logo-area">
+                <img class="circle-icon" src="https://mylife63.vercel.app/IMG_20260422_214838_34.jpg" alt="icon" onerror="this.style.display='none'">
+                <span class="author-name">Sikandar abbas</span>
+            </div>
+            <div class="title-tag">📖 قرآن مجید - معروضی سوالات (MCQs)</div>
+        `;
+        
+        // Content area
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'page-content';
+        let contentHtml = '';
+        
+        for (const element of pageData.elements) {
+            if (element.type === 'section') {
+                contentHtml += `<div class="section-title" lang="urdu">✨ ${element.title} ✨</div>`;
+            } else if (element.type === 'question') {
+                const q = element.data;
+                contentHtml += `
+                    <div class="question-card">
+                        <div class="question-header">
+                            <span class="question-id">${q.id}</span>
+                            <span class="question-text">${q.text}</span>
+                            <span class="marks-badge">[${q.marks} Marks]</span>
+                        </div>
+                        ${formatOptions(q)}
+                    </div>
+                `;
+            }
+        }
+        
+        if (contentHtml === '') contentHtml = '<p style="text-align:center; padding:40px;">Loading questions...</p>';
+        contentDiv.innerHTML = contentHtml;
+        
+        // Footer with page number
+        const footer = document.createElement('div');
+        footer.className = 'page-footer';
+        footer.innerText = `صفحہ ${pageNum} / ${totalPages}  |  Islamic Studies - A4 Presentation`;
+        
+        pageDiv.appendChild(header);
+        pageDiv.appendChild(contentDiv);
+        pageDiv.appendChild(footer);
+        return pageDiv;
+    }
+
+    // Main render function using global mcqsDatabase
+    function renderAllPages() {
+        if (!window.mcqsDatabase || window.mcqsDatabase.length === 0) {
+            const container = document.getElementById('pdfContainer');
+            container.innerHTML = '<div style="padding:40px;text-align:center;color:red;">Error: mcqsDatabase not found. Make sure mcqs-data.js is loaded before this script.</div>';
+            return;
+        }
+        
+        const grouped = groupBySection(window.mcqsDatabase);
+        const pagesStructure = generatePages(grouped);
+        const container = document.getElementById('pdfContainer');
+        container.innerHTML = '';
+        
+        for (let i = 0; i < pagesStructure.length; i++) {
+            const pageElem = renderPage(pagesStructure[i], i + 1, pagesStructure.length);
+            container.appendChild(pageElem);
+        }
+    }
+    
+    // PDF download handler
+    function downloadPDF() {
+        const element = document.getElementById('pdfContainer');
+        const opt = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: 'Islamic_Studies_MCQs_Sikandar_Abbas.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, letterRendering: true, useCORS: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+    
+    // Event listeners
+    document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+    document.getElementById('printBtn').addEventListener('click', () => window.print());
+    
+    // Wait for DOM and then render
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            // small delay to ensure mcqsDatabase from external script is populated
+            setTimeout(renderAllPages, 100);
+        });
+    } else {
+        setTimeout(renderAllPages, 100);
+    }
+    
+    // Additional print style refinement
+    const style = document.createElement('style');
+    style.textContent = `@media print { .a4-page { page-break-after: always; margin:0; } .toolbar { display: none; } body { margin:0; padding:0; background:white; } }`;
+    document.head.appendChild(style);
+</script>
+<script>
+    // mcqs-data.js
+// Complete Islamic Studies MCQs Database
+// Author: Sikandar Abbas
+// Total Questions: 100+ (including all sections)
+
+const mcqsDatabase = [
+    // ==============================================
+    // SECTION 1: آداب تلاوت (Questions 1-5)
+    // ==============================================
+    {
+        id: 1,
+        text: "تلاوت شروع کرنے سے پہلے پڑھنا چاہیے:",
+        options: ["تسمیہ", "تعوذ", "درود", "حمد"],
+        correctAnswer: "تعوذ",
+        marks: 1,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 2,
+        text: "قرآن مجید کی تلاوت کرنی چاہیے:",
+        options: ["تیزی سے", "تجوید کے ساتھ", "بغیر سمجھے", "صرف بلند آواز میں"],
+        correctAnswer: "تجوید کے ساتھ",
+        marks: 1,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 3,
+        text: "سجدہ تلاوت والی آیت پر سجدہ کرنا ہے:",
+        options: ["نفل", "سنت", "ضروری/واجب", "مستحب"],
+        correctAnswer: "ضروری/واجب",
+        marks: 2,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 4,
+        text: "تدریس قرآن مجید کا بنیادی مقصد ہے:",
+        options: ["معلومات", "کردار سازی", "مقابلہ", "صرف ترجمہ"],
+        correctAnswer: "کردار سازی",
+        marks: 3,
+        section: "آداب تلاوت"
+    },
+    {
+        id: 5,
+        text: "تلاوت کے وقت دل میں ہونی چاہیے:",
+        options: ["دنیا کی فکر", "اللہ کے کلام کی عظمت", "اپنی تعریف", "خوف"],
+        correctAnswer: "اللہ کے کلام کی عظمت",
+        marks: 1,
+        section: "آداب تلاوت"
+    },
+
+    // ==============================================
+    // SECTION 2: سورة مريم (Questions 6-15)
+    // ==============================================
+    {
+        id: 6,
+        text: "سُوْرَةُ مَرْيَمَ میں آیات کی تعداد ہے:",
+        options: ["88", "98", "112", "135"],
+        correctAnswer: "98",
+        marks: 4,
+        section: "سورة مريم"
+    },
+    {
+        id: 7,
+        text: "سُوْرَةُ مَرْيَمَ ہے:",
+        options: ["مکی", "مدنی", "مکی مدنی", "کوفی"],
+        correctAnswer: "مکی",
+        marks: 4,
+        section: "سورة مريم"
+    },
+    {
+        id: 8,
+        text: "حبشہ کے بادشاہ کا لقب تھا:",
+        options: ["قیصر", "نجاشی", "کسریٰ", "فرعون"],
+        correctAnswer: "نجاشی",
+        marks: 5,
+        section: "سورة مريم"
+    },
+    {
+        id: 9,
+        text: "نجاشی کا اصل نام تھا:",
+        options: ["اصحمہ", "ابرہہ", "جعفر", "زید"],
+        correctAnswer: "اصحمہ",
+        marks: 5,
+        section: "سورة مريم"
+    },
+    {
+        id: 10,
+        text: "حبشہ کی طرف پہلی ہجرت نبوت کے کون سے سال ہوئی؟",
+        options: ["تیسرے", "چوتھے", "پانچویں", "چھٹے"],
+        correctAnswer: "پانچویں",
+        marks: 6,
+        section: "سورة مريم"
+    },
+    {
+        id: 11,
+        text: "حبشہ ہجرت کرنے والے قافلے میں کتنے مرد تھے؟",
+        options: ["10", "11", "12", "15"],
+        correctAnswer: "11",
+        marks: 7,
+        section: "سورة مريم"
+    },
+    {
+        id: 12,
+        text: "نجاشی کے دربار میں کس نے تقریر کی؟",
+        options: ["حضرت عثمانؓ", "حضرت جعفر بن ابی طالبؓ", "حضرت علیؓ", "حضرت ابوبکرؓ"],
+        correctAnswer: "حضرت جعفر بن ابی طالبؓ",
+        marks: 6,
+        section: "سورة مريم"
+    },
+    {
+        id: 13,
+        text: "شاہِ حبشہ کے دربار میں کس سورت کی تلاوت کی گئی؟",
+        options: ["طہ", "مریم", "یٰسین", "الحج"],
+        correctAnswer: "مریم",
+        marks: 8,
+        section: "سورة مريم"
+    },
+    {
+        id: 14,
+        text: "سُوْرَةُ مَرْيَمَ کا خلاصہ ہے:",
+        options: ["جہاد", "توحید، رسالت اور آخرت", "وراثت", "نماز"],
+        correctAnswer: "توحید، رسالت اور آخرت",
+        marks: 8,
+        section: "سورة مريم"
+    },
+    {
+        id: 15,
+        text: "معجزانہ طریقے سے پیدائش ہوئی:",
+        options: ["حضرت یحییٰؑ کی", "حضرت عیسیٰؑ کی", "حضرت موسیٰؑ کی", "حضرت ابراہیمؑ کی"],
+        correctAnswer: "حضرت عیسیٰؑ کی",
+        marks: 9,
+        section: "سورة مريم"
+    },
+
+    // ==============================================
+    // SECTION 3: سورة طٰہٰ (Questions 16-25)
+    // ==============================================
+    {
+        id: 16,
+        text: "سُوْرَةُ طٰہٰ میں آیات کی تعداد ہے:",
+        options: ["112", "135", "150", "182"],
+        correctAnswer: "135",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 17,
+        text: "سُوْرَةُ طٰہٰ کا نام رکھا گیا ہے:",
+        options: ["ایک جانور پر", "حروفِ مقطعات پر", "ایک شہر پر", "ایک پہاڑ پر"],
+        correctAnswer: "حروفِ مقطعات پر",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 18,
+        text: "حضرت عمرؓ نے کون سی سورت سن کر اسلام قبول کیا؟",
+        options: ["یٰسین", "طہ", "مریم", "الانبیاء"],
+        correctAnswer: "طہ",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 19,
+        text: "سُوْرَةُ طٰہٰ کے زیادہ تر حصے میں ذکر ہے:",
+        options: ["حضرت عیسیٰؑ کا", "حضرت موسیٰؑ کا", "حضرت نوحؑ کا", "حضرت آدمؑ کا"],
+        correctAnswer: "حضرت موسیٰؑ کا",
+        marks: 10,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 20,
+        text: "حضرت موسیٰؑ کی زندگی کے کتنے مراحل سورہ طہ میں بیان ہوئے؟",
+        options: ["دو", "تین", "چار", "پانچ"],
+        correctAnswer: "تین",
+        marks: 11,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 21,
+        text: "\"رَبِّ زِدْنِي عِلْمًا\" کس سورت کی دعا ہے؟",
+        options: ["مریم", "طہ", "فرقان", "نمل"],
+        correctAnswer: "طہ",
+        marks: 12,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 22,
+        text: "اللہ تعالیٰ نے حضرت موسیٰؑ کو کس وادی میں جوتے اتارنے کا حکم دیا؟",
+        options: ["طوٰی", "نجد", "حطیم", "فاران"],
+        correctAnswer: "طوٰی",
+        marks: 13,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 23,
+        text: "حضرت موسیٰؑ کا عصا بن گیا تھا:",
+        options: ["شیر", "سانپ", "رسی", "پرندہ"],
+        correctAnswer: "سانپ",
+        marks: 14,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 24,
+        text: "حق کا انکار کرنے والوں کے معاملے میں کرنا چاہیے:",
+        options: ["جلد بازی", "صبر و تحمل", "لڑائی", "خاموشی"],
+        correctAnswer: "صبر و تحمل",
+        marks: 15,
+        section: "سورة طٰہٰ"
+    },
+    {
+        id: 25,
+        text: "اللہ تعالیٰ نے انسان میں فطرت رکھی ہے:",
+        options: ["شرم و حیا کی", "غصے کی", "لالچ کی", "تکبر کی"],
+        correctAnswer: "شرم و حیا کی",
+        marks: 15,
+        section: "سورة طٰہٰ"
+    },
+
+    // ==============================================
+    // SECTION 4: سورة الانبياء (Questions 26-35)
+    // ==============================================
+    {
+        id: 26,
+        text: "سُوْرَةُ الْأَنْبِيَاءِ میں آیات کی تعداد ہے:",
+        options: ["100", "112", "120", "130"],
+        correctAnswer: "112",
+        marks: 16,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 27,
+        text: "سُوْرَةُ الْأَنْبِيَاءِ کو قرار دیا گیا ہے:",
+        options: ["قیمتی اثاثہ", "نور", "نصیحت", "شفا"],
+        correctAnswer: "قیمتی اثاثہ",
+        marks: 17,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 28,
+        text: "تمام جہانوں کے لیے رحمت بنا کر بھیجا گیا:",
+        options: ["حضرت موسیٰؑ کو", "حضرت محمد رسول اللہ ﷺ کو", "حضرت عیسیٰؑ کو", "حضرت نوحؑ کو"],
+        correctAnswer: "حضرت محمد رسول اللہ ﷺ کو",
+        marks: 18,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 29,
+        text: "کائنات میں ایک سے زیادہ خدا ہوتے تو کیا ہوتا؟",
+        options: ["ترقی", "فساد برپا ہوتا", "امن", "کچھ نہ ہوتا"],
+        correctAnswer: "فساد برپا ہوتا",
+        marks: 19,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 30,
+        text: "حضرت ابراہیمؑ کا لقب ہے:",
+        options: ["روح اللہ", "خلیل اللہ", "کلیم اللہ", "ابوالبشر"],
+        correctAnswer: "خلیل اللہ",
+        marks: 20,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 31,
+        text: "حضرت آدمؑ کا لقب ہے:",
+        options: ["ذبیح اللہ", "ابوالبشر", "صفی اللہ", "خلیل اللہ"],
+        correctAnswer: "ابوالبشر",
+        marks: 20,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 32,
+        text: "حضرت موسیٰؑ کا لقب ہے:",
+        options: ["کلیم اللہ", "روح اللہ", "خلیل اللہ", "حبیب اللہ"],
+        correctAnswer: "کلیم اللہ",
+        marks: 20,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 33,
+        text: "مچھلی والے نبی کا نام ہے:",
+        options: ["حضرت لوطؑ", "حضرت یونسؑ", "حضرت ادریسؑ", "حضرت داؤدؑ"],
+        correctAnswer: "حضرت یونسؑ",
+        marks: 21,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 34,
+        text: "\"لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ\" کس کی دعا ہے؟",
+        options: ["حضرت ابراہیمؑ", "حضرت یونسؑ", "حضرت موسیٰؑ", "حضرت عیسیٰؑ"],
+        correctAnswer: "حضرت یونسؑ",
+        marks: 22,
+        section: "سورة الانبياء"
+    },
+    {
+        id: 35,
+        text: "رائی کے دانے کے برابر عمل کا حساب ہوگا:",
+        options: ["قبر میں", "قیامت کے دن", "دنیا میں", "کبھی نہیں"],
+        correctAnswer: "قیامت کے دن",
+        marks: 23,
+        section: "سورة الانبياء"
+    },
+
+    // ==============================================
+    // SECTION 5: سورة الحج (Questions 36-45)
+    // ==============================================
+    {
+        id: 36,
+        text: "سُوْرَةُ الْحَجِّ میں آیات کی تعداد ہے:",
+        options: ["60", "78", "90", "100"],
+        correctAnswer: "78",
+        marks: 24,
+        section: "سورة الحج"
+    },
+    {
+        id: 37,
+        text: "سُوْرَةُ الْحَجِّ ہے:",
+        options: ["مکی", "مدنی", "مکی مدنی", "صرف کوفی"],
+        correctAnswer: "مکی مدنی",
+        marks: 24,
+        section: "سورة الحج"
+    },
+    {
+        id: 38,
+        text: "پہلی مرتبہ جہاد کی اجازت دی گئی:",
+        options: ["سورہ بقرہ میں", "سورہ حج میں", "سورہ طہ میں", "سورہ مریم میں"],
+        correctAnswer: "سورہ حج میں",
+        marks: 25,
+        section: "سورة الحج"
+    },
+    {
+        id: 39,
+        text: "سُوْرَةُ الْحَجِّ میں کس نبی کے دور میں حج کے آغاز کا ذکر ہے؟",
+        options: ["حضرت آدمؑ", "حضرت ابراہیمؑ", "حضرت اسماعیلؑ", "حضرت محمد ﷺ"],
+        correctAnswer: "حضرت ابراہیمؑ",
+        marks: 24,
+        section: "سورة الحج"
+    },
+    {
+        id: 40,
+        text: "مشرکین کے خلاف جہاد کی اجازت مسلمانوں کے لیے تھی:",
+        options: ["بوجھ", "خوشخبری", "آزمائش", "سزا"],
+        correctAnswer: "خوشخبری",
+        marks: 25,
+        section: "سورة الحج"
+    },
+    {
+        id: 41,
+        text: "سُوْرَةُ الْحَجِّ کے شروع میں ذکر ہے:",
+        options: ["قیامت کے زلزلے کا", "بارش کا", "ہجرت کا", "نماز کا"],
+        correctAnswer: "قیامت کے زلزلے کا",
+        marks: 26,
+        section: "سورة الحج"
+    },
+    {
+        id: 42,
+        text: "خانہ کعبہ کا طواف حج کا ہے:",
+        options: ["نفل", "اہم رکن", "مستحب", "عام کام"],
+        correctAnswer: "اہم رکن",
+        marks: 27,
+        section: "سورة الحج"
+    },
+    {
+        id: 43,
+        text: "اللہ تعالیٰ کے نزدیک قربانی کا پہنچتا ہے:",
+        options: ["گوشت", "خون", "تقویٰ", "ہڈیاں"],
+        correctAnswer: "تقویٰ",
+        marks: 28,
+        section: "سورة الحج"
+    },
+    {
+        id: 44,
+        text: "اللہ کے نزدیک ایک دن کتنے سال کے برابر ہے؟",
+        options: ["100", "500", "1000", "50000"],
+        correctAnswer: "1000",
+        marks: 29,
+        section: "سورة الحج"
+    },
+    {
+        id: 45,
+        text: "منافقین اللہ کی عبادت کرتے ہیں:",
+        options: ["دل سے", "کنارے پر رہ کر", "اخلاص سے", "کبھی نہیں"],
+        correctAnswer: "کنارے پر رہ کر",
+        marks: 27,
+        section: "سورة الحج"
+    },
+
+    // ==============================================
+    // SECTION 6: سورة الفرقان (Questions 46-55)
+    // ==============================================
+    {
+        id: 46,
+        text: "فرقان کا معنی ہے:",
+        options: ["حق و باطل میں فیصلہ کرنے والا", "نور", "کتاب", "نصیحت"],
+        correctAnswer: "حق و باطل میں فیصلہ کرنے والا",
+        marks: 30,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 47,
+        text: "سُوْرَةُ الْفُرْقَانِ ہے:",
+        options: ["مکی", "مدنی", "دونوں", "کوئی نہیں"],
+        correctAnswer: "مکی",
+        marks: 30,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 48,
+        text: "سُوْرَةُ الْفُرْقَانِ کے آخر میں صفات بیان ہوئی ہیں:",
+        options: ["فرشتوں کی", "رحمان کے بندوں کی", "جادوگروں کی", "کافروں کی"],
+        correctAnswer: "رحمان کے بندوں کی",
+        marks: 31,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 49,
+        text: "رحمان کے بندے زمین پر چلتے ہیں:",
+        options: ["اکڑ کر", "عاجزی سے", "تیزی سے", "دوڑ کر"],
+        correctAnswer: "عاجزی سے",
+        marks: 31,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 50,
+        text: "اللہ تعالیٰ کے نزدیک مقام ملتا ہے:",
+        options: ["خاندان سے", "اچھے کردار سے", "مال سے", "رنگ سے"],
+        correctAnswer: "اچھے کردار سے",
+        marks: 32,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 51,
+        text: "مال خرچ کرنے میں اپنانی چاہیے:",
+        options: ["کنجوسی", "فضول خرچی", "میانہ روی", "سختی"],
+        correctAnswer: "میانہ روی",
+        marks: 31,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 52,
+        text: "قرآن مجید نازل کیا گیا ہے:",
+        options: ["عربوں کے لیے", "تمام جہانوں کے لیے", "صرف مسلمانوں کے لیے", "بوڑھوں کے لیے"],
+        correctAnswer: "تمام جہانوں کے لیے",
+        marks: 33,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 53,
+        text: "برے لوگوں کو دوست بنانے والے پچھتائیں گے:",
+        options: ["کل", "قیامت کے دن", "قبر میں", "کبھی نہیں"],
+        correctAnswer: "قیامت کے دن",
+        marks: 32,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 54,
+        text: "اللہ تعالیٰ برائیوں کو نیکیوں میں بدل دیتا ہے:",
+        options: ["نماز سے", "توبہ اور نیک عمل سے", "صدقہ سے", "رونے سے"],
+        correctAnswer: "توبہ اور نیک عمل سے",
+        marks: 34,
+        section: "سورة الفرقان"
+    },
+    {
+        id: 55,
+        text: "جھوٹی گواہی نہ دینا صفت ہے:",
+        options: ["تاجروں کی", "رحمان کے بندوں کی", "دشمنوں کی", "کسی کی نہیں"],
+        correctAnswer: "رحمان کے بندوں کی",
+        marks: 34,
+        section: "سورة الفرقان"
+    },
+
+    // ==============================================
+    // SECTION 7: سورة الشعراء (Questions 56-60)
+    // ==============================================
+    {
+        id: 56,
+        text: "سُوْرَةُ الشُّعَرَاءِ آیات کے لحاظ سے طویل ترین سورت ہے:",
+        options: ["مدنی", "مکی", "مجموعی", "اخری"],
+        correctAnswer: "مکی",
+        marks: 35,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 57,
+        text: "سُوْرَةُ الشُّعَرَاءِ میں آیات کی تعداد ہے:",
+        options: ["182", "227", "286", "112"],
+        correctAnswer: "227",
+        marks: 35,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 58,
+        text: "سُوْرَةُ الشُّعَرَاءِ کے آخر میں نشانیاں بیان ہوئی ہیں:",
+        options: ["شاعروں کی", "ستاروں کی", "پرندوں کی", "بادلوں کی"],
+        correctAnswer: "شاعروں کی",
+        marks: 35,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 59,
+        text: "قرآن مجید کس زبان میں نازل ہوا؟",
+        options: ["فارسی", "عربی", "اردو", "عبرانی"],
+        correctAnswer: "عربی",
+        marks: 36,
+        section: "سورة الشعراء"
+    },
+    {
+        id: 60,
+        text: "شیطان کن لوگوں پر اترتا ہے؟",
+        options: ["جھوٹے گناہ گاروں پر", "شاعروں پر", "سب پر", "جانوروں پر"],
+        correctAnswer: "جھوٹے گناہ گاروں پر",
+        marks: 37,
+        section: "سورة الشعراء"
+    },
+
+    // ==============================================
+    // SECTION 8: سورة النمل (Questions 61-65)
+    // ==============================================
+    {
+        id: 61,
+        text: "نمل کا معنی ہے:",
+        options: ["مکڑی", "چیونٹی", "شہد کی مکھی", "ہدہد"],
+        correctAnswer: "چیونٹی",
+        marks: 38,
+        section: "سورة النمل"
+    },
+    {
+        id: 62,
+        text: "سُوْرَةُ النَّمْلِ میں سب سے تفصیلی تذکرہ ہے:",
+        options: ["حضرت موسیٰؑ کا", "حضرت سلیمانؑ کا", "حضرت لوطؑ کا", "حضرت صالحؑ کا"],
+        correctAnswer: "حضرت سلیمانؑ کا",
+        marks: 39,
+        section: "سورة النمل"
+    },
+    {
+        id: 63,
+        text: "حضرت سلیمانؑ کس کے بیٹے تھے؟",
+        options: ["حضرت موسیٰؑ", "حضرت داؤدؑ", "حضرت عیسیٰؑ", "حضرت ابراہیمؑ"],
+        correctAnswer: "حضرت داؤدؑ",
+        marks: 39,
+        section: "سورة النمل"
+    },
+    {
+        id: 64,
+        text: "حضرت سلیمانؑ کو سکھائی گئی تھی:",
+        options: ["پرندوں کی بولی", "جادوگری", "طب", "شاعری"],
+        correctAnswer: "پرندوں کی بولی",
+        marks: 40,
+        section: "سورة النمل"
+    },
+    {
+        id: 65,
+        text: "سبا سے یقینی خبر لایا تھا:",
+        options: ["کوا", "ہدہد", "کبوتر", "عقاب"],
+        correctAnswer: "ہدہد",
+        marks: 41,
+        section: "سورة النمل"
+    },
+
+    // ==============================================
+    // SECTION 9: سورة القصص (Questions 66-70)
+    // ==============================================
+    {
+        id: 66,
+        text: "سُوْرَةُ الْقَصَصِ مکہ میں نازل ہونے والی سورت ہے:",
+        options: ["پہلی", "آخری", "دوسری", "درمیانی"],
+        correctAnswer: "آخری",
+        marks: 42,
+        section: "سورة القصص"
+    },
+    {
+        id: 67,
+        text: "قارون کا تعلق کس قوم سے تھا؟",
+        options: ["بنی اسرائیل", "عاد", "ثمود", "قریش"],
+        correctAnswer: "بنی اسرائیل",
+        marks: 43,
+        section: "سورة القصص"
+    },
+    {
+        id: 68,
+        text: "قارون اپنے مال و دولت کو نتیجہ قرار دیتا تھا:",
+        options: ["اللہ کے فضل کا", "اپنی محنت اور علم کا", "وراثت کا", "قسمت کا"],
+        correctAnswer: "اپنی محنت اور علم کا",
+        marks: 43,
+        section: "سورة القصص"
+    },
+    {
+        id: 69,
+        text: "حضرت موسیٰؑ کی سیرت طیبہ مشابہ ہے:",
+        options: ["حضرت عیسیٰؑ سے", "حضرت محمد ﷺ سے", "حضرت یوسفؑ سے", "حضرت داؤدؑ سے"],
+        correctAnswer: "حضرت محمد ﷺ سے",
+        marks: 44,
+        section: "سورة القصص"
+    },
+    {
+        id: 70,
+        text: "بہترین ملازم وہ ہے جو ہو:",
+        options: ["خوبصورت", "طاقتور اور امانت دار", "مالدار", "بوڑھا"],
+        correctAnswer: "طاقتور اور امانت دار",
+        marks: 45,
+        section: "سورة القصص"
+    },
+
+    // ==============================================
+    // SECTION 10: سورة العنكبوت (Questions 71-75)
+    // ==============================================
+    {
+        id: 71,
+        text: "عنکبوت کا معنی ہے:",
+        options: ["مکڑی", "مچھر", "مکھی", "بھڑ"],
+        correctAnswer: "مکڑی",
+        marks: 46,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 72,
+        text: "مشرک کی مثال دی گئی ہے جس نے بھروسہ کیا:",
+        options: ["دیوار پر", "مکڑی کے جالے پر", "رسی پر", "درخت پر"],
+        correctAnswer: "مکڑی کے جالے پر",
+        marks: 47,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 73,
+        text: "حضرت نوحؑ نے اپنی قوم کو کتنے سال تبلیغ کی؟",
+        options: ["500", "950", "1000", "40"],
+        correctAnswer: "950",
+        marks: 48,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 74,
+        text: "اللہ تعالیٰ کے نزدیک ہجرت کرنا ہے:",
+        options: ["بوجھ", "بڑی نیکی", "گناہ", "عام کام"],
+        correctAnswer: "بڑی نیکی",
+        marks: 49,
+        section: "سورة العنكبوت"
+    },
+    {
+        id: 75,
+        text: "تمام مخلوقات کا رازق ہے:",
+        options: ["کسان", "بادشاہ", "اللہ تعالیٰ", "بادل"],
+        correctAnswer: "اللہ تعالیٰ",
+        marks: 49,
+        section: "سورة العنكبوت"
+    },
+
+    // ==============================================
+    // SECTION 11: سورة الروم (Questions 76-80)
+    // ==============================================
+    {
+        id: 76,
+        text: "سُوْرَةُ الرُّومِ میں رومیوں کے غالب آنے کی پیشین گوئی کی گئی:",
+        options: ["ایرانیوں پر", "عربوں پر", "یونانیوں پر", "رومیوں پر"],
+        correctAnswer: "عربوں پر",
+        marks: 50,
+        section: "سورة الروم"
+    },
+    {
+        id: 77,
+        text: "جس دن رومیوں کو فتح ہوئی اسی دن مسلمانوں کو فتح ہوئی:",
+        options: ["احد میں", "بدر میں", "خندق میں", "مکہ میں"],
+        correctAnswer: "بدر میں",
+        marks: 51,
+        section: "سورة الروم"
+    },
+    {
+        id: 78,
+        text: "اللہ کے نزدیک سود سے مال:",
+        options: ["بڑھتا ہے", "گھٹتا ہے", "پاک ہوتا ہے", "حلال ہوتا ہے"],
+        correctAnswer: "گھٹتا ہے",
+        marks: 52,
+        section: "سورة الروم"
+    },
+    {
+        id: 79,
+        text: "میاں بیوی کا رشتہ ذریعہ ہے:",
+        options: ["لڑائی کا", "محبت اور سکون کا", "دنیا کا", "دکھاوے کا"],
+        correctAnswer: "محبت اور سکون کا",
+        marks: 52,
+        section: "سورة الروم"
+    },
+    {
+        id: 80,
+        text: "خشکی اور تری میں فساد نتیجہ ہے:",
+        options: ["موسم کا", "انسان کے برے اعمال کا", "جنات کا", "قدرت کا"],
+        correctAnswer: "انسان کے برے اعمال کا",
+        marks: 52,
+        section: "سورة الروم"
+    },
+
+    // ==============================================
+    // SECTION 12: سورة لقمان (Questions 81-85)
+    // ==============================================
+    {
+        id: 81,
+        text: "حضرت لقمان کی شہرت تھی بطور:",
+        options: ["پہلوان", "حکیم و دانشور", "بادشاہ", "شاعر"],
+        correctAnswer: "حکیم و دانشور",
+        marks: 53,
+        section: "سورة لقمان"
+    },
+    {
+        id: 82,
+        text: "حضرت لقمان نے کسے نصیحتیں کیں؟",
+        options: ["قوم کو", "اپنے بیٹے کو", "بھائی کو", "شاگرد کو"],
+        correctAnswer: "اپنے بیٹے کو",
+        marks: 54,
+        section: "سورة لقمان"
+    },
+    {
+        id: 83,
+        text: "حضرت لقمان نے سب سے بڑا ظلم قرار دیا:",
+        options: ["چوری کو", "شرک کو", "جھوٹ کو", "غیبت کو"],
+        correctAnswer: "شرک کو",
+        marks: 53,
+        section: "سورة لقمان"
+    },
+    {
+        id: 84,
+        text: "آوازوں میں سب سے بری آواز ہے:",
+        options: ["کتے کی", "گدھے کی", "شیر کی", "اونٹ کی"],
+        correctAnswer: "گدھے کی",
+        marks: 55,
+        section: "سورة لقمان"
+    },
+    {
+        id: 85,
+        text: "انسان کو کس کی اندھی پیروی نہیں کرنی چاہیے؟",
+        options: ["باپ دادا کی", "نبی کی", "سچوں کی", "عقل مندوں کی"],
+        correctAnswer: "باپ دادا کی",
+        marks: 56,
+        section: "سورة لقمان"
+    },
+
+    // ==============================================
+    // SECTION 13: سورة السجدة (Questions 86-90)
+    // ==============================================
+    {
+        id: 86,
+        text: "نبی کریم ﷺ رات کو سونے سے پہلے کون سی سورتیں پڑھتے تھے؟",
+        options: ["مریم و طہ", "السجدہ اور الملک", "یٰسین و رحمن", "بقرہ و آل عمران"],
+        correctAnswer: "السجدہ اور الملک",
+        marks: 57,
+        section: "سورة السجدة"
+    },
+    {
+        id: 87,
+        text: "جمعہ کے دن فجر کی پہلی رکعت میں اکثر پڑھی جاتی ہے:",
+        options: ["یٰسین", "السجدہ", "کہف", "ملک"],
+        correctAnswer: "السجدہ",
+        marks: 58,
+        section: "سورة السجدة"
+    },
+    {
+        id: 88,
+        text: "اللہ تعالیٰ بڑے عذاب سے پہلے بھیجتا ہے:",
+        options: ["انعام", "چھوٹے چھوٹے عذاب", "بارش", "فرشتے"],
+        correctAnswer: "چھوٹے چھوٹے عذاب",
+        marks: 59,
+        section: "سورة السجدة"
+    },
+    {
+        id: 89,
+        text: "موت کا فرشتہ لیتا ہے:",
+        options: ["صدقہ", "جان/روح", "حساب", "امتحان"],
+        correctAnswer: "جان/روح",
+        marks: 60,
+        section: "سورة السجدة"
+    },
+    {
+        id: 90,
+        text: "آنکھوں کی ٹھنڈک (جنت کی نعمتیں) رکھی گئی ہیں:",
+        options: ["ظاہر", "چھپا کر", "دنیا میں", "پہاڑوں پر"],
+        correctAnswer: "چھپا کر",
+        marks: 61,
+        section: "سورة السجدة"
+    },
+
+    // ==============================================
+    // SECTION 14: سورة سبا (Questions 91-95)
+    // ==============================================
+    {
+        id: 91,
+        text: "قومِ سبا آباد تھی:",
+        options: ["شام میں", "یمن میں", "مکہ میں", "مصر میں"],
+        correctAnswer: "یمن میں",
+        marks: 62,
+        section: "سورة سبا"
+    },
+    {
+        id: 92,
+        text: "حضرت داؤدؑ اپنے ہاتھوں سے بناتے تھے:",
+        options: ["برتن", "لوہے کی زرہیں", "مکان", "کشتیاں"],
+        correctAnswer: "لوہے کی زرہیں",
+        marks: 63,
+        section: "سورة سبا"
+    },
+    {
+        id: 93,
+        text: "حضرت سلیمانؑ کی لاٹھی کو کس نے کھایا؟",
+        options: ["چوہے نے", "دیمک نے", "کیڑے نے", "سانپ نے"],
+        correctAnswer: "دیمک نے",
+        marks: 64,
+        section: "سورة سبا"
+    },
+    {
+        id: 94,
+        text: "قوم سبا پر کون سا سیلاب آیا؟",
+        options: ["طوفانِ نوح", "سیلِ عرم", "زلزلہ", "آگ"],
+        correctAnswer: "سیلِ عرم",
+        marks: 65,
+        section: "سورة سبا"
+    },
+    {
+        id: 95,
+        text: "مال اور اولاد اللہ کی طرف سے ہیں:",
+        options: ["امتحان", "سزا", "صرف کامیابی", "غرور"],
+        correctAnswer: "امتحان",
+        marks: 63,
+        section: "سورة سبا"
+    },
+
+    // ==============================================
+    // SECTION 15: Miscellaneous Surahs (Questions 96-100)
+    // ==============================================
+    {
+        id: 96,
+        text: "فاطر کا معنی ہے:",
+        options: ["ختم کرنے والا", "پیدا کرنے والا", "بڑا", "طاقتور"],
+        correctAnswer: "پیدا کرنے والا",
+        marks: 66,
+        section: "سورة فاطر"
+    },
+    {
+        id: 97,
+        text: "قرآن مجید کا دل کس سورت کو کہا جاتا ہے؟",
+        options: ["بقرہ", "یٰسین", "فاتحہ", "اخلاص"],
+        correctAnswer: "یٰسین",
+        marks: 67,
+        section: "سورة یٰسین"
+    },
+    {
+        id: 98,
+        text: "یٰسین کی تلاوت پر کتنی بار قرآن پڑھنے کا اجر ملتا ہے؟",
+        options: ["5", "10", "20", "50"],
+        correctAnswer: "10",
+        marks: 68,
+        section: "سورة یٰسین"
+    },
+    {
+        id: 99,
+        text: "سُوْرَةُ الصَّفَّاتِ میں \"صافات\" کا معنی ہے:",
+        options: ["تسبیح کرنے والے", "صف باندھنے والے فرشتے", "نیک لوگ", "پرندے"],
+        correctAnswer: "صف باندھنے والے فرشتے",
+        marks: 69,
+        section: "سورة الصافات"
+    },
+    {
+        id: 100,
+        text: "سُوْرَةُ صٓ کے نازل ہونے کا سبب بنا:",
+        options: ["جنگ", "کلمہ توحید پر قریش کا تعجب", "سفرِ طائف", "فتح مکہ"],
+        correctAnswer: "کلمہ توحید پر قریش کا تعجب",
+        marks: 70,
+        section: "سورة ص"
+    },
+
+    // ==============================================
+    // SECTION 16: سورة فاطر Additional MCQs (101-105)
+    // ==============================================
+    {
+        id: 101,
+        text: "سورة فاطر کا دوسرا نام ہے:",
+        options: ["سورة الملائکہ", "سورة الحج", "سورة النور", "سورة الفتح"],
+        correctAnswer: "سورة الملائکہ",
+        marks: 1,
+        section: "سورة فاطر (اضافی)"
+    },
+    {
+        id: 102,
+        text: "قرآن مجید میں پہاڑوں اور جانوروں کا ذکر کر کے دعوت دی گئی ہے:",
+        options: ["تجارت کی", "اللہ تعالیٰ کی حکمت پر غور و فکر کی", "جہاد کی", "ہجرت کی"],
+        correctAnswer: "اللہ تعالیٰ کی حکمت پر غور و فکر کی",
+        marks: 1,
+        section: "سورة فاطر (اضافی)"
+    },
+    {
+        id: 103,
+        text: "سورة فاطر کے مطابق اللہ تعالیٰ کا حقیقی ڈر حاصل ہوتا ہے:",
+        options: ["امیروں کو", "اہلِ علم کو", "غریبوں کو", "بادشاہوں کو"],
+        correctAnswer: "اہلِ علم کو",
+        marks: 1,
+        section: "سورة فاطر (اضافی)"
+    },
+    {
+        id: 104,
+        text: "قیامت کے دن انسان کے گناہوں کا بوجھ اٹھائیں گے:",
+        options: ["فرشتے", "انبیاء", "وہ خود", "دوسرے لوگ"],
+        correctAnswer: "وہ خود",
+        marks: 1,
+        section: "سورة فاطر (اضافی)"
+    },
+
+    // ==============================================
+    // SECTION 17: Model Paper MCQs (105-112)
+    // ==============================================
+    {
+        id: 105,
+        text: "نجاشی کے دربار میں تلاوت کی گئی:",
+        options: ["سورة مریم کی", "سورة طہ کی", "سورة یٰسین کی", "سورة الرحمن کی"],
+        correctAnswer: "سورة مریم کی",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 106,
+        text: "حضرت عمر رضی اللہ عنہ نے کس سورت کو سن کر اسلام قبول کیا؟",
+        options: ["سورة مریم", "سورة طہٰ", "سورة یٰسین", "سورة بقرہ"],
+        correctAnswer: "سورة طہٰ",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 107,
+        text: "سورة الفرقان میں رحمان کے پسندیدہ بندوں کی پہلی صفت ہے:",
+        options: ["عاجزی", "صبر", "شکر", "توبہ"],
+        correctAnswer: "عاجزی",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 108,
+        text: "نماز روکتی ہے:",
+        options: ["بے حیائی سے", "غربت سے", "بیماری سے", "جاہلیت سے"],
+        correctAnswer: "بے حیائی سے",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 109,
+        text: "چیونٹی کا ذکر ہے:",
+        options: ["سورة النمل میں", "سورة العنکبوت میں", "سورة البقرہ میں", "سورة الحج میں"],
+        correctAnswer: "سورة النمل میں",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 110,
+        text: "رومیوں اور ایرانیوں کی جنگ کا ذکر ہے:",
+        options: ["سورة الروم میں", "سورة الفتح میں", "سورة الحشر میں", "سورة الصف میں"],
+        correctAnswer: "سورة الروم میں",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 111,
+        text: "حضرت لقمان کی وجہ شہرت ہے:",
+        options: ["حکمت و دانائی", "دولت", "جنگ", "تجارت"],
+        correctAnswer: "حکمت و دانائی",
+        marks: 6,
+        section: "ماڈل پیپر"
+    },
+    {
+        id: 112,
+        text: "قارون کا عبرت ناک واقعہ بیان کیا گیا ہے:",
+        options: ["سورة القصص میں", "سورة غافر میں", "سورة زمر میں", "سورة حدید میں"],
+        correctAnswer: "سورة القصص میں",
+        marks: 6,
+        section: "ماڈل پیپر"
+    }
+];
+
+// Export for use in HTML (both module and global)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { mcqsDatabase };
+} else {
+    window.mcqsDatabase = mcqsDatabase;
+}
+
+// Display total count in console
+console.log(`Total MCQs loaded: ${mcqsDatabase.length}`);
+</script>
+<!-- 
+    IMPORTANT: This HTML expects that your existing mcqs-data.js file (with window.mcqsDatabase)
+    is included before this script. Since you mentioned you have existing mcqs array,
+    make sure to include that file like:
+    <script src="mcqs-data.js"></script>
+    Right now it's not linked to avoid duplication, but you must add the script tag for your array.
+    
+    For demonstration, if mcqsDatabase is not found, an error will show.
+    Please ensure your mcqs-data.js is loaded.
+-->
+</body>
+</html>

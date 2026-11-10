@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iframe Height Control with Checkboxes</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+    label {
+      margin-right: 10px;
+    }
+    iframe {
+      width: 100%;
+      border: 2px solid black;
+      margin-top: 50px;
+      transition: height 0.3s;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Select Height Unit for Iframe</h2>
+
+  <label><input type="checkbox" id="lvh"> 100lvh</label>
+  <label><input type="checkbox" id="svh"> 100svh</label>
+  <label><input type="checkbox" id="dvh"> 100dvh</label>
+
+  <iframe id="myIframe" src="https://example.com"></iframe>
+
+  <script>
+    const iframe = document.getElementById('myIframe');
+    const lvh = document.getElementById('lvh');
+    const svh = document.getElementById('svh');
+    const dvh = document.getElementById('dvh');
+
+    function updateIframeHeight() {
+      iframe.style.height = 'auto'; // Reset
+
+      if (lvh.checked) {
+        iframe.style.height = 'calc(100lvh - 50px)';
+      } else if (svh.checked) {
+        iframe.style.height = 'calc(100svh - 50px)';
+      } else if (dvh.checked) {
+        iframe.style.height = 'calc(100dvh - 50px)';
+      } else {
+        iframe.style.height = '300px'; // Default Height
+      }
+    }
+
+    lvh.addEventListener('change', function() {
+      svh.checked = false;
+      dvh.checked = false;
+      updateIframeHeight();
+    });
+
+    svh.addEventListener('change', function() {
+      lvh.checked = false;
+      dvh.checked = false;
+      updateIframeHeight();
+    });
+
+    dvh.addEventListener('change', function() {
+      lvh.checked = false;
+      svh.checked = false;
+      updateIframeHeight();
+    });
+
+    // Default load
+    updateIframeHeight();
+  </script>
+
+</body>
+</html>

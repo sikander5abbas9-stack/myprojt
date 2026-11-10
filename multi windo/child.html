@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Iframe</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        h1 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        #messageDisplay {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            background: white;
+        }
+        .message {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .incoming {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        .outgoing {
+            background: #f1f1f1;
+            border-left: 4px solid #607d8b;
+        }
+        input, button {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <h1>Child Iframe</h1>
+    <p>This is the iframe content. Messages from parent will appear below.</p>
+    
+    <div id="messageDisplay"></div>
+    
+    <input type="text" id="childInput" placeholder="Type response message">
+    <button id="sendResponse">Send to Parent</button>
+
+    <script>
+        const messageDisplay = document.getElementById('messageDisplay');
+        const childInput = document.getElementById('childInput');
+        const sendResponse = document.getElementById('sendResponse');
+
+        // Display messages from parent
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'display') {
+                addMessage(event.data.content, 'incoming');
+            }
+        });
+
+        // Send message to parent
+        sendResponse.addEventListener('click', function() {
+            const message = childInput.value.trim();
+            if (message) {
+                window.parent.postMessage({
+                    type: 'message',
+                    content: message
+                }, '*');
+                addMessage(message, 'outgoing');
+                childInput.value = '';
+            }
+        });
+
+        // Handle Enter key
+        childInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendResponse.click();
+        });
+
+        function addMessage(content, type) {
+            const msgElement = document.createElement('div');
+            msgElement.className = `message ${type}`;
+            msgElement.textContent = type === 'incoming' ? `Parent: ${content}` : `You: ${content}`;
+            messageDisplay.appendChild(msgElement);
+            messageDisplay.scrollTop = messageDisplay.scrollHeight;
+        }
+    </script>
+</body>
+</html>

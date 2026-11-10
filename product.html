@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="pro.css">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Helvetica, Sans-Serif;
+            margin: 0;
+            padding: 0;
+            background-color: #D5D5D5;
+            overflow: hidden;
+        }
+
+        .imgcontainer {
+            z-index: 1;
+            width: 100%;
+            height: 50vh;
+            overflow: hidden;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin: 0;
+            padding: 0;
+            border-radius: 30px 30px 0 0;
+            z-index: 10;
+            position: relative;
+            background-color: #fff;
+        }
+
+        .imgcontainer img {
+            max-height: 100%;
+            border-radius: 10px;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            z-index: 1100;
+            background-color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .loading .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #088178;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .product-info {
+            text-align: left;
+            width: 100%;
+        }
+
+        #details {
+            margin: 5px 15px;
+        }
+
+        .products {
+            width: 100%;
+        }
+
+        /* Full Screen Preview Styles */
+        #imagePreview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            flex-direction: column;
+            display: none;
+        }
+
+        #imagePreview img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 5px;
+        }
+
+        #closePreview {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #fff;
+            border: none;
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #closePreview:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+    <div id="actionbar"></div>
+    <div class="imgcontainer">
+        <img src="/img/f1.jpg" alt="/img/f1.jpg">
+    </div>
+
+    <div class="product-details">
+        <div class="product-info">
+            <div id="details">
+                <div id="nameOption" class="option">
+                    <h3 id="productName"></h3>
+                    <span id="droparrow" class="droparrow"><img src="/hhh/img/droparrow.svg" alt=""></span>
+                </div>
+            </div>
+        </div>
+        <h2>Related</h2>
+        <div class="products">
+            <div id="product1" class="section-p1">
+                <div class="pro-container"></div>
+                <div class="pro-container-two"></div>
+            </div>
+            <div class="extra"></div>
+        </div>
+    </div>
+
+    <!-- Full Screen Image Preview -->
+    <div id="imagePreview">
+        <div id="previewBackground"></div>
+        <img id="previewImage" src="" alt="Full Screen Preview">
+        <button id="closePreview">Back</button>
+    </div>
+
+    <div id="addToCart"></div>
+    <script src="pro.js"></script>
+    <script src="/hhh/main.js"></script>
+
+
+<script>
+  
+</script>
+
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+  // Firebase config
+  const firebaseConfig = {
+  apiKey: "AIzaSyCODU5GVwDHlnb8lyc-w7fcqx25_MS55KA",
+  authDomain: "gzjsvkzhhsjhsb.firebaseapp.com",
+  projectId: "gzjsvkzhhsjhsb",
+  storageBucket: "gzjsvkzhhsjhsb.firebasestorage.app",
+  messagingSenderId: "969885928112",
+  appId: "1:969885928112:web:5121178f1d0c1125ad8975"
+};
+  
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+    // Function to fetch product details based on ID from URL
+    let brand = '';
+    
+ 
+// Select elements
+const imgContainer = document.querySelector('.imgcontainer img');
+const imagePreview = document.getElementById('imagePreview');
+const previewImage = document.getElementById('previewImage');
+const closePreview = document.getElementById('closePreview');
+
+// Function to show the image in full screen
+imgContainer.addEventListener('click', () => {
+  const imageSrc = imgContainer.getAttribute('src');
+  previewImage.setAttribute('src', imageSrc);
+  imagePreview.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // Disable background scroll
+
+  // Push a new state in the history
+  history.pushState({ isPreviewOpen: true }, '', '#image-preview');
+});
+
+// Function to close the preview
+function closePreviewHandler() {
+  imagePreview.style.display = 'none';
+  document.body.style.overflow = 'auto'; // Enable background scroll
+
+  // Replace the current state to prevent duplicate states
+  history.replaceState(null, '', location.pathname);
+}
+
+// Close the preview on "back" button press
+window.addEventListener('popstate', (event) => {
+  if (event.state && event.state.isPreviewOpen) {
+    closePreviewHandler();
+  } else if (imagePreview.style.display === 'flex') {
+    closePreviewHandler();
+  } else {
+    // Prevent reloading of the connected file
+    event.preventDefault();
+  }
+});
+
+// Close preview when the close button is clicked
+closePreview.addEventListener('click', () => {
+  closePreviewHandler();
+});
+
+// Firebase Product Details Function
+async function loadProductDetails() {
+    const productId = new URLSearchParams(window.location.search).get("id");
+
+    if (!productId) {
+        console.error("Product ID not found in URL.");
+        return;
+    }
+
+    const loadingElement = document.querySelector('.loading');
+    const productDetailsElement = document.querySelector('.product-details');
+
+    try {
+        loadingElement.style.display = 'flex';
+
+        const productSnap = await getDoc(doc(db, "data", productId));
+
+        if (!productSnap.exists()) {
+            console.error("Product not found in Firebase database.");
+            alert("Product not found!");
+            return;
+        }
+
+        const product = productSnap.data();
+
+        // Update product details
+        fullText = product.name;
+        toggleText();
+
+        document.querySelector('.imgcontainer img').src = product.image;
+        document.querySelector('#nameOption').addEventListener('click', toggleText);
+
+        document.getElementById('addToCart').addEventListener('click', () => addToCart(product));
+        brand = product.type;
+
+        productDetailsElement.style.display = 'flex';
+        document.body.style.overflow = 'auto';
+
+    } catch (error) {
+        console.error("Error loading product details:", error.message);
+        alert("Failed to load product details. Please try again.");
+    } finally {
+        loadingElement.style.display = 'none';
+    }
+}
+
+// Function to add product to cart (for example purpose)
+function addToCart(product) {
+    console.log("Added to cart:", product);
+    alert(`Product "${product.name}" added to cart.`);
+}
+
+// Toggle function for product name (for example purpose)
+let fullText = "";
+function toggleText() {
+    const productNameElement = document.querySelector('#productName');
+    if (productNameElement.textContent === fullText) {
+        productNameElement.textContent = fullText.slice(0, 20) + '...';
+    } else {
+        productNameElement.textContent = fullText;
+    }
+}
+
+// Call the function to load product details when the page loads
+document.addEventListener('DOMContentLoaded', loadProductDetails);
+</script>
+<script type="module" src="pro1.js">
+  
+
+</script>
+</script>
+</body>
+</html>
+

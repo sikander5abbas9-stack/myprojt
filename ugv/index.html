@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .product { border: 1px solid #ddd; padding: 10px; margin: 10px; display: inline-block; width: 200px; text-align: center; }
+        .product img { width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+
+    <h2>Our Products</h2>
+    <div id="product-container"></div>
+
+    <script>
+        const jsonUrl = "https://black-jaclin-62.tiiny.site/products.json"; // Aapni JSON file ka sahi link yahan dalain
+
+        fetch(jsonUrl)
+            .then(response => response.json())
+            .then(products => {
+                let productContainer = document.getElementById("product-container");
+
+                products.forEach(product => {
+                    let productHTML = `
+                        <div class="product">
+                            <img src="${product.image}" alt="${product.name}">
+                            <h3>${product.name}</h3>
+                            <p>Price: Rs. ${product.price}</p>
+                            <p>Category: ${product.category}</p>
+                        </div>
+                    `;
+                    productContainer.innerHTML += productHTML;
+                });
+            })
+            .catch(error => console.error("Error loading JSON:", error));
+    </script>
+
+</body>
+</html>

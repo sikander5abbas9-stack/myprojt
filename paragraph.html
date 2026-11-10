@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Text Splitter</title>
+    <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            
+        }
+        h1 {
+            color: #333;
+           
+        }
+        textarea {
+          width: 90%;
+        }
+        textarea, input {
+            
+            
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #088178;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            
+            border-radius: 5px;
+            margin: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #06665a;
+        }
+        button:disabled {
+            background-color: #ccc;
+            
+        }
+        #output {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .paragraph {
+            background-color: #eef;
+            padding: 20px;
+            
+            border-radius: 10px;
+            border-left: 10px solid #088178;
+           
+            margin: 20px 20px;
+        }
+        /* New CSS Class for Highlighting Copied Paragraph */
+        .copied {
+            background-color: #d4edda; /* Light green background */
+            border-left: 10px solid #28a745; /* Green border */
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .top {
+          padding: 20px;
+          display: flex;
+          justify-content: space-between;
+          
+          margin-bottom: 20px;
+        }
+        .con {
+          padding: 20px;
+          text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="top"><h1>Text.Splitter</h1>    
+    <button onclick="clearText()">Clear </button></div>
+<div class="con">
+      <textarea id="inputText" placeholder="Yahan apna text paste karein..."></textarea>
+    <input type="text" id="customText" placeholder="Yahan custom text likhein..." />
+    <button onclick="splitText()">Split Text</button>
+    <button id="copyButton" onclick="copyParagraph()">Copy Next Paragraph</button>
+    
+    <p id="copyStatus">Copied Paragraph: 0</p>
+    <div id="output"></div>
+    
+</div>
+    <div id="notification" class="notification">Text Copied!</div>
+    <script>
+        let paragraphIndex = parseInt(localStorage.getItem('paragraphIndex')) || 0;
+        document.getElementById('copyStatus').textContent = `Copied Paragraph: ${paragraphIndex}`;
+
+        window.onload = function() {
+            if (localStorage.getItem('savedText')) {
+                document.getElementById('inputText').value = localStorage.getItem('savedText');
+            }
+            if (localStorage.getItem('customText')) {
+                document.getElementById('customText').value = localStorage.getItem('customText');
+            }
+            updateCopyButton();
+        };
+
+        function splitText() {
+            const inputText = document.getElementById('inputText').value;
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+            paragraphIndex = 0;
+            localStorage.setItem('paragraphIndex', paragraphIndex);
+            document.getElementById('copyStatus').textContent = `Copied Paragraph: ${paragraphIndex}`;
+
+            inputText.split('\n').forEach(paragraph => {
+                paragraph = paragraph.trim();
+                if (paragraph.length >= 60) {
+                    const paraDiv = document.createElement('div');
+                    paraDiv.classList.add('paragraph');
+                    paraDiv.textContent = paragraph;
+                    outputDiv.appendChild(paraDiv);
+                }
+            });
+            localStorage.setItem('savedText', inputText);
+            updateCopyButton();
+        }
+
+        function copyParagraph() {
+            const paragraphs = document.querySelectorAll('.paragraph');
+            if (paragraphIndex < paragraphs.length) {
+                const customText = document.getElementById('customText').value;
+                const textToCopy = paragraphs[paragraphIndex].textContent + " " + customText;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => showNotification());
+                
+                // Highlight the copied paragraph
+                paragraphs[paragraphIndex].classList.add('copied');
+                
+                paragraphIndex++;
+                localStorage.setItem('paragraphIndex', paragraphIndex);
+                document.getElementById('copyStatus').textContent = `Copied Paragraph: ${paragraphIndex}`;
+                updateCopyButton();
+            }
+        }
+
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, 2000);
+        }
+
+        function clearText() {
+            document.getElementById('inputText').value = "";
+            document.getElementById('customText').value = "";
+            localStorage.removeItem('savedText');
+            localStorage.removeItem('customText');
+            localStorage.setItem('paragraphIndex', 0);
+            document.getElementById('output').innerHTML = "";
+            document.getElementById('copyStatus').textContent = "Copied Paragraph: 0";
+            updateCopyButton();
+            alert('Text cleared successfully!');
+        }
+
+        function updateCopyButton() {
+            const paragraphs = document.querySelectorAll('.paragraph');
+            const copyButton = document.getElementById('copyButton');
+            copyButton.disabled = paragraphIndex >= paragraphs.length;
+        }
+    </script>
+</body>
+</html>

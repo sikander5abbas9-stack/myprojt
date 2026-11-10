@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List with Dynamic Filters</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+          font-family: Helvetica, Sans-Serif;
+          padding-top: 60px;
+          height: 100vh;
+      }
+      
+      .fullscreen-loader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          flex-direction: column;
+      }
+      .fullscreen-loader .spinner {
+          width: 50px;
+          height: 50px;
+          border: 5px solid #f3f3f3;
+          border-top: 5px solid #088178;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+      .fullscreen-loader p {
+          margin-top: 20px;
+          color: #088178;
+          font-weight: bold;
+      }
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+      
+      .price-filter-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          padding: 12px;
+          gap: 12px;
+          background: #fff;
+          overflow-x: auto;
+          scrollbar-width: none;
+          z-index: 100;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .price-filter-container::-webkit-scrollbar {
+          display: none;
+      }
+      .price-filter-container button {
+          flex: 0 0 auto;
+          padding: 12px 15px;
+          background: #fff;
+          color: #088178;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+          font-weight: 500;
+      }
+      .price-filter-container button.active {
+          background: #f0f9f8;
+          color: #088178;
+          transform: scale(1.05);
+      }
+      .price-filter-container button.active::after {
+          content: '';
+          position: absolute;
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 3px;
+          background-color: #088178;
+          border-radius: 3px;
+      }
+      
+      .slides-container {
+          width: 100%;
+          height: calc(100vh - 60px);
+          position: relative;
+          overflow: hidden;
+      }
+      .slides {
+          display: flex;
+          height: 100%;
+          transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      
+      .slide {
+          flex: 0 0 100%;
+          width: 100%;
+          height: 100%;
+          overflow-y: auto;
+          scrollbar-width: none;
+      }
+      .slide::-webkit-scrollbar {
+          display: none;
+      }
+      
+      .product-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          padding: 15px;
+          min-height: calc(100% + 1px);
+      }
+      .pro-container, .pro-container-two {
+          display: contents;
+      }
+      .pro {
+          width: auto;
+          height: auto;
+          border-radius: 12px;
+          margin: 10px 0;
+          transition: 0.2s ease;
+          position: relative;
+      }
+      .pro .img {
+          width: 100%;
+          height: 170px;
+          object-fit: cover;
+          border-radius: 12px;
+          transition: opacity 0.3s ease-in-out;
+          cursor: pointer;
+      }
+      .pro .details {
+          text-align: start;
+      }
+      .pro p {
+          color: #313474;
+          padding-top: 6px;
+      }
+      .pro h5 {
+          margin: 3px 0;
+          color: #313474;
+          font-size: 14px;
+          font-weight: 450;
+      }
+      .pro .star {
+          display: flex;
+          padding: 5px 0;
+          gap: 4px;
+          font-size: 13px;
+      }
+      .pro .star .st {
+          color: #FECC83;
+          width: 12px;
+          font-size: 17px;
+      }
+      .pro h4 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #0D115B;
+      }
+
+      .not-found {
+          grid-column: 1 / -1;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          color: #666;
+          padding: 20px 0;
+          margin: 20px 0;
+      }
+      .not-found i {
+          font-size: 40px;
+          color: #ccc;
+          margin-bottom: 15px;
+      }
+      .not-found p {
+          font-size: 18px;
+          margin: 0;
+          color: #666;
+      }
+
+      .bottom-not-found {
+          grid-column: 1 / -1;
+          width: 100%;
+          text-align: center;
+          padding: 20px 0;
+          color: #666;
+          margin-top: 20px;
+      }
+      .bottom-not-found i {
+          font-size: 30px;
+          color: #ccc;
+          margin-bottom: 10px;
+      }
+      .bottom-not-found p {
+          font-size: 16px;
+          margin: 0;
+      }
+
+      .skeleton {
+          background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 300% 100%;
+          animation: loading 3.5s infinite;
+          border-radius: 12px;
+          margin: 10px 0;
+      }
+      @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -100% 0; }
+      }
+      .skeleton-image {
+          background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 300% 100%;
+          animation: loading 3.5s infinite;
+          border-radius: 12px;
+          width: 100%;
+          height: 170px;
+          position: relative;
+      }
+      .skeleton-box {
+          border-radius: 4px;
+          margin-bottom: 8px;
+      }
+      
+      .bottom-loader {
+          grid-column: 1 / -1;
+          width: 100%;
+          padding: 20px;
+          text-align: center;
+          color: #088178;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .bottom-loader .spinner.small {
+          width: 30px;
+          height: 30px;
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #088178;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+    </style>
+</head>
+<body>
+    <div class="fullscreen-loader" id="fullscreenLoader">
+        <div class="spinner"></div>
+        <p>Loading Products...</p>
+    </div>
+
+    <div class="price-filter-container" id="priceFilterContainer"></div>
+    
+    <div id="slidesContainerWrapper"></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy, where, limit, startAfter, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+    authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+    projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+    storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+    messagingSenderId: "246983910789",
+    appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Constants
+  const BATCH_SIZE = 6;
+  const SCROLL_THRESHOLD = 200;
+  const PRODUCT_IMAGE_CLASS = 'img';
+  const SKELETON_CLASS = 'skeleton';
+  const NOT_FOUND_CLASS = 'not-found';
+  const BOTTOM_LOADER_CLASS = 'bottom-loader';
+  const PRICE_FILTER_BUTTON_CLASS = 'price-filter-container button';
+  const ACTIVE_BUTTON_CLASS = 'active';
+  const PRO_CONTAINER_CLASS = 'pro-container';
+  const PRO_CONTAINER_TWO_CLASS = 'pro-container-two';
+  const SLIDES_CONTAINER_ID = 'slidesContainer';
+  const SLIDES_ID = 'slides';
+
+  // DOM Elements
+  const fullscreenLoader = document.getElementById('fullscreenLoader');
+  const priceFilterContainer = document.getElementById('priceFilterContainer');
+  const slidesContainerWrapper = document.getElementById('slidesContainerWrapper');
+
+  // ===== DYNAMIC QUERY BUILDER =====
+  function buildQuery(filter, lastDoc = null) {
+    let q = collection(db, "products");
+    
+    // Add WHERE conditions
+    filter.conditions?.forEach(cond => {
+      q = query(q, where(cond.field, cond.op, cond.value));
+    });
+    
+    // Default sorting (by price)
+    q = query(q, orderBy("price"));
+    
+    // Pagination (if lastDoc is provided)
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
+    
+    // Limit results
+    q = query(q, limit(BATCH_SIZE));
+    
+    return q;
+  }
+
+  // ===== COUNT QUERY BUILDER =====
+  function buildCountQuery(filter) {
+    let q = collection(db, "products");
+    
+    filter.conditions?.forEach(cond => {
+      q = query(q, where(cond.field, cond.op, cond.value));
+    });
+    
+    return getCountFromServer(q);
+  }
+
+  // ===== FILTERS CONFIGURATION =====
+  const filters = [
+    {
+      id: 'all',
+      label: 'All',
+      conditions: [],
+      queryFunction: (lastDoc) => buildQuery({ conditions: [] }, lastDoc),
+      countFunction: () => buildCountQuery({ conditions: [] })
+    },
+    {
+      id: '100-500',
+      label: '₹100 to ₹500',
+      conditions: [
+        { field: 'price', op: '>=', value: 100 },
+        { field: 'price', op: '<=', value: 500 }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[1], lastDoc),
+      countFunction: () => buildCountQuery(filters[1])
+    },
+    {
+      id: '500-1000',
+      label: '₹500 to ₹1000',
+      conditions: [
+        { field: 'price', op: '>=', value: 500 },
+        { field: 'price', op: '<=', value: 1000 }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[2], lastDoc),
+      countFunction: () => buildCountQuery(filters[2])
+    },
+    {
+      id: 'top-rated',
+      label: 'Top Rated',
+      conditions: [
+        { field: 'rating', op: '>=', value: 4 }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[3], lastDoc),
+      countFunction: () => buildCountQuery(filters[3])
+    },
+    {
+      id: 'electronics',
+      label: 'Electronics',
+      conditions: [
+        { field: 'category', op: '==', value: 'electronics' }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[4], lastDoc),
+      countFunction: () => buildCountQuery(filters[4])
+    }
+  ];
+
+  // ===== STATE MANAGEMENT =====
+  let currentIndex = 0;
+  let startPosX = 0;
+  let startPosY = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let isDragging = false;
+  let isScrolling = false;
+  let animationID;
+  let isLoading = false;
+  let loadedProducts = {};
+  let loadedStates = [];
+  let slidesContainer, slides;
+  let isFetching = false;
+  let isLoadingMore = false;
+  let hasMore = true;
+  let lastVisibleDocs = {};
+  let totalProductsCount = {};
+  let productCache = {};
+
+  // Initialize product cache
+  filters.forEach(filter => {
+    productCache[filter.id] = [];
+    loadedProducts[filter.id] = new Set();
+  });
+
+  // ===== INITIALIZE UI =====
+  function initializeUI() {
+    createFilterButtons();
+    
+    slidesContainerWrapper.innerHTML = `
+      <div class="slides-container" id="${SLIDES_CONTAINER_ID}">
+        <div class="slides" id="${SLIDES_ID}">
+          ${filters.map((_, index) => `
+            <div class="slide">
+              <div class="product-grid">
+                <div class="${PRO_CONTAINER_CLASS}" id="${filters[index].id}-container"></div>
+                <div class="${PRO_CONTAINER_TWO_CLASS}" id="${filters[index].id}-container-two"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    slidesContainer = document.getElementById(SLIDES_CONTAINER_ID);
+    slides = document.getElementById(SLIDES_ID);
+    loadedStates = new Array(filters.length).fill(false);
+
+    // Fetch total product counts
+    Promise.all(filters.map(filter => filter.countFunction()))
+      .then(counts => {
+        counts.forEach((snapshot, index) => {
+          totalProductsCount[filters[index].id] = snapshot.data().count;
+        });
+
+        setTimeout(() => {
+          fullscreenLoader.style.display = 'none';
+          initializeEventHandlers();
+          loadProductsForFilter(filters[0], true);
+          goToSlide(0);
+        }, 1000);
+      })
+      .catch(error => {
+        console.error("Error getting total product counts:", error);
+        fullscreenLoader.style.display = 'none';
+      });
+  }
+
+  // ===== HELPER FUNCTIONS =====
+  function createFilterButtons() {
+    priceFilterContainer.innerHTML = '';
+    
+    filters.forEach((filter, index) => {
+      const button = document.createElement('button');
+      button.className = PRICE_FILTER_BUTTON_CLASS;
+      if (index === 0) button.classList.add(ACTIVE_BUTTON_CLASS);
+      button.dataset.slide = index;
+      button.textContent = filter.label;
+      priceFilterContainer.appendChild(button);
+    });
+  }
+
+  function initializeEventHandlers() {
+    // Filter button clicks
+    document.querySelectorAll(`.${PRICE_FILTER_BUTTON_CLASS}`).forEach(button => {
+      button.addEventListener('click', function() {
+        const slideIndex = parseInt(this.getAttribute('data-slide'));
+        goToSlide(slideIndex);
+      });
+    });
+
+    // Touch events for swipe
+    slidesContainer.addEventListener('touchstart', touchStart, { passive: true });
+    slidesContainer.addEventListener('touchmove', touchMove, { passive: false });
+    slidesContainer.addEventListener('touchend', touchEnd, { passive: true });
+
+    // Scroll events for infinite loading
+    document.querySelectorAll('.slide').forEach(slide => {
+      slide.addEventListener('scroll', handleSlideScroll);
+    });
+  }
+
+  function handleSlideScroll(event) {
+    const slide = event.target;
+    if (isLoadingMore || !hasMore) return;
+
+    const scrollHeight = slide.scrollHeight;
+    const scrollTop = slide.scrollTop;
+    const clientHeight = slide.clientHeight;
+
+    if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
+      const hasNotFound = slide.querySelector(`.${NOT_FOUND_CLASS}`);
+      if (hasNotFound) return;
+
+      isLoadingMore = true;
+      const slideIndex = Array.from(document.querySelectorAll('.slide')).indexOf(slide);
+      loadProductsForFilter(filters[slideIndex], false);
+    }
+  }
+
+  function goToSlide(index) {
+    if (currentIndex === index) return;
+    
+    currentIndex = index;
+    setSlidePosition();
+    updateActiveButton();
+    
+    if (!loadedStates[index]) {
+      showSkeletonLoaderForTab(index);
+      loadProductsForFilter(filters[index], true);
+      loadedStates[index] = true;
+    } else {
+      const filter = filters[index];
+      displayProducts(
+        productCache[filter.id],
+        document.getElementById(`${filter.id}-container`),
+        document.getElementById(`${filter.id}-container-two`),
+        true
+      );
+    }
+
+    hasMore = true;
+  }
+
+  function setSlidePosition() {
+    currentTranslate = -currentIndex * slidesContainer.clientWidth;
+    slides.style.transform = `translateX(${currentTranslate}px)`;
+    slides.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+  }
+
+  function updateActiveButton() {
+    const buttons = document.querySelectorAll(`.${PRICE_FILTER_BUTTON_CLASS}`);
+    buttons.forEach((btn, index) => {
+      btn.classList.toggle(ACTIVE_BUTTON_CLASS, index === currentIndex);
+      
+      if (index === currentIndex) {
+        btn.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    });
+  }
+
+  // ===== TOUCH HANDLERS (SWIPE) =====
+  function touchStart(e) {
+    startPosX = e.touches[0].clientX;
+    startPosY = e.touches[0].clientY;
+    prevTranslate = currentTranslate;
+    isDragging = true;
+    isScrolling = false;
+    slides.style.transition = 'none';
+    animationID = requestAnimationFrame(animation);
+  }
+
+  function touchMove(e) {
+    if (!isDragging) return;
+    
+    const currentPosX = e.touches[0].clientX;
+    const currentPosY = e.touches[0].clientY;
+    const diffX = currentPosX - startPosX;
+    const diffY = currentPosY - startPosY;
+    
+    if (!isScrolling && Math.abs(diffY) > Math.abs(diffX)) {
+      isScrolling = true;
+      isDragging = false;
+      cancelAnimationFrame(animationID);
+      slides.style.transform = `translateX(${prevTranslate}px)`;
+      return;
+    }
+    
+    if (isScrolling) return;
+    
+    e.preventDefault();
+    
+    currentTranslate = prevTranslate + diffX;
+    
+    const maxTranslate = 0;
+    const minTranslate = -(slides.children.length - 1) * slidesContainer.clientWidth;
+    
+    if (currentTranslate > maxTranslate) {
+      currentTranslate = maxTranslate + diffX * 0.5;
+    } else if (currentTranslate < minTranslate) {
+      currentTranslate = minTranslate + diffX * 0.5;
+    }
+  }
+
+  function touchEnd() {
+    if (!isDragging || isScrolling) {
+      isDragging = false;
+      isScrolling = false;
+      return;
+    }
+    
+    cancelAnimationFrame(animationID);
+    isDragging = false;
+    
+    const movedBy = currentTranslate - prevTranslate;
+    const threshold = slidesContainer.clientWidth * 0.2;
+    
+    if (movedBy < -threshold && currentIndex < slides.children.length - 1) {
+      currentIndex++;
+    } else if (movedBy > threshold && currentIndex > 0) {
+      currentIndex--;
+    }
+    
+    setSlidePosition();
+    updateActiveButton();
+    
+    if (!loadedStates[currentIndex]) {
+      showSkeletonLoaderForTab(currentIndex);
+      loadProductsForFilter(filters[currentIndex], true);
+      loadedStates[currentIndex] = true;
+    }
+  }
+
+  function animation() {
+    slides.style.transform = `translateX(${currentTranslate}px)`;
+    animationID = requestAnimationFrame(animation);
+  }
+
+  // ===== PRODUCT LOADING =====
+  async function loadProductsForFilter(filter, initialLoad = true) {
+    if (isFetching) return;
+    isFetching = true;
+
+    try {
+      const container1 = document.getElementById(`${filter.id}-container`);
+      const container2 = document.getElementById(`${filter.id}-container-two`);
+      const slide = document.querySelector(`.slide:nth-child(${currentIndex + 1})`);
+
+      if (initialLoad) {
+        if (productCache[filter.id].length > 0) {
+          displayProducts(productCache[filter.id], container1, container2, true);
+          isFetching = false;
+          return;
+        }
+
+        container1.innerHTML = '';
+        container2.innerHTML = '';
+        showSkeletonLoader(container1);
+        showSkeletonLoader(container2);
+        loadedProducts[filter.id].clear();
+        lastVisibleDocs[filter.id] = null;
+        hasMore = true;
+      } else {
+        showBottomLoader(slide);
+      }
+
+      const q = filter.queryFunction(lastVisibleDocs[filter.id]);
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty || loadedProducts[filter.id].size >= totalProductsCount[filter.id]) {
+        hasMore = false;
+        if (initialLoad) {
+          showNotFoundMessage(container1);
+        } else {
+          showBottomNotFoundMessage(container1, container2);
+        }
+        return;
+      }
+
+      lastVisibleDocs[filter.id] = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+      const newProducts = querySnapshot.docs
+        .filter(doc => !loadedProducts[filter.id].has(doc.id))
+        .map(doc => ({ id: doc.id, data: doc.data() }));
+
+      productCache[filter.id] = [...productCache[filter.id], ...newProducts];
+      newProducts.forEach(product => loadedProducts[filter.id].add(product.id));
+
+      displayProducts(newProducts, container1, container2, initialLoad);
+
+    } catch (error) {
+      console.error("Error loading products:", error);
+      const container1 = document.getElementById(`${filter.id}-container`);
+      showNotFoundMessage(container1);
+    } finally {
+      isFetching = false;
+      isLoadingMore = false;
+      removeBottomLoader(document.querySelector(`.slide:nth-child(${currentIndex + 1})`));
+    }
+  }
+
+  // ===== UI HELPERS =====
+  function showSkeletonLoaderForTab(tabIndex) {
+    const filter = filters[tabIndex];
+    const container1 = document.getElementById(`${filter.id}-container`);
+    const container2 = document.getElementById(`${filter.id}-container-two`);
+
+    container1.innerHTML = '';
+    container2.innerHTML = '';
+    showSkeletonLoader(container1);
+    showSkeletonLoader(container2);
+  }
+
+  function showSkeletonLoader(container) {
+    for (let i = 0; i < 6; i++) {
+      const skeletonDiv = document.createElement('div');
+      skeletonDiv.classList.add('pro');
+      
+      const skeletonImage = document.createElement('div');
+      skeletonImage.classList.add(SKELETON_CLASS, 'skeleton-image');
+      
+      const skeletonDetails = document.createElement('div');
+      skeletonDetails.classList.add('details');
+      skeletonDetails.innerHTML = `
+        <div class="${SKELETON_CLASS} skeleton-box" style="height: 20px; width: 80%;"></div>
+        <div class="${SKELETON_CLASS} skeleton-box" style="height: 20px; width: 60%; margin: 5px 0;"></div>
+        <div class="${SKELETON_CLASS} skeleton-box" style="height: 20px; width: 40%;"></div>
+      `;
+      
+      skeletonDiv.appendChild(skeletonImage);
+      skeletonDiv.appendChild(skeletonDetails);
+      container.appendChild(skeletonDiv);
+    }
+  }
+
+  function showBottomLoader(container) {
+    const loader = document.createElement('div');
+    loader.className = BOTTOM_LOADER_CLASS;
+    loader.innerHTML = `
+      <div class="spinner small"></div>
+      <p>Loading more products...</p>
+    `;
+    container.appendChild(loader);
+  }
+
+  function removeBottomLoader(container) {
+    if (!container) return;
+    const loader = container.querySelector(`.${BOTTOM_LOADER_CLASS}`);
+    if (loader) {
+      loader.remove();
+    }
+  }
+
+  function showNotFoundMessage(container) {
+    const productGrid = container.closest('.product-grid');
+    if (!productGrid) return;
+    
+    productGrid.innerHTML = `
+      <div class="${NOT_FOUND_CLASS}">
+        <i class="fas fa-search"></i>
+        <p>No products found in this filter</p>
+      </div>
+    `;
+  }
+
+  function showBottomNotFoundMessage(container1, container2) {
+    const productGrid = container1.closest('.product-grid');
+    if (!productGrid) return;
+    
+    const notFoundDiv = document.createElement('div');
+    notFoundDiv.className = 'bottom-not-found';
+    notFoundDiv.innerHTML = `
+      <i class="fas fa-search"></i>
+      <p>No more products found</p>
+    `;
+    
+    productGrid.appendChild(notFoundDiv);
+  }
+
+  function removeBottomNotFoundMessage(container) {
+    const productGrid = container.closest('.product-grid');
+    if (!productGrid) return;
+    
+    const existing = productGrid.querySelector('.bottom-not-found');
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  // ===== PRODUCT DISPLAY =====
+  function loadImageWithSkeleton(imgElement, imageUrl, productName) {
+    const skeletonImage = document.createElement('div');
+    skeletonImage.classList.add(SKELETON_CLASS, 'skeleton-image');
+    imgElement.parentElement.insertBefore(skeletonImage, imgElement);
+    
+    imgElement.alt = productName;
+    
+    const tempImage = new Image();
+    tempImage.src = imageUrl;
+    
+    tempImage.onload = () => {
+      imgElement.src = imageUrl;
+      imgElement.style.opacity = 1;
+      skeletonImage.remove();
+    };
+    
+    tempImage.onerror = () => {
+      skeletonImage.remove();
+      imgElement.src = 'placeholder-image.jpg';
+      imgElement.alt = `${productName} (image not available)`;
+    };
+  }
+
+  function createProductElement(product, productId) {
+    const productDiv = document.createElement('div');
+    productDiv.classList.add('pro');
+    productDiv.innerHTML = `
+      <img class="${PRODUCT_IMAGE_CLASS}" alt="${product.name}" style="opacity: 0; transition: opacity 0.3s ease;" data-product-id="${productId}">
+      <div class="details">
+        <h4>₹${product.price}</h4>
+        <h5>${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</h5>
+        <div class="star">
+          <div class="st">★</div><p>${product.rating}(23)</p>
+        </div>
+      </div>
+    `;
+    
+    const imgElement = productDiv.querySelector(`.${PRODUCT_IMAGE_CLASS}`);
+    loadImageWithSkeleton(imgElement, product.image, product.name);
+    imgElement.addEventListener('click', () => routing(productId));
+    
+    return productDiv;
+  }
+
+  function displayProducts(products, container1, container2, initialLoad) {
+    removeBottomNotFoundMessage(container1);
+    removeBottomNotFoundMessage(container2);
+    
+    if (initialLoad) {
+      container1.innerHTML = '';
+      container2.innerHTML = '';
+    }
+
+    if (products.length === 0) {
+      if (initialLoad) {
+        showNotFoundMessage(container1);
+      }
+      return;
+    }
+
+    const productGrid = container1.closest('.product-grid');
+    const notFoundMsg = productGrid.querySelector(`.${NOT_FOUND_CLASS}`);
+    if (notFoundMsg) {
+      notFoundMsg.remove();
+    }
+
+    products.forEach((product, index) => {
+      const productElement = createProductElement(product.data, product.id);
+
+      const totalProducts = container1.children.length + container2.children.length;
+      if (totalProducts % 2 === 0) {
+        container1.appendChild(productElement);
+      } else {
+        container2.appendChild(productElement);
+      }
+    });
+  }
+
+  // ===== INITIALIZE APP =====
+  initializeUI();
+
+  // ===== ROUTING (Placeholder) =====
+  window.routing = function(productId) {
+    console.log("Navigating to product:", productId);
+    // window.location.href = `/product.html?id=${productId}`;
+  };
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List with Dynamic Filters</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+          font-family: Helvetica, Sans-Serif;
+          padding-top: 60px;
+          height: 100vh;
+      }
+      
+      .fullscreen-loader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          flex-direction: column;
+      }
+      .fullscreen-loader .spinner {
+          width: 50px;
+          height: 50px;
+          border: 5px solid #f3f3f3;
+          border-top: 5px solid #088178;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+      .fullscreen-loader p {
+          margin-top: 20px;
+          color: #088178;
+          font-weight: bold;
+      }
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+      
+      .price-filter-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          padding: 12px;
+          gap: 12px;
+          background: #fff;
+          overflow-x: auto;
+          scrollbar-width: none;
+          z-index: 100;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .price-filter-container::-webkit-scrollbar {
+          display: none;
+      }
+      .price-filter-container button {
+          flex: 0 0 auto;
+          padding: 12px 15px;
+          background: #fff;
+          color: #088178;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+          font-weight: 500;
+      }
+      .price-filter-container button.active {
+          background: #f0f9f8;
+          color: #088178;
+          transform: scale(1.05);
+      }
+      .price-filter-container button.active::after {
+          content: '';
+          position: absolute;
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 3px;
+          background-color: #088178;
+          border-radius: 3px;
+      }
+      
+      .slides-container {
+          width: 100%;
+          height: calc(100vh - 60px);
+          position: relative;
+          overflow: hidden;
+      }
+      .slides {
+          display: flex;
+          height: 100%;
+          transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      
+      .slide {
+          flex: 0 0 100%;
+          width: 100%;
+          height: 100%;
+          overflow-y: auto;
+          scrollbar-width: none;
+      }
+      .slide::-webkit-scrollbar {
+          display: none;
+      }
+      
+      .product-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          padding: 15px;
+          min-height: calc(100% + 1px);
+      }
+      .pro-container, .pro-container-two {
+          display: contents;
+      }
+      .pro {
+          width: auto;
+          height: auto;
+          border-radius: 12px;
+          margin: 10px 0;
+          transition: 0.2s ease;
+          position: relative;
+      }
+      .pro .img {
+          width: 100%;
+          height: 170px;
+          object-fit: cover;
+          border-radius: 12px;
+          transition: opacity 0.3s ease-in-out;
+          cursor: pointer;
+      }
+      .pro .details {
+          text-align: start;
+      }
+      .pro p {
+          color: #313474;
+          padding-top: 6px;
+      }
+      .pro h5 {
+          margin: 3px 0;
+          color: #313474;
+          font-size: 14px;
+          font-weight: 450;
+      }
+      .pro .star {
+          display: flex;
+          padding: 5px 0;
+          gap: 4px;
+          font-size: 13px;
+      }
+      .pro .star .st {
+          color: #FECC83;
+          width: 12px;
+          font-size: 17px;
+      }
+      .pro h4 {
+          font-size: 16px;
+          font-weight: 700;
+          color: #0D115B;
+      }
+
+      .not-found {
+          grid-column: 1 / -1;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          color: #666;
+          padding: 20px 0;
+          margin: 20px 0;
+      }
+      .not-found i {
+          font-size: 40px;
+          color: #ccc;
+          margin-bottom: 15px;
+      }
+      .not-found p {
+          font-size: 18px;
+          margin: 0;
+          color: #666;
+      }
+
+      .bottom-not-found {
+          grid-column: 1 / -1;
+          width: 100%;
+          text-align: center;
+          padding: 20px 0;
+          color: #666;
+          margin-top: 20px;
+      }
+      .bottom-not-found i {
+          font-size: 30px;
+          color: #ccc;
+          margin-bottom: 10px;
+      }
+      .bottom-not-found p {
+          font-size: 16px;
+          margin: 0;
+      }
+
+      .skeleton {
+          background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 300% 100%;
+          animation: loading 3.5s infinite;
+          border-radius: 12px;
+          margin: 10px 0;
+      }
+      @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -100% 0; }
+      }
+      .skeleton-image {
+          background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 300% 100%;
+          animation: loading 3.5s infinite;
+          border-radius: 12px;
+          width: 100%;
+          height: 170px;
+          position: relative;
+      }
+      .skeleton-box {
+          border-radius: 4px;
+          margin-bottom: 8px;
+      }
+      
+      .bottom-loader {
+          grid-column: 1 / -1;
+          width: 100%;
+          padding: 20px;
+          text-align: center;
+          color: #088178;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .bottom-loader .spinner.small {
+          width: 30px;
+          height: 30px;
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #088178;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+    </style>
+</head>
+<body>
+    <div class="fullscreen-loader" id="fullscreenLoader">
+        <div class="spinner"></div>
+        <p>Loading Products...</p>
+    </div>
+
+    <div class="price-filter-container" id="priceFilterContainer"></div>
+    
+    <div id="slidesContainerWrapper"></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy, where, limit, startAfter, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+    authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+    projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+    storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+    messagingSenderId: "246983910789",
+    appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Constants
+  const BATCH_SIZE = 6;
+  const SCROLL_THRESHOLD = 200;
+  const PRODUCT_IMAGE_CLASS = 'img';
+  const SKELETON_CLASS = 'skeleton';
+  const NOT_FOUND_CLASS = 'not-found';
+  const BOTTOM_LOADER_CLASS = 'bottom-loader';
+  const PRICE_FILTER_BUTTON_CLASS = 'price-filter-container button';
+  const ACTIVE_BUTTON_CLASS = 'active';
+  const PRO_CONTAINER_CLASS = 'pro-container';
+  const PRO_CONTAINER_TWO_CLASS = 'pro-container-two';
+  const SLIDES_CONTAINER_ID = 'slidesContainer';
+  const SLIDES_ID = 'slides';
+
+  // DOM Elements
+  const fullscreenLoader = document.getElementById('fullscreenLoader');
+  const priceFilterContainer = document.getElementById('priceFilterContainer');
+  const slidesContainerWrapper = document.getElementById('slidesContainerWrapper');
+
+  // ===== GET URL PARAMETER (e.g., ?name=shoes) =====
+  function getUrlParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  const searchTerm = getUrlParam('search'); // Extract 'name' from URL
+
+  // ===== DYNAMIC QUERY BUILDER (Now includes name search) =====
+  function buildQuery(filter, lastDoc = null) {
+    let q = collection(db, "products");
+    
+    // Add WHERE conditions from filter
+    filter.conditions?.forEach(cond => {
+      q = query(q, where(cond.field, cond.op, cond.value));
+    });
+    
+    // Add name search condition (if URL has ?name=...)
+    if (searchTerm) {
+      q = query(q, where("name", ">=", searchTerm));
+      q = query(q, where("name", "<=", searchTerm + '\uf8ff')); // For partial matches
+    }
+    
+    // Default sorting (by price)
+    q = query(q, orderBy("price"));
+    
+    // Pagination (if lastDoc is provided)
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
+    
+    // Limit results
+    q = query(q, limit(BATCH_SIZE));
+    
+    return q;
+  }
+
+  // ===== COUNT QUERY BUILDER (Now includes name search) =====
+  function buildCountQuery(filter) {
+    let q = collection(db, "products");
+    
+    filter.conditions?.forEach(cond => {
+      q = query(q, where(cond.field, cond.op, cond.value));
+    });
+    
+    // Add name search condition (if URL has ?name=...)
+    if (searchTerm) {
+      q = query(q, where("name", ">=", searchTerm));
+      q = query(q, where("name", "<=", searchTerm + '\uf8ff')); // For partial matches
+    }
+    
+    return getCountFromServer(q);
+  }
+
+  // ===== FILTERS CONFIGURATION (Now includes name condition) =====
+  const filters = [
+    {
+      id: 'all',
+      label: 'All',
+      conditions: [],
+      queryFunction: (lastDoc) => buildQuery({ conditions: [] }, lastDoc),
+      countFunction: () => buildCountQuery({ conditions: [] })
+    },
+    {
+      id: '100-500',
+      label: '₹100 to ₹500',
+      conditions: [
+        { field: 'price', op: '>=', value: 100 },
+        { field: 'price', op: '<=', value: 500 }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[1], lastDoc),
+      countFunction: () => buildCountQuery(filters[1])
+    },
+    {
+      id: '500-1000',
+      label: '₹500 to ₹1000',
+      conditions: [
+        { field: 'price', op: '>=', value: 500 },
+        { field: 'price', op: '<=', value: 1000 }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[2], lastDoc),
+      countFunction: () => buildCountQuery(filters[2])
+    },
+    {
+      id: 'top-rated',
+      label: 'Top Rated',
+      conditions: [
+        { field: 'rating', op: '>=', value: 4 }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[3], lastDoc),
+      countFunction: () => buildCountQuery(filters[3])
+    },
+    {
+      id: 'electronics',
+      label: 'Electronics',
+      conditions: [
+        { field: 'category', op: '==', value: 'electronics' }
+      ],
+      queryFunction: (lastDoc) => buildQuery(filters[4], lastDoc),
+      countFunction: () => buildCountQuery(filters[4])
+    }
+  ];
+
+  // ===== STATE MANAGEMENT =====
+  let currentIndex = 0;
+  let startPosX = 0;
+  let startPosY = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let isDragging = false;
+  let isScrolling = false;
+  let animationID;
+  let isLoading = false;
+  let loadedProducts = {};
+  let loadedStates = [];
+  let slidesContainer, slides;
+  let isFetching = false;
+  let isLoadingMore = false;
+  let hasMore = true;
+  let lastVisibleDocs = {};
+  let totalProductsCount = {};
+  let productCache = {};
+
+  // Initialize product cache
+  filters.forEach(filter => {
+    productCache[filter.id] = [];
+    loadedProducts[filter.id] = new Set();
+  });
+
+  // ===== INITIALIZE UI =====
+  function initializeUI() {
+    createFilterButtons();
+    
+    slidesContainerWrapper.innerHTML = `
+      <div class="slides-container" id="${SLIDES_CONTAINER_ID}">
+        <div class="slides" id="${SLIDES_ID}">
+          ${filters.map((_, index) => `
+            <div class="slide">
+              <div class="product-grid">
+                <div class="${PRO_CONTAINER_CLASS}" id="${filters[index].id}-container"></div>
+                <div class="${PRO_CONTAINER_TWO_CLASS}" id="${filters[index].id}-container-two"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    slidesContainer = document.getElementById(SLIDES_CONTAINER_ID);
+    slides = document.getElementById(SLIDES_ID);
+    loadedStates = new Array(filters.length).fill(false);
+
+    // Fetch total product counts
+    Promise.all(filters.map(filter => filter.countFunction()))
+      .then(counts => {
+        counts.forEach((snapshot, index) => {
+          totalProductsCount[filters[index].id] = snapshot.data().count;
+        });
+
+        setTimeout(() => {
+          fullscreenLoader.style.display = 'none';
+          initializeEventHandlers();
+          loadProductsForFilter(filters[0], true);
+          goToSlide(0);
+        }, 1000);
+      })
+      .catch(error => {
+        console.error("Error getting total product counts:", error);
+        fullscreenLoader.style.display = 'none';
+      });
+  }
+
+  // ===== HELPER FUNCTIONS =====
+  function createFilterButtons() {
+    priceFilterContainer.innerHTML = '';
+    
+    filters.forEach((filter, index) => {
+      const button = document.createElement('button');
+      button.className = PRICE_FILTER_BUTTON_CLASS;
+      if (index === 0) button.classList.add(ACTIVE_BUTTON_CLASS);
+      button.dataset.slide = index;
+      button.textContent = filter.label;
+      priceFilterContainer.appendChild(button);
+    });
+  }
+
+  function initializeEventHandlers() {
+    // Filter button clicks
+    document.querySelectorAll(`.${PRICE_FILTER_BUTTON_CLASS}`).forEach(button => {
+      button.addEventListener('click', function() {
+        const slideIndex = parseInt(this.getAttribute('data-slide'));
+        goToSlide(slideIndex);
+      });
+    });
+
+    // Touch events for swipe
+    slidesContainer.addEventListener('touchstart', touchStart, { passive: true });
+    slidesContainer.addEventListener('touchmove', touchMove, { passive: false });
+    slidesContainer.addEventListener('touchend', touchEnd, { passive: true });
+
+    // Scroll events for infinite loading
+    document.querySelectorAll('.slide').forEach(slide => {
+      slide.addEventListener('scroll', handleSlideScroll);
+    });
+  }
+
+  function handleSlideScroll(event) {
+    const slide = event.target;
+    if (isLoadingMore || !hasMore) return;
+
+    const scrollHeight = slide.scrollHeight;
+    const scrollTop = slide.scrollTop;
+    const clientHeight = slide.clientHeight;
+
+    if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
+      const hasNotFound = slide.querySelector(`.${NOT_FOUND_CLASS}`);
+      if (hasNotFound) return;
+
+      isLoadingMore = true;
+      const slideIndex = Array.from(document.querySelectorAll('.slide')).indexOf(slide);
+      loadProductsForFilter(filters[slideIndex], false);
+    }
+  }
+
+  function goToSlide(index) {
+    if (currentIndex === index) return;
+    
+    currentIndex = index;
+    setSlidePosition();
+    updateActiveButton();
+    
+    if (!loadedStates[index]) {
+      showSkeletonLoaderForTab(index);
+      loadProductsForFilter(filters[index], true);
+      loadedStates[index] = true;
+    } else {
+      const filter = filters[index];
+      displayProducts(
+        productCache[filter.id],
+        document.getElementById(`${filter.id}-container`),
+        document.getElementById(`${filter.id}-container-two`),
+        true
+      );
+    }
+
+    hasMore = true;
+  }
+
+  function setSlidePosition() {
+    currentTranslate = -currentIndex * slidesContainer.clientWidth;
+    slides.style.transform = `translateX(${currentTranslate}px)`;
+    slides.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+  }
+
+  function updateActiveButton() {
+    const buttons = document.querySelectorAll(`.${PRICE_FILTER_BUTTON_CLASS}`);
+    buttons.forEach((btn, index) => {
+      btn.classList.toggle(ACTIVE_BUTTON_CLASS, index === currentIndex);
+      
+      if (index === currentIndex) {
+        btn.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    });
+  }
+
+  // ===== TOUCH HANDLERS (SWIPE) =====
+  function touchStart(e) {
+    startPosX = e.touches[0].clientX;
+    startPosY = e.touches[0].clientY;
+    prevTranslate = currentTranslate;
+    isDragging = true;
+    isScrolling = false;
+    slides.style.transition = 'none';
+    animationID = requestAnimationFrame(animation);
+  }
+
+  function touchMove(e) {
+    if (!isDragging) return;
+    
+    const currentPosX = e.touches[0].clientX;
+    const currentPosY = e.touches[0].clientY;
+    const diffX = currentPosX - startPosX;
+    const diffY = currentPosY - startPosY;
+    
+    if (!isScrolling && Math.abs(diffY) > Math.abs(diffX)) {
+      isScrolling = true;
+      isDragging = false;
+      cancelAnimationFrame(animationID);
+      slides.style.transform = `translateX(${prevTranslate}px)`;
+      return;
+    }
+    
+    if (isScrolling) return;
+    
+    e.preventDefault();
+    
+    currentTranslate = prevTranslate + diffX;
+    
+    const maxTranslate = 0;
+    const minTranslate = -(slides.children.length - 1) * slidesContainer.clientWidth;
+    
+    if (currentTranslate > maxTranslate) {
+      currentTranslate = maxTranslate + diffX * 0.5;
+    } else if (currentTranslate < minTranslate) {
+      currentTranslate = minTranslate + diffX * 0.5;
+    }
+  }
+
+  function touchEnd() {
+    if (!isDragging || isScrolling) {
+      isDragging = false;
+      isScrolling = false;
+      return;
+    }
+    
+    cancelAnimationFrame(animationID);
+    isDragging = false;
+    
+    const movedBy = currentTranslate - prevTranslate;
+    const threshold = slidesContainer.clientWidth * 0.2;
+    
+    if (movedBy < -threshold && currentIndex < slides.children.length - 1) {
+      currentIndex++;
+    } else if (movedBy > threshold && currentIndex > 0) {
+      currentIndex--;
+    }
+    
+    setSlidePosition();
+    updateActiveButton();
+    
+    if (!loadedStates[currentIndex]) {
+      showSkeletonLoaderForTab(currentIndex);
+      loadProductsForFilter(filters[currentIndex], true);
+      loadedStates[currentIndex] = true;
+    }
+  }
+
+  function animation() {
+    slides.style.transform = `translateX(${currentTranslate}px)`;
+    animationID = requestAnimationFrame(animation);
+  }
+
+  // ===== PRODUCT LOADING =====
+  async function loadProductsForFilter(filter, initialLoad = true) {
+    if (isFetching) return;
+    isFetching = true;
+
+    try {
+      const container1 = document.getElementById(`${filter.id}-container`);
+      const container2 = document.getElementById(`${filter.id}-container-two`);
+      const slide = document.querySelector(`.slide:nth-child(${currentIndex + 1})`);
+
+      if (initialLoad) {
+        if (productCache[filter.id].length > 0) {
+          displayProducts(productCache[filter.id], container1, container2, true);
+          isFetching = false;
+          return;
+        }
+
+        container1.innerHTML = '';
+        container2.innerHTML = '';
+        showSkeletonLoader(container1);
+        showSkeletonLoader(container2);
+        loadedProducts[filter.id].clear();
+        lastVisibleDocs[filter.id] = null;
+        hasMore = true;
+      } else {
+        showBottomLoader(slide);
+      }
+
+      const q = filter.queryFunction(lastVisibleDocs[filter.id]);
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty || loadedProducts[filter.id].size >= totalProductsCount[filter.id]) {
+        hasMore = false;
+        if (initialLoad) {
+          showNotFoundMessage(container1);
+        } else {
+          showBottomNotFoundMessage(container1, container2);
+        }
+        return;
+      }
+
+      lastVisibleDocs[filter.id] = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+      const newProducts = querySnapshot.docs
+        .filter(doc => !loadedProducts[filter.id].has(doc.id))
+        .map(doc => ({ id: doc.id, data: doc.data() }));
+
+      productCache[filter.id] = [...productCache[filter.id], ...newProducts];
+      newProducts.forEach(product => loadedProducts[filter.id].add(product.id));
+
+      displayProducts(newProducts, container1, container2, initialLoad);
+
+    } catch (error) {
+      console.error("Error loading products:", error);
+      const container1 = document.getElementById(`${filter.id}-container`);
+      showNotFoundMessage(container1);
+    } finally {
+      isFetching = false;
+      isLoadingMore = false;
+      removeBottomLoader(document.querySelector(`.slide:nth-child(${currentIndex + 1})`));
+    }
+  }
+
+  // ===== UI HELPERS =====
+  function showSkeletonLoaderForTab(tabIndex) {
+    const filter = filters[tabIndex];
+    const container1 = document.getElementById(`${filter.id}-container`);
+    const container2 = document.getElementById(`${filter.id}-container-two`);
+
+    container1.innerHTML = '';
+    container2.innerHTML = '';
+    showSkeletonLoader(container1);
+    showSkeletonLoader(container2);
+  }
+
+  function showSkeletonLoader(container) {
+    for (let i = 0; i < 6; i++) {
+      const skeletonDiv = document.createElement('div');
+      skeletonDiv.classList.add('pro');
+      
+      const skeletonImage = document.createElement('div');
+      skeletonImage.classList.add(SKELETON_CLASS, 'skeleton-image');
+      
+      const skeletonDetails = document.createElement('div');
+      skeletonDetails.classList.add('details');
+      skeletonDetails.innerHTML = `
+        <div class="${SKELETON_CLASS} skeleton-box" style="height: 20px; width: 80%;"></div>
+        <div class="${SKELETON_CLASS} skeleton-box" style="height: 20px; width: 60%; margin: 5px 0;"></div>
+        <div class="${SKELETON_CLASS} skeleton-box" style="height: 20px; width: 40%;"></div>
+      `;
+      
+      skeletonDiv.appendChild(skeletonImage);
+      skeletonDiv.appendChild(skeletonDetails);
+      container.appendChild(skeletonDiv);
+    }
+  }
+
+  function showBottomLoader(container) {
+    const loader = document.createElement('div');
+    loader.className = BOTTOM_LOADER_CLASS;
+    loader.innerHTML = `
+      <div class="spinner small"></div>
+      <p>Loading more products...</p>
+    `;
+    container.appendChild(loader);
+  }
+
+  function removeBottomLoader(container) {
+    if (!container) return;
+    const loader = container.querySelector(`.${BOTTOM_LOADER_CLASS}`);
+    if (loader) {
+      loader.remove();
+    }
+  }
+
+  function showNotFoundMessage(container) {
+    const productGrid = container.closest('.product-grid');
+    if (!productGrid) return;
+    
+    productGrid.innerHTML = `
+      <div class="${NOT_FOUND_CLASS}">
+        <i class="fas fa-search"></i>
+        <p>No products found in this filter</p>
+      </div>
+    `;
+  }
+
+  function showBottomNotFoundMessage(container1, container2) {
+    const productGrid = container1.closest('.product-grid');
+    if (!productGrid) return;
+    
+    const notFoundDiv = document.createElement('div');
+    notFoundDiv.className = 'bottom-not-found';
+    notFoundDiv.innerHTML = `
+      <i class="fas fa-search"></i>
+      <p>No more products found</p>
+    `;
+    
+    productGrid.appendChild(notFoundDiv);
+  }
+
+  function removeBottomNotFoundMessage(container) {
+    const productGrid = container.closest('.product-grid');
+    if (!productGrid) return;
+    
+    const existing = productGrid.querySelector('.bottom-not-found');
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  // ===== PRODUCT DISPLAY =====
+  function loadImageWithSkeleton(imgElement, imageUrl, productName) {
+    const skeletonImage = document.createElement('div');
+    skeletonImage.classList.add(SKELETON_CLASS, 'skeleton-image');
+    imgElement.parentElement.insertBefore(skeletonImage, imgElement);
+    
+    imgElement.alt = productName;
+    
+    const tempImage = new Image();
+    tempImage.src = imageUrl;
+    
+    tempImage.onload = () => {
+      imgElement.src = imageUrl;
+      imgElement.style.opacity = 1;
+      skeletonImage.remove();
+    };
+    
+    tempImage.onerror = () => {
+      skeletonImage.remove();
+      imgElement.src = 'placeholder-image.jpg';
+      imgElement.alt = `${productName} (image not available)`;
+    };
+  }
+
+  function createProductElement(product, productId) {
+    const productDiv = document.createElement('div');
+    productDiv.classList.add('pro');
+    productDiv.innerHTML = `
+      <img class="${PRODUCT_IMAGE_CLASS}" alt="${product.name}" style="opacity: 0; transition: opacity 0.3s ease;" data-product-id="${productId}">
+      <div class="details">
+        <h4>₹${product.price}</h4>
+        <h5>${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</h5>
+        <div class="star">
+          <div class="st">★</div><p>${product.rating}(23)</p>
+        </div>
+      </div>
+    `;
+    
+    const imgElement = productDiv.querySelector(`.${PRODUCT_IMAGE_CLASS}`);
+    loadImageWithSkeleton(imgElement, product.image, product.name);
+    imgElement.addEventListener('click', () => routing(productId));
+    
+    return productDiv;
+  }
+
+  function displayProducts(products, container1, container2, initialLoad) {
+    removeBottomNotFoundMessage(container1);
+    removeBottomNotFoundMessage(container2);
+    
+    if (initialLoad) {
+      container1.innerHTML = '';
+      container2.innerHTML = '';
+    }
+
+    if (products.length === 0) {
+      if (initialLoad) {
+        showNotFoundMessage(container1);
+      }
+      return;
+    }
+
+    const productGrid = container1.closest('.product-grid');
+    const notFoundMsg = productGrid.querySelector(`.${NOT_FOUND_CLASS}`);
+    if (notFoundMsg) {
+      notFoundMsg.remove();
+    }
+
+    products.forEach((product, index) => {
+      const productElement = createProductElement(product.data, product.id);
+
+      const totalProducts = container1.children.length + container2.children.length;
+      if (totalProducts % 2 === 0) {
+        container1.appendChild(productElement);
+      } else {
+        container2.appendChild(productElement);
+      }
+    });
+  }
+
+  // ===== INITIALIZE APP =====
+  initializeUI();
+
+  // ===== ROUTING (Placeholder) =====
+  window.routing = function(productId) {
+    console.log("Navigating to product:", productId);
+    // window.location.href = `/product.html?id=${productId}`;
+  };
+</script>
+</body>
+</html>

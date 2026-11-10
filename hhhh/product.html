@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="product.css">
+    
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+      <div class="slider-container">
+            <div class="slider-track" id="slider-track"></div>
+            <div class="image-number" id="image-number">1 / 4</div>
+        </div>
+        <div class="space">h</div>
+    <div class="product-details">
+        <!-- Slider for images -->
+      
+        <div class="product-info">
+          <div id="details">
+           <div class="price-section">
+             <span id="productPrice" class="price"></span>
+             <span id="productCutPrice" class="cut-price"></span>
+           </div>
+            <h2 id="productName"></h2>
+            <p id="productBrand"></p>
+           
+            <div id="productRating" class="star-rating"></div>
+            <p id="productDescription"></p>
+            </div>
+           <div id="product1" class="section-p1">
+              <div class="pro-container">
+              </div>
+              <div class="pro-container-two"></div>
+            </div>
+              
+           <br />
+            <br />
+             <br />
+              <br />
+               <br />
+                <br />
+                 <br />
+                  <br />
+                   <br />
+                    <br />
+                     <br />
+                      <br />
+                       <br />
+                        <br />
+                         <br />
+                          <br />
+                           <br />
+                            <br />
+                             <br />
+                              <br />
+                               <br />
+                                <br />
+                                 <br />
+                                  <br />
+                                   <br />
+                                   
+        </div>
+    </div>
+<div>
+          <div class="price-add-to-cart">
+            <button id="bynow" class="bynow"><i class="fas fa-shopping-cart"></i> Buy Now</button>
+            <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+          </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+<script type="module">
+    // Initialize Firebase and load product details from the database
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+  authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+  projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+  storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+  messagingSenderId: "246983910789",
+  appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+    // Function to fetch product details based on ID from URL
+    async function loadProductDetails() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get("id");
+  
+  if (!productId) {
+    console.error("Product ID not found in URL.");
+    return;
+  }
+  
+  try {
+    document.querySelector('.loading').style.display = 'flex';
+    
+    const productRef = doc(db, "products", productId);
+    const productSnap = await getDoc(productRef);
+    
+    if (productSnap.exists()) {
+      const product = productSnap.data();
+      
+      showSliderImages(product.images);
+      document.getElementById("productName").textContent = product.name || "No Name Available";
+      document.getElementById("productBrand").textContent = `${product.brand || "Unknown"}`;
+      document.getElementById("productPrice").textContent = `Price: $${product.price || "N/A"}`;
+      document.getElementById("productCutPrice").textContent = product.cutPrice ? `$${product.cutPrice}` : "";
+      document.getElementById("productRating").textContent = `Rating: ${product.rating || "N/A"}`;
+      document.getElementById("productDescription").textContent = product.description || "No description available.";
+      
+      document.querySelector('.product-details').style.display = 'flex';
+      document.querySelector('body').style.overflow = 'auto';
+    } else {
+      console.error("Product not found in Firestore.");
+      alert("Product not found!");
+    }
+  } catch (error) {
+    console.error("Error loading product details:", error);
+    alert("Failed to load product details. Please try again.");
+  } finally {
+    document.querySelector('.loading').style.display = 'none';
+  }
+}
+
+    // Function to display slider images
+    function showSliderImages(images) {
+        const sliderTrack = document.getElementById("slider-track");
+        const imageArray = images.split(',').map(img => img.trim());
+
+        // Clear previous slider images
+        sliderTrack.innerHTML = '';
+
+        imageArray.forEach((image, index) => {
+            const slideDiv = document.createElement("div");
+            slideDiv.classList.add("slide");
+            slideDiv.innerHTML = `<img src="${image}" alt="Product Image">`;
+            sliderTrack.appendChild(slideDiv);
+        });
+
+        // Update the image counter dynamically
+        const imageNumber = document.getElementById("image-number");
+        imageNumber.textContent = `1 / ${imageArray.length}`;
+
+        // Save media array for later use
+        window.mediaArray = imageArray;  // Store media array globally to access it in slider functionality
+    }
+
+    // Handle touch events for slider interaction
+    let sliderTrack = document.getElementById("slider-track");
+    let isDragging = false, startPos = 0, currentTranslate = 0, prevTranslate = 0, slideIndex = 0;
+    const imageNumber = document.getElementById("image-number");
+
+    sliderTrack.addEventListener('touchstart', touchStart);
+    sliderTrack.addEventListener('touchmove', touchMove);
+    sliderTrack.addEventListener('touchend', touchEnd);
+
+    function touchStart(e) {
+      isDragging = true;
+      startPos = e.touches[0].clientX;
+      sliderTrack.style.transition = 'none'; // Disable transition during dragging
+    }
+    
+    function touchMove(e) {
+      if (!isDragging) return;
+      const currentPosition = e.touches[0].clientX;
+      currentTranslate = prevTranslate + currentPosition - startPos;
+      sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+    }
+    
+    function touchEnd() {
+      isDragging = false;
+      const movedBy = currentTranslate - prevTranslate;
+    
+      if (movedBy < -100 && slideIndex < mediaArray.length - 1) slideIndex++;
+      if (movedBy > 100 && slideIndex > 0) slideIndex--;
+    
+      setPositionByIndex();
+    }
+
+    function setPositionByIndex() {
+  sliderTrack.style.transition = 'transform 0.4s ease'; // Re-enable transition for smooth sliding
+  currentTranslate = slideIndex * -sliderTrack.offsetWidth;
+  sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+  prevTranslate = currentTranslate;
+  imageNumber.textContent = `${slideIndex + 1} / ${mediaArray.length}`;
+}
+    // Call the function to load product details when the page loads
+    loadProductDetails();
+
+let containerOne = document.querySelector('.pro-container');
+        let containerTwo = document.querySelector('.pro-container-two');
+        let productsArray = [];
+        let batchSize = 6; // Products per batch
+        let currentBatch = 0;
+
+        // Show skeleton loader
+        function showSkeletonLoader(container) {
+            container.innerHTML = '';
+            for (let i = 0; i < batchSize; i++) {
+                const skeletonDiv = document.createElement('div');
+                skeletonDiv.classList.add('pro');
+
+                const skeletonImage = document.createElement('div');
+                skeletonImage.classList.add('skeleton-image'); // Skeleton for image
+
+                const skeletonDetails = document.createElement('div');
+                skeletonDetails.classList.add('details');
+                skeletonDetails.innerHTML = `
+                    <div class="skeleton skeleton-box" style="height: 20px; width: 80%;"></div>
+                    <div class="skeleton skeleton-box" style="height: 20px; width: 60%; margin: 5px 0;"></div>
+                    <div class="skeleton skeleton-box" style="height: 20px; width: 40%;"></div>
+                `;
+
+                skeletonDiv.appendChild(skeletonImage);
+                skeletonDiv.appendChild(skeletonDetails);
+                container.appendChild(skeletonDiv);
+            }
+        }
+
+        // Shuffle function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Load Image with Skeleton
+        // Load Image with Skeleton and Delay
+       function loadImageWithSkeleton(imgElement, imageUrl, delay = 3000) {
+          // Skeleton placeholder
+          const skeletonImage = document.createElement('div');
+          skeletonImage.classList.add('skeleton', 'skeleton-image');
+          imgElement.parentElement.insertBefore(skeletonImage, imgElement);
+        
+          // Preload the image
+          const tempImage = new Image();
+          tempImage.src = imageUrl;
+        
+          // Image loaded
+          tempImage.onload = () => {
+            // Replace skeleton with the actual image
+            imgElement.src = imageUrl;
+            imgElement.style.opacity = 1;
+            skeletonImage.remove(); // Remove skeleton
+          };
+        
+          // Handle loading delay (optional)
+          setTimeout(() => {
+            if (tempImage.complete && tempImage.naturalWidth > 0) {
+              imgElement.src = imageUrl;
+              imgElement.style.opacity = 1;
+              skeletonImage.remove(); // Remove skeleton
+            }
+          }, delay);
+        
+          // Error case
+          tempImage.onerror = () => {
+            skeletonImage.remove(); // Remove skeleton
+            imgElement.alt = "Image failed to load";
+          };
+        }
+
+// Function to filter products by brand
+function filterProductsByBrand(productsArray, brand) {
+  return productsArray.filter(product => product.data.brand === brand);
+}
+
+// Function to limit products to a specific amount
+function limitProducts(productsArray, amount) {
+  return productsArray.slice(0, amount);
+}
+
+// Load all products from Firebase initially
+async function loadAllProducts() {
+  const productsRef = collection(db, "products");
+  try {
+    const querySnapshot = await getDocs(productsRef);
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach(doc => {
+        const productData = doc.data();
+        const productId = doc.id;
+        productsArray.push({ data: productData, id: productId });
+      });
+      
+      // Extract the brand dynamically from the current product's brand
+      const brand = document.getElementById("productBrand").textContent.trim();
+      
+      // Filter products by brand
+      productsArray = filterProductsByBrand(productsArray, brand);
+      
+      // Limit the number of products
+      productsArray = limitProducts(productsArray, 5);
+      
+      // Shuffle the products array
+      productsArray = shuffleArray(productsArray);
+      
+      // Load the first batch of products
+      loadProductsBatch();
+    } else {
+      containerOne.innerHTML = '<p>No products available.</p>';
+    }
+  } catch (error) {
+    console.error("Error loading products from Firestore: ", error);
+  }
+}
+
+// Load products batch
+async function loadProductsBatch() {
+  if (currentBatch * batchSize >= productsArray.length) return; // No more products
+  
+  const startIndex = currentBatch * batchSize;
+  const endIndex = startIndex + batchSize;
+  const batch = productsArray.slice(startIndex, endIndex);
+  
+  // Clear skeleton loader
+  if (currentBatch === 0) {
+    containerOne.innerHTML = '';
+    containerTwo.innerHTML = '';
+  }
+  
+  batch.forEach((product, index) => {
+    const productElement = createProductElement(product.data, product.id);
+    if ((startIndex + index) % 2 === 0) {
+      containerOne.appendChild(productElement);
+    } else {
+      containerTwo.appendChild(productElement);
+    }
+  });
+  
+  currentBatch++;
+}
+
+// Infinite scrolling
+window.addEventListener('scroll', () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+    loadProductsBatch();
+  }
+});
+
+// Create a product element
+function createProductElement(product, productId) {
+  const productDiv = document.createElement('div');
+  productDiv.classList.add('pro');
+  productDiv.innerHTML = `
+        <img class="img" alt="${product.name}" style="opacity: 0; transition: opacity 0.3s ease;" onclick="routing('${productId}')">
+        
+        <div class="details">
+            <h4>Rs ${product.price}</h4>
+            <h5>${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</h5>
+            <div class="star">
+                <div class="st">&#9733</div><p>${product.rating}(23)</p>
+            </div>
+        </div>
+    `;
+  
+  // Image element
+  const imgElement = productDiv.querySelector('img');
+  
+  // Load image with skeleton and delay
+  loadImageWithSkeleton(imgElement, product.image, 9000); // 9 seconds delay
+  
+  return productDiv;
+}
+
+// Routing function
+window.routing = function(productId) {
+  window.location.href = `product.html?id=${productId}`;
+};
+
+// Load initial products with skeleton loader
+showSkeletonLoader(containerOne);
+showSkeletonLoader(containerTwo);
+loadAllProducts();
+</script>
+</body>
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Project Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4bb543;
+            --error: #ff3333;
+            --warning: #ffcc00;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="file"]:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            font-size: 100px;
+            opacity: 0;
+            right: 0;
+            top: 0;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: var(--light);
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .file-input-label:hover {
+            border-color: var(--accent);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .status {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .status.success {
+            background-color: rgba(75, 181, 67, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: block;
+        }
+        
+        .status.error {
+            background-color: rgba(255, 51, 51, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+            display: block;
+        }
+        
+        .status.info {
+            background-color: rgba(72, 149, 239, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            display: block;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .package-info {
+            background-color: var(--light);
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🛠️</div>
+        <h1>Java Project Generator</h1>
+        
+        <div class="form-group">
+            <label for="appName">Application Name</label>
+            <input type="text" id="appName" placeholder="MyAwesomeApp" />
+        </div>
+        
+        <div class="form-group">
+            <label for="zipInput">Project Template ZIP</label>
+            <div class="file-input-wrapper">
+                <label class="file-input-label" id="fileInputLabel">
+                    <span id="fileName">Choose a ZIP file...</span>
+                    <span>📁 Browse</span>
+                </label>
+                <input type="file" id="zipInput" accept=".zip" />
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Generated Package Name</label>
+            <div class="package-info" id="packageName">com.example.yourapp</div>
+        </div>
+        
+        <button id="generateBtn" class="btn" onclick="modifyProject()">Generate Project</button>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // Constants for local storage keys
+        const STORAGE_KEY = "javaProjectGeneratorCache";
+        const LAST_FILE_KEY = "lastUploadedFile";
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for cached file on page load
+            checkForCachedFile();
+            
+            // Update file name display when file is selected
+            document.getElementById('zipInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('fileName').textContent = file.name;
+                    generatePackageName();
+                    
+                    // Cache the file for faster processing
+                    cacheUploadedFile(file);
+                }
+            });
+            
+            // Generate package name when app name changes
+            document.getElementById('appName').addEventListener('input', generatePackageName);
+        });
+        
+        function checkForCachedFile() {
+            const lastFile = localStorage.getItem(LAST_FILE_KEY);
+            if (lastFile) {
+                const fileInfo = JSON.parse(lastFile);
+                document.getElementById('fileName').textContent = fileInfo.name;
+                showStatus(`Found cached file: ${fileInfo.name}. Using cached version for faster processing.`, 'info');
+            }
+        }
+        
+        function generatePackageName() {
+            const appName = document.getElementById('appName').value.trim().toLowerCase() || 'myapp';
+            const randomNum = Math.floor(Math.random() * 1000);
+            const cleanAppName = appName.replace(/[^a-z0-9]/g, '');
+            const packageName = `com.${cleanAppName}.app${randomNum}`;
+            document.getElementById('packageName').textContent = packageName;
+        }
+        
+        async function cacheUploadedFile(file) {
+            showStatus('Caching file for future use...', 'info');
+            
+            try {
+                // Create a unique key for this file
+                const fileKey = `file_${Date.now()}`;
+                const fileInfo = {
+                    key: fileKey,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    lastModified: file.lastModified
+                };
+                
+                // Store file in IndexedDB for larger files
+                if (file.size > 5 * 1024 * 1024) { // 5MB threshold
+                    await storeFileInIndexedDB(fileKey, file);
+                    showStatus('File stored in IndexedDB for faster access', 'info');
+                } else {
+                    // For smaller files, use localStorage
+                    const fileData = await readFileAsArrayBuffer(file);
+                    const cache = getCache();
+                    cache[fileKey] = arrayBufferToBase64(fileData);
+                    saveCache(cache);
+                }
+                
+                // Save file reference
+                localStorage.setItem(LAST_FILE_KEY, JSON.stringify(fileInfo));
+                showStatus('File cached successfully!', 'success');
+                
+            } catch (err) {
+                console.error('Error caching file:', err);
+                showStatus('Error caching file (using fresh upload)', 'error');
+            }
+        }
+        
+        async function getCachedFile() {
+            const lastFile = localStorage.getItem(LAST_FILE_KEY);
+            if (!lastFile) return null;
+            
+            const fileInfo = JSON.parse(lastFile);
+            const cache = getCache();
+            
+            try {
+                if (cache[fileInfo.key]) {
+                    // Get from localStorage
+                    const fileData = base64ToArrayBuffer(cache[fileInfo.key]);
+                    return new Blob([fileData], { type: fileInfo.type });
+                } else {
+                    // Check IndexedDB
+                    const file = await getFileFromIndexedDB(fileInfo.key);
+                    if (file) return file;
+                }
+            } catch (err) {
+                console.error('Error retrieving cached file:', err);
+            }
+            
+            return null;
+        }
+        
+        // IndexedDB functions for larger files
+        function openIDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('ProjectGeneratorDB', 1);
+                
+                request.onerror = (event) => {
+                    reject('IndexedDB error: ' + event.target.error);
+                };
+                
+                request.onsuccess = (event) => {
+                    resolve(event.target.result);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('files')) {
+                        db.createObjectStore('files');
+                    }
+                };
+            });
+        }
+        
+        async function storeFileInIndexedDB(key, file) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction('files', 'readwrite');
+                const store = transaction.objectStore('files');
+                
+                const request = store.put(file, key);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+        
+        async function getFileFromIndexedDB(key) {
+            try {
+                const db = await openIDB();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction('files', 'readonly');
+                    const store = transaction.objectStore('files');
+                    
+                    const request = store.get(key);
+                    
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            } catch (err) {
+                console.error('IndexedDB get error:', err);
+                return null;
+            }
+        }
+        
+        // Local storage helper functions
+        function getCache() {
+            const cache = localStorage.getItem(STORAGE_KEY);
+            return cache ? JSON.parse(cache) : {};
+        }
+        
+        function saveCache(cache) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+        }
+        
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+        
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+        
+        async function modifyProject() {
+            const appName = document.getElementById('appName').value.trim();
+            const packageName = document.getElementById('packageName').textContent;
+            const fileInput = document.getElementById('zipInput');
+            
+            if (!appName) {
+                showStatus('Please enter an application name', 'error');
+                return;
+            }
+            
+            try {
+                const btn = document.getElementById('generateBtn');
+                btn.disabled = true;
+                btn.textContent = 'Processing...';
+                
+                showStatus('Starting project generation...', 'info');
+                document.getElementById('progressContainer').style.display = 'block';
+                updateProgress(10);
+                
+                // Try to get cached file first
+                let zipData;
+                const cachedFile = await getCachedFile();
+                
+                if (cachedFile) {
+                    showStatus('Using cached file for faster processing...', 'info');
+                    zipData = await readFileAsArrayBuffer(cachedFile);
+                } else if (fileInput.files[0]) {
+                    showStatus('Processing uploaded file...', 'info');
+                    const file = fileInput.files[0];
+                    zipData = await readFileAsArrayBuffer(file);
+                    await cacheUploadedFile(file);
+                } else {
+                    showStatus('Please select a project template ZIP file', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Generate Project';
+                    return;
+                }
+                
+                updateProgress(30);
+                
+                const zip = new JSZip();
+                await zip.loadAsync(zipData);
+                
+                updateProgress(50);
+                showStatus('Updating project files...', 'info');
+                
+                // Process all files in the ZIP
+                const newZip = new JSZip();
+                let fileCount = 0;
+                
+                for (const [path, file] of Object.entries(zip.files)) {
+                    if (file.dir) {
+                        newZip.folder(path);
+                        continue;
+                    }
+                    
+                    fileCount++;
+                    let content = await file.async('text');
+                    let newPath = path;
+                    
+                    // Update package structure in file paths
+                    if (path.includes('src/main/java')) {
+                        const javaPath = path.split('src/main/java/')[1];
+                        if (javaPath) {
+                            const newJavaPath = javaPath.replace(/^[^\/]+\//, packageName.replace(/\./g, '/') + '/');
+                            newPath = path.replace(javaPath, newJavaPath);
+                        }
+                    }
+                    
+                    // Update package declarations in Java files
+                    if (path.endsWith('.java')) {
+                        content = content.replace(
+                            /^package\s+[^;]+;/m,
+                            `package ${packageName};`
+                        );
+                    }
+                    
+                    // Update app name in all files
+                    content = content.replace(/MyApplication/g, appName);
+                    content = content.replace(/myapplication/g, appName.toLowerCase());
+                    
+                    // Update AndroidManifest.xml if exists
+                    if (path.includes('AndroidManifest.xml')) {
+                        content = content.replace(
+                            /package="[^"]+"/,
+                            `package="${packageName}"`
+                        );
+                        content = content.replace(
+                            /android:label="[^"]+"/,
+                            `android:label="${appName}"`
+                        );
+                    }
+                    
+                    // Update build.gradle if exists
+                    if (path.includes('build.gradle')) {
+                        content = content.replace(
+                            /applicationId\s+"[^"]+"/,
+                            `applicationId "${packageName}"`
+                        );
+                    }
+                    
+                    newZip.file(newPath, content);
+                    
+                    // Update progress
+                    if (fileCount % 5 === 0) {
+                        updateProgress(50 + (fileCount / Object.keys(zip.files).length * 40));
+                    }
+                }
+                
+                updateProgress(90);
+                showStatus('Creating final ZIP package...', 'info');
+                
+                // Generate the modified ZIP
+                const content = await newZip.generateAsync({type: "blob"}, metadata => {
+                    updateProgress(90 + (metadata.percent / 10));
+                });
+                
+                // Save with app name as filename
+                saveAs(content, `${appName}.zip`);
+                
+                updateProgress(100);
+                showStatus(`Project "${appName}" generated successfully!`, 'success');
+                
+                btn.disabled = false;
+                btn.textContent = 'Generate Project';
+            } catch (err) {
+                showStatus(`Error: ${err.message}`, 'error');
+                console.error(err);
+                
+                const btn = document.getElementById('generateBtn');
+                btn.disabled = false;
+                btn.textContent = 'Generate Project';
+            }
+        }
+        
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+        }
+        
+        function updateProgress(percent) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${percent}%`;
+        }
+    </script>
+</body>
+</html>

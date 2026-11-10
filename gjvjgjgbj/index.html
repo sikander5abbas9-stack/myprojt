@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraz.pk - Online Shopping</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">daraz.pk</div>
+            <div class="search-cart">
+                <i class="fas fa-search" id="open-search"></i>
+                <div style="position: relative;">
+                    <i class="fas fa-shopping-cart" id="cart-icon"></i>
+                    <div class="cart-count" id="cart-count">0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="filter-bar">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="mobile">Mobile</button>
+            <button class="filter-btn" data-category="laptop">Laptop</button>
+            <button class="filter-btn" data-category="electronics">Electronics</button>
+            <button class="filter-btn" data-category="fashion">Fashion</button>
+            <button class="filter-btn" data-category="home">Home</button>
+            <button class="filter-btn" data-category="beauty">Beauty</button>
+        </div>
+        
+        <div class="filter-icon">
+            <span id="item-count">Loading items...</span>
+            <div style="display: flex;">
+                <button id="sort-btn" style="margin-right: 10px;">
+                    <i class="fas fa-sort-amount-down"></i> Sort
+                </button>
+                <div class="sort-options" id="sort-options">
+                    <div class="sort-option" data-sort="popular">Popular</div>
+                    <div class="sort-option active" data-sort="newest">Newest</div>
+                    <div class="sort-option" data-sort="price-low">Price: Low to High</div>
+                    <div class="sort-option" data-sort="price-high">Price: High to Low</div>
+                    <div class="sort-option" data-sort="rating">Customer Rating</div>
+                </div>
+                <button id="open-filter">
+                    <i class="fas fa-sliders-h"></i> Filter
+                </button>
+            </div>
+        </div>
+        
+        <div class="products-container" id="products-container">
+            <!-- Products loaded by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Filter Modal -->
+    <div class="filter-modal" id="filter-modal">
+        <div class="filter-content">
+            <div class="filter-header">
+                <h3>Filters</h3>
+                <button class="close-filter" id="close-filter">&times;</button>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Categories</h4>
+                <div class="filter-option">
+                    <input type="checkbox" id="category1" checked data-filter="category" value="mobile">
+                    <label for="category1">Mobile Phones</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="category2" data-filter="category" value="accessories">
+                    <label for="category2">Accessories</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="category3" data-filter="category" value="tablets">
+                    <label for="category3">Tablets</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Price Range</h4>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price1" checked data-filter="price" value="all">
+                    <label for="price1">All Prices</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price2" data-filter="price" value="0-20000">
+                    <label for="price2">Under Rs. 20,000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price3" data-filter="price" value="20000-40000">
+                    <label for="price3">Rs. 20,000 - Rs. 40,000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price4" data-filter="price" value="40000-60000">
+                    <label for="price4">Rs. 40,000 - Rs. 60,000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price5" data-filter="price" value="60000-100000">
+                    <label for="price5">Over Rs. 60,000</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Brand</h4>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand1" checked data-filter="brand" value="samsung">
+                    <label for="brand1">Samsung</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand2" data-filter="brand" value="xiaomi">
+                    <label for="brand2">Xiaomi</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand3" data-filter="brand" value="oppo">
+                    <label for="brand3">Oppo</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand4" data-filter="brand" value="vivo">
+                    <label for="brand4">Vivo</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand5" data-filter="brand" value="realme">
+                    <label for="brand5">Realme</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand6" data-filter="brand" value="infinix">
+                    <label for="brand6">Infinix</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Customer Ratings</h4>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating1" data-filter="rating" value="5">
+                    <label for="rating1">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> & Up
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating2" checked data-filter="rating" value="4">
+                    <label for="rating2">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> & Up
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating3" data-filter="rating" value="3">
+                    <label for="rating3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> & Up
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-apply">
+                <button class="reset-btn" id="reset-filters">RESET</button>
+                <button class="apply-btn" id="apply-filters">APPLY</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="search-modal">
+        <div class="search-header">
+            <div class="search-input-container">
+                <input type="text" class="search-input" placeholder="Search on Daraz..." id="search-input">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <i class="fas fa-times close-search" id="close-search"></i>
+        </div>
+        
+        <div class="loading-spinner" id="search-loading">
+            <div class="spinner"></div>
+        </div>
+        
+        <div class="search-results" id="search-results">
+            <!-- Search results loaded by JavaScript -->
+        </div>
+        
+        <div class="no-results" id="no-results">
+            No products found matching your search
+        </div>
+        
+        <div class="recent-searches" id="recent-searches">
+            <h4>Recent Searches</h4>
+            <!-- Recent searches loaded by JavaScript -->
+            <div class="clear-recent" id="clear-recent">
+                Clear Recent Searches
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick View Modal -->
+    <div class="quick-view-modal" id="quick-view-modal">
+        <div class="quick-view-content">
+            <i class="fas fa-times close-quick-view" id="close-quick-view"></i>
+            <img src="" alt="Product" class="quick-view-image" id="quick-view-image">
+            <h3 id="quick-view-title"></h3>
+            <div class="product-price" id="quick-view-price"></div>
+            <div class="rating" id="quick-view-rating"></div>
+            <p style="margin-top: 10px; font-size: 14px;" id="quick-view-desc"></p>
+            <button class="add-to-cart-btn" id="add-to-cart">ADD TO CART</button>
+        </div>
+    </div>
+    
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-heart"></i>
+            <span>Wishlist</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </div>
+    </div>
+
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

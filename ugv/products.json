@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "T-Shirt",
+    "price": 1200,
+    "image": "https://via.placeholder.com/150",
+    "category": "Clothing"
+  },
+  {
+    "id": 2,
+    "name": "Shoes",
+    "price": 2500,
+    "image": "https://via.placeholder.com/150",
+    "category": "Footwear"
+  },
+  {
+    "id": 3,
+    "name": "Smart Watch",
+    "price": 5000,
+    "image": "https://via.placeholder.com/150",
+    "category": "Accessories"
+  }
+]

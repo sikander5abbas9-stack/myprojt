@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bluetooth Status</title>
+    <script src="cordova.js"></script>
+</head>
+<body>
+    <h1>Connected Bluetooth Devices</h1>
+    <div id="connectedDevices"></div>
+
+    <script>
+        document.addEventListener('deviceready', onDeviceReady, false);
+        
+        function onDeviceReady() {
+            // Check for connected devices periodically
+            setInterval(checkBluetoothDevices, 3000);
+        }
+        
+        function checkBluetoothDevices() {
+            bluetoothSerial.list(devices => {
+                let html = '<h2>Connected Devices:</h2>';
+                if (devices.length > 0) {
+                    devices.forEach(device => {
+                        html += `<p>${device.name} (${device.address})</p>`;
+                    });
+                } else {
+                    html += '<p>No devices connected</p>';
+                }
+                document.getElementById('connectedDevices').innerHTML = html;
+            }, error => {
+                document.getElementById('connectedDevices').innerHTML = 
+                    `<p>Error: ${error}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>

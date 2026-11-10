@@ -1,0 +1,116 @@
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getDatabase, ref, set, push, get, child, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxIH6QRlkL9wvFQzSRjVfB2sMOC3LAlzQ",
+    authDomain: "humtum-ca633.firebaseapp.com",
+    projectId: "humtum-ca633",
+    storageBucket: "humtum-ca633.appspot.com",
+    messagingSenderId: "559745102192",
+    appId: "1:559745102192:web:3d390b78d2170f84e75fb5"
+  };
+  
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  
+  let isFirstPaste = true;
+  
+  // Handle pasting multiple URLs
+  document.getElementById('productImages').addEventListener('paste', function(event) {
+    event.preventDefault();
+    const pastedText = event.clipboardData.getData('text');
+    const displayUrl = document.getElementById('displayUrl');
+    
+    if (pastedText) {
+      displayUrl.textContent += isFirstPaste ? pastedText : ',' + pastedText;
+      isFirstPaste = false;
+    }
+    
+    this.value = '';
+  });
+  
+  // Add product to Firebase
+  document.getElementById("addProduct").addEventListener("click", async () => {
+    const product = {
+      name: document.getElementById("productName").value,
+      category: document.getElementById("productCategory").value,
+      brand: document.getElementById("productBrand").value,
+      image: document.getElementById("productImage").value,
+      images: document.getElementById("displayUrl").textContent,
+      price: parseInt(document.getElementById("productPrice").value),
+      cutPrice: document.getElementById("productCutPrice").value || null,
+      rating: parseFloat(document.getElementById("productRating").value) || null,
+      description: document.getElementById("productDescription").value,
+    };
+    
+    try {
+      const newProductRef = push(ref(db, "products"));
+      await set(newProductRef, product);
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Error adding product: ", error);
+    }
+  });
+  
+  // Fetch product by ID
+  document.getElementById("fetchProduct").addEventListener("click", async () => {
+    const productId = document.getElementById("productId").value;
+    if (!productId) {
+      alert("Please enter a product ID.");
+      return;
+    }
+    
+    try {
+      const productRef = ref(db, `products/${productId}`);
+      const snapshot = await get(productRef);
+      if (snapshot.exists()) {
+        document.getElementById("productData").value = JSON.stringify(snapshot.val(), null, 4);
+      } else {
+        alert("No product found with this ID.");
+      }
+    } catch (error) {
+      console.error("Error fetching product: ", error);
+    }
+  });
+  
+  // Update product
+  document.getElementById("updateProduct").addEventListener("click", async () => {
+    const productId = document.getElementById("productId").value;
+    const updatedData = JSON.parse(document.getElementById("productData").value);
+    
+    if (!productId || !updatedData) {
+      alert("Please provide both product ID and updated data.");
+      return;
+    }
+    
+    try {
+      const productRef = ref(db, `products/${productId}`);
+      await update(productRef, updatedData);
+      alert("Product updated successfully!");
+    } catch (error) {
+      console.error("Error updating product: ", error);
+    }
+  });
+  
+  // Delete product
+  document.getElementById("deleteProduct").addEventListener("click", async () => {
+    const productId = document.getElementById("productId").value;
+    
+    
+    
+    if (!productId) {
+      alert("Please enter a product ID.");
+      return;
+    }
+    
+    try {
+      const productRef = ref(db, `products/${productId}`);
+      await remove(productRef);
+      alert("Product deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting product: ", error);
+    }
+  });
+</script>-->

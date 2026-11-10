@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+            font-family: Helvetica, Sans-Serif;
+        }
+        main {
+            padding-bottom: 75px;
+        }
+        #product1 {
+            overflow-y: auto;
+            display: flex;
+            text-align: center;
+            justify-content: space-evenly;
+            padding: 3%;
+            gap: 3%;
+        }
+        .pro-container, .pro-container-two {
+            width: 50%;
+        }
+        #product1 .pro {
+            width: auto;
+            height: auto;
+            border-radius: 12px;
+            margin: 10px 0;
+            transition: 0.2s ease;
+            position: relative;
+        }
+        #product1 .pro .img {
+    width: 100%;
+    height: 170px; /* Same height as skeleton */
+    object-fit: cover;
+    border-radius: 12px;
+    transition: opacity 0.3s ease-in-out;
+}
+        #product1 .pro .details {
+            text-align: start;
+        }
+        #product1 .pro p {
+            color: #313474;
+        }
+        #product1 .pro h5 {
+            margin: 3px 0;
+            color: #313474;
+            font-size: 14px;
+            font-weight: 450;
+        }
+        #product1 .pro .star {
+            display: flex;
+            padding: 5px 0;
+            gap: 4px;
+            font-size: 13px;
+        }
+        #product1 .pro .star img {
+            color: #Fecc83;
+            width: 12px;
+        }
+        #product1 .pro h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0d115b;
+        }
+
+        /* Skeleton Loader Styles */
+        .skeleton {
+            background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 300% 100%;
+            animation: loading 3.5s infinite;
+            border-radius: 12px;
+            margin: 10px 0;
+        }
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+
+        /* Skeleton Image Placeholder */
+/* Fixed Height and Width for Skeleton Placeholder */
+.skeleton-image {
+    background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 300% 100%;
+    animation: loading 3.5s infinite;
+    border-radius: 12px;
+    width: 100%;
+    height: 220px; /* Fixed height to prevent layout shift */
+    position: relative;
+}
+
+/* Image Transition for Smooth Appearance */
+
+    </style>
+    
+</head>
+<body>
+    <!-- Header -->
+    <div id="header"></div>
+
+    
+
+    <main class="container">
+        <section class="product-div">
+            <div id="product1" class="section-p1">
+                <div class="pro-container"></div>
+                <div class="pro-container-two"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="nav-bar"></div>
+
+    <!-- Firebase App and Firestore SDK -->
+    <script src="main.js"></script>
+    <script src="index.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x/firebase-database.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyCODU5GVwDHlnb8lyc-w7fcqx25_MS55KA",
+  authDomain: "gzjsvkzhhsjhsb.firebaseapp.com",
+  projectId: "gzjsvkzhhsjhsb",
+  storageBucket: "gzjsvkzhhsjhsb.firebasestorage.app",
+  messagingSenderId: "969885928112",
+  appId: "1:969885928112:web:5121178f1d0c1125ad8975"
+};
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let containerOne = document.querySelector('.pro-container');
+        let containerTwo = document.querySelector('.pro-container-two');
+        let productsArray = [];
+        let batchSize = 6; // Products per batch
+        let currentBatch = 0;
+
+        // Show skeleton loader
+        function showSkeletonLoader(container) {
+            container.innerHTML = '';
+            for (let i = 0; i < batchSize; i++) {
+                const skeletonDiv = document.createElement('div');
+                skeletonDiv.classList.add('pro');
+
+                const skeletonImage = document.createElement('div');
+                skeletonImage.classList.add('skeleton-image'); // Skeleton for image
+
+                const skeletonDetails = document.createElement('div');
+                skeletonDetails.classList.add('details');
+                skeletonDetails.innerHTML = `
+                    <div class="skeleton skeleton-box" style="height: 20px; width: 80%;"></div>
+                    <div class="skeleton skeleton-box" style="height: 20px; width: 60%; margin: 5px 0;"></div>
+                    <div class="skeleton skeleton-box" style="height: 20px; width: 40%;"></div>
+                `;
+
+                skeletonDiv.appendChild(skeletonImage);
+                skeletonDiv.appendChild(skeletonDetails);
+                container.appendChild(skeletonDiv);
+            }
+        }
+
+        // Shuffle function
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Load Image with Skeleton
+        // Load Image with Skeleton and Delay
+       function loadImageWithSkeleton(imgElement, imageUrl, delay = 3000) {
+          // Skeleton placeholder
+          const skeletonImage = document.createElement('div');
+          skeletonImage.classList.add('skeleton', 'skeleton-image');
+          imgElement.parentElement.insertBefore(skeletonImage, imgElement);
+        
+          // Preload the image
+          const tempImage = new Image();
+          tempImage.src = imageUrl;
+        
+          // Image loaded
+          tempImage.onload = () => {
+            // Replace skeleton with the actual image
+            imgElement.src = imageUrl;
+            imgElement.style.opacity = 1;
+            skeletonImage.remove(); // Remove skeleton
+          };
+        
+          // Handle loading delay (optional)
+          setTimeout(() => {
+            if (tempImage.complete && tempImage.naturalWidth > 0) {
+              imgElement.src = imageUrl;
+              imgElement.style.opacity = 1;
+              skeletonImage.remove(); // Remove skeleton
+            }
+          }, delay);
+        
+          // Error case
+          tempImage.onerror = () => {
+            skeletonImage.remove(); // Remove skeleton
+            imgElement.alt = "Image failed to load";
+          };
+        }
+
+        // Load products batch
+        async function loadProductsBatch() {
+            if (currentBatch * batchSize >= productsArray.length) return; // No more products
+
+            const startIndex = currentBatch * batchSize;
+            const endIndex = startIndex + batchSize;
+            const batch = productsArray.slice(startIndex, endIndex);
+
+            // Clear skeleton loader
+            if (currentBatch === 0) {
+                containerOne.innerHTML = '';
+                containerTwo.innerHTML = '';
+            }
+
+            batch.forEach((product, index) => {
+                const productElement = createProductElement(product.data, product.id);
+                if ((startIndex + index) % 2 === 0) {
+                    containerOne.appendChild(productElement);
+                } else {
+                    containerTwo.appendChild(productElement);
+                }
+            });
+
+            currentBatch++;
+        }
+
+        // Load all products from Firebase initially
+        async function loadAllProducts() {
+          const productsRef = collection(db, "products");
+          try {
+            const querySnapshot = await getDocs(productsRef);
+            if (!querySnapshot.empty) {
+              querySnapshot.forEach(doc => {
+                const productData = doc.data();
+                const productId = doc.id;
+                productsArray.push({ data: productData, id: productId });
+              });
+        
+              productsArray = shuffleArray(productsArray);
+              loadProductsBatch(); // Pehli batch load karein
+            } else {
+              containerOne.innerHTML = '<p>No products available.</p>';
+            }
+          } catch (error) {
+            console.error("Error loading products from Firestore: ", error);
+          }
+        }
+
+        // Infinite scrolling
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                loadProductsBatch();
+            }
+        });
+
+
+// Create a product element
+function createProductElement(product, productId) {
+  const productDiv = document.createElement('div');
+  productDiv.classList.add('pro');
+  productDiv.innerHTML = `
+        <img class="img" alt="${product.name}" style="opacity: 0; transition: opacity 0.3s ease;" onclick="routing('${productId}')">
+        
+        <div class="details">
+            <h4>Rs ${product.price}</h4>
+            <h5>${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</h5>
+            <div class="star">
+                <img src="img/star.svg" alt="Rating"><p>${product.rating}(23)</p>
+            </div>
+        </div>
+    `;
+
+  // Image element
+  const imgElement = productDiv.querySelector('img');
+
+  // Load image with skeleton and delay
+  loadImageWithSkeleton(imgElement, product.image, 9000); // 9 seconds delay
+
+  return productDiv;
+}
+        // Routing function
+        window.routing = function(productId) {
+            window.location.href = `product.html?id=${productId}`;
+        };
+
+        // Load initial products with skeleton loader
+        showSkeletonLoader(containerOne);
+showSkeletonLoader(containerTwo);
+loadAllProducts();
+
+       
+     </script>
+     <script type="module" src="index1.js"></script>
+</body>
+</html>

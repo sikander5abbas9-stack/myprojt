@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { display: flex; gap: 20px; }
+        .controls { width: 300px; }
+        iframe { border: 2px solid #ccc; width: 500px; height: 400px; }
+        input, button { margin-bottom: 10px; padding: 8px; width: 100%; }
+        #messageLog { border: 1px solid #ddd; padding: 10px; height: 150px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>Parent Page</h1>
+    <div class="container">
+        <div class="controls">
+            <h3>Send Message to Iframe</h3>
+            <input type="text" id="messageInput" placeholder="Type your message">
+            <button id="sendButton">Send to Iframe</button>
+            
+            <h3>Messages from Iframe</h3>
+            <div id="messageLog"></div>
+        </div>
+        
+        <iframe id="childFrame" src="child.html"></iframe>
+    </div>
+
+    <script>
+        const iframe = document.getElementById('childFrame');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const messageLog = document.getElementById('messageLog');
+
+        // Send message to iframe
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                iframe.contentWindow.postMessage({
+                    action: 'display',
+                    content: message
+                }, '*');
+                addMessageToLog(`You: ${message}`, 'outgoing');
+                messageInput.value = '';
+            }
+        }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'message') {
+                addMessageToLog(`Iframe: ${event.data.content}`, 'incoming');
+            }
+        });
+
+        function addMessageToLog(message, type) {
+            const msgElement = document.createElement('div');
+            msgElement.textContent = message;
+            msgElement.style.margin = '5px 0';
+            msgElement.style.padding = '8px';
+            msgElement.style.borderRadius = '4px';
+            msgElement.style.backgroundColor = type === 'outgoing' ? '#e3f2fd' : '#f1f1f1';
+            msgElement.style.borderLeft = type === 'outgoing' ? '4px solid #2196F3' : '4px solid #607d8b';
+            messageLog.appendChild(msgElement);
+            messageLog.scrollTop = messageLog.scrollHeight;
+        }
+    </script>
+</body>
+</html>

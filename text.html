@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Image & Text Input</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            user-select: none; /* Poore page ka text select nahi hoga */
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            transition: 0.3s;
+            user-select: text; /* Sirf input aur textarea ka text select hoga */
+        }
+
+        input:focus, textarea:focus {
+            border-color: #ff758c;
+        }
+
+        img {
+            margin-top: 15px;
+            max-width: 100%;
+            height: auto;
+            display: none;
+            border-radius: 10px;
+            border: 3px solid #ff758c;
+        }
+
+        .upload-btn {
+            background: #ff758c;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #e84362;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>تصویر منتخب کریں اور متن لکھیں</h2>
+        
+        <input type="file" id="imageInput" accept="image/*" class="upload-btn">
+        
+        <textarea id="textBox" placeholder="یہاں متن لکھیں..." rows="4"></textarea>
+        
+        <img id="previewImage" alt="منتخب کردہ تصویر یہاں دکھے گی">
+    </div>
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const image = document.getElementById('previewImage');
+                    image.src = e.target.result;
+                    image.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+</body>
+</html>

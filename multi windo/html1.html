@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>First Iframe</title>
+    <style>
+        body { font-family: Arial; padding: 15px; background: #f0f0f0; }
+        button { padding: 8px 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h2>First Iframe (2nd HTML)</h2>
+    <p>This is the content inside the first iframe.</p>
+    
+    <button onclick="openThirdPage()">Open Third Page in PARENT Window</button>
+    <button onclick="openInSelf()">Open Third Page in THIS Iframe</button>
+    
+    <script>
+        function openThirdPage() {
+            // Open in parent window (replaces entire page)
+            window.top.location.href = "html2.html";
+        }
+        
+        function openInSelf() {
+            // Open in current iframe (for comparison)
+            window.location.href = "third.html";
+        }
+    </script>
+</body>
+</html>

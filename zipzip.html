@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            touch-action: pan-y;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* ==== Top Bar ==== */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar {
+            flex: 1;
+            height: 40px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .cart-icon {
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* ==== Banner Image ==== */
+        .banner-container {
+            margin-top: 60px;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .banner-image {
+            width: 100%;
+            height: 150px;
+            background-color: #4a6cf7;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            background-image: linear-gradient(135deg, #4a6cf7, #2541b2);
+        }
+
+        /* ==== Slider Container ==== */
+        .slider-container {
+            width: 100vw;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            background-color: #fff;
+            margin-top: 10px;
+        }
+
+        /* ==== Navigation Bar ==== */
+        .nav-bar {
+            position: relative;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            background: rgba(255, 255, 255, 0.9);
+            overflow-x: auto;
+            scrollbar-width: none;
+            z-index: 10;
+        }
+
+        .nav-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-item {
+            flex: 0 0 auto;
+            padding: 10px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.6);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #000;
+            font-weight: 600;
+        }
+
+        .nav-item.active::after {
+            content: "";
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #4a6cf7, #2541b2);
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            border-radius: 3px;
+        }
+
+        /* ==== Slider Track ==== */
+        .slider-track {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            will-change: transform;
+            transition: transform 0.3s ease-out;
+        }
+
+        /* ==== Slide Styling ==== */
+        .slide {
+            min-width: 100vw;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        .slide h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        .slide p {
+            font-size: 16px;
+            max-width: 80%;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        /* ==== Website Information ==== */
+        .info-section {
+            padding: 20px;
+            background-color: #fff;
+            margin-top: 10px;
+        }
+
+        .info-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #222;
+        }
+
+        .info-section p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        /* ==== Bottom Navigation ==== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            background: #fff;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .nav-button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .nav-button i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-button.active {
+            color: #4a6cf7;
+        }
+
+        /* Add some space at the bottom for the navigation */
+        body {
+            padding-bottom: 60px;
+        }
+
+        /* ==== Animations ==== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <!-- Top Bar with Search and Cart -->
+    <div class="top-bar">
+        <div class="search-bar">
+            <input type="text" placeholder="Search products...">
+        </div>
+        <div class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+    </div>
+
+    <!-- Banner Image -->
+    <div class="banner-container">
+        <div class="banner-image">
+            Special Offers
+        </div>
+    </div>
+
+    <!-- Slider Container -->
+    <div class="slider-container">
+        <div class="nav-bar" id="navBar">
+            <!-- Nav items will be generated by JavaScript -->
+        </div>
+        
+        <div class="slider-track" id="sliderTrack">
+            <!-- Slides will be generated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Website Information -->
+    <div class="info-section">
+        <h2>Welcome to Our Store</h2>
+        <p>Discover amazing products at unbeatable prices. We offer high-quality items with fast delivery and excellent customer service.</p>
+        <p>Shop now and enjoy exclusive discounts for new customers!</p>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-button active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-button">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Shop</span>
+        </div>
+        <div class="nav-button">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+        </div>
+        <div class="nav-button">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simplified array with just button names
+            const pageNames = ["Featured", "Popular", "New Arrivals", "Deals", "Categories"];
+            
+            const navBar = document.getElementById('navBar');
+            const sliderTrack = document.getElementById('sliderTrack');
+            
+            let currentIndex = 0;
+            let startX = 0;
+            let startY = 0;
+            let currentX = 0;
+            let isDragging = false;
+            let currentTranslate = 0;
+            let prevTranslate = 0;
+            let animationId = null;
+            let isHorizontalSwipe = false;
+            
+            // Generate navigation and slides from array
+            pageNames.forEach((name, index) => {
+                // Create nav item
+                const navItem = document.createElement('div');
+                navItem.className = 'nav-item';
+                navItem.textContent = name;
+                navItem.dataset.index = index;
+                navBar.appendChild(navItem);
+                
+                // Create slide with generated content
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                
+                // Generate different content based on page name
+                let content = '';
+                switch(name) {
+                    case 'Featured':
+                        content = `
+                            <div class="slide-content">
+                                <h2>Featured Products</h2>
+                                <p>Check out our specially selected items this week.</p>
+                            </div>
+                        `;
+                        break;
+                    case 'Popular':
+                        content = `
+                            <div class="slide-content">
+                                <h2>Popular Items</h2>
+                                <p>See what other customers are loving right now.</p>
+                            </div>
+                        `;
+                        break;
+                    case 'New Arrivals':
+                        content = `
+                            <div class="slide-content">
+                                <h2>New Arrivals</h2>
+                                <p>Discover our latest products just added to the store.</p>
+                            </div>
+                        `;
+                        break;
+                    case 'Deals':
+                        content = `
+                            <div class="slide-content">
+                                <h2>Hot Deals</h2>
+                                <p>Don't miss these limited-time offers and discounts.</p>
+                            </div>
+                        `;
+                        break;
+                    case 'Categories':
+                        content = `
+                            <div class="slide-content">
+                                <h2>Shop by Category</h2>
+                                <p>Browse products organized by category for easy shopping.</p>
+                            </div>
+                        `;
+                        break;
+                    default:
+                        content = `
+                            <div class="slide-content">
+                                <h2>${name}</h2>
+                                <p>This is the ${name.toLowerCase()} page content.</p>
+                            </div>
+                        `;
+                }
+                
+                slide.innerHTML = content;
+                sliderTrack.appendChild(slide);
+                
+                // Nav item click event
+                navItem.addEventListener('click', function() {
+                    goToSlide(index);
+                });
+            });
+            
+            // Set first nav item as active
+            document.querySelector('.nav-item').classList.add('active');
+            
+            function goToSlide(index) {
+                currentIndex = index;
+                currentTranslate = currentIndex * -window.innerWidth;
+                prevTranslate = currentTranslate;
+                setSliderPosition();
+                updateNavBar();
+                centerActiveNavItem();
+            }
+            
+            function updateNavBar() {
+                document.querySelectorAll('.nav-item').forEach((item, index) => {
+                    item.classList.toggle('active', index === currentIndex);
+                });
+            }
+            
+            function centerActiveNavItem() {
+                const activeItem = document.querySelector('.nav-item.active');
+                if (activeItem) {
+                    const containerWidth = navBar.offsetWidth;
+                    const itemLeft = activeItem.offsetLeft;
+                    const itemWidth = activeItem.offsetWidth;
+                    const scrollTo = itemLeft - (containerWidth / 2) + (itemWidth / 2);
+                    
+                    navBar.scrollTo({
+                        left: scrollTo,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+            
+            function setSliderPosition() {
+                sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+            }
+            
+            function animate() {
+                setSliderPosition();
+                if (isDragging) {
+                    animationId = requestAnimationFrame(animate);
+                }
+            }
+            
+            // Touch events
+            sliderTrack.addEventListener('touchstart', touchStart);
+            sliderTrack.addEventListener('touchmove', touchMove, { passive: false });
+            sliderTrack.addEventListener('touchend', touchEnd);
+            
+            function touchStart(e) {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
+                
+                isDragging = true;
+                isHorizontalSwipe = false;
+                startX = getPositionX(e);
+                startY = getPositionY(e);
+                sliderTrack.style.transition = 'none';
+                
+                animationId = requestAnimationFrame(animate);
+                e.preventDefault();
+            }
+            
+            function touchMove(e) {
+                if (!isDragging) return;
+                
+                const currentPositionX = getPositionX(e);
+                const currentPositionY = getPositionY(e);
+                const diffX = currentPositionX - startX;
+                const diffY = currentPositionY - startY;
+                
+                // Check if the swipe is primarily horizontal
+                if (!isHorizontalSwipe) {
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        isHorizontalSwipe = true;
+                    } else {
+                        // If vertical swipe detected, cancel the drag
+                        isDragging = false;
+                        cancelAnimationFrame(animationId);
+                        returnToCurrentSlide();
+                        return;
+                    }
+                }
+                
+                let newTranslate = prevTranslate + diffX;
+                
+                // Lock first and last slides
+                if (currentIndex === 0 && newTranslate > 0) {
+                    newTranslate = 0;
+                } else if (currentIndex === pageNames.length - 1 && newTranslate < prevTranslate) {
+                    newTranslate = prevTranslate;
+                }
+                
+                currentTranslate = newTranslate;
+                e.preventDefault();
+            }
+            
+            function touchEnd() {
+                if (!isDragging || !isHorizontalSwipe) return;
+                isDragging = false;
+                cancelAnimationFrame(animationId);
+                
+                const movedBy = currentTranslate - prevTranslate;
+                const sliderWidth = window.innerWidth;
+                const threshold = sliderWidth * 0.25; // 25% threshold
+                
+                // Determine if we should change slides based on threshold
+                if (Math.abs(movedBy) > threshold) {
+                    // Swiped more than threshold - go to next/previous slide
+                    if (movedBy < 0 && currentIndex < pageNames.length - 1) {
+                        currentIndex++;
+                    } else if (movedBy > 0 && currentIndex > 0) {
+                        currentIndex--;
+                    }
+                    snapToSlide();
+                } else {
+                    // Swiped less than threshold - return to current slide
+                    returnToCurrentSlide();
+                }
+            }
+            
+            function snapToSlide() {
+                sliderTrack.style.transition = 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)';
+                currentTranslate = currentIndex * -window.innerWidth;
+                sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+                prevTranslate = currentTranslate;
+                
+                updateNavBar();
+                centerActiveNavItem();
+                
+                setTimeout(() => {
+                    sliderTrack.style.transition = 'none';
+                }, 400);
+            }
+            
+            function returnToCurrentSlide() {
+                sliderTrack.style.transition = 'transform 0.3s ease-out';
+                currentTranslate = currentIndex * -window.innerWidth;
+                sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+                prevTranslate = currentTranslate;
+                
+                setTimeout(() => {
+                    sliderTrack.style.transition = 'none';
+                }, 300);
+            }
+            
+            function getPositionX(e) {
+                return e.touches[0].clientX;
+            }
+            
+            function getPositionY(e) {
+                return e.touches[0].clientY;
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                currentTranslate = currentIndex * -window.innerWidth;
+                prevTranslate = currentTranslate;
+                setSliderPosition();
+            });
+            
+            // Center the active nav item initially
+            centerActiveNavItem();
+
+            // Bottom navigation functionality
+            const navButtons = document.querySelectorAll('.bottom-nav .nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

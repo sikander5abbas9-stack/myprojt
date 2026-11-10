@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Mustafa School Syllabus</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            width: 148mm;
+            height: 210mm;
+            margin: auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f9f9f9;
+            direction: ltr;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        h2 {
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .subject {
+            font-weight: bold;
+            text-align: left;
+            margin-top: 10px;
+            direction: ltr;
+        }
+        .urdu {
+            direction: rtl;
+            text-align: right;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            background: #088178;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="syllabus">
+        <h1>Al-Mustafa School of Sciences</h1>
+        <h2>Syllabus for Annual Exams 2024-25 | Level: 1</h2><div class="subject">English:</div>
+    <ul>
+        <li>Chapters (1 to 10), Time to Recall, The Hare and the Tortoise</li>
+        <li>Review Exercise (I, II), Sight Words, Myself</li>
+        <li>Colours Name, Vegetables Name, Masculine & Feminine</li>
+        <li>Nouns, Singular & Plural, Articles (a/an)</li>
+    </ul>
+
+    <div class="subject">Math:</div>
+    <ul>
+        <li>Chapters (1 to 6), Whole Numbers to Geometry, Spell 1 to 30</li>
+        <li>Table of 2, Ascending & Descending Order, Tens & Ones</li>
+        <li>Shapes Names & Positions, What comes after, before, between?</li>
+        <li>Days of the Week, Islamic Months</li>
+    </ul>
+
+    <div class="subject urdu">اردو:</div>
+    <ul class="urdu">
+        <li>باب: (1 تا 12)، حملہ آوروں سے بچاؤ</li>
+        <li>واحد، جمع، حروف تہجی، خالی جگہ</li>
+        <li>مفعول نام، مختصر سوالات</li>
+        <li>اہم الفاظ و معانی، املا</li>
+    </ul>
+
+    <div class="subject urdu">اسلامیات:</div>
+    <ul class="urdu">
+        <li>باب دو آسمانی کتابیں، توحید و ثقافتی اثرات</li>
+        <li>انبیاء و کائنات، صفحہ (7 تا 38)</li>
+        <li>حمد و نعت، مختصر غیر (1 تا 7)</li>
+        <li>بنیادی اسلامی تعلیمات، دعائیں</li>
+    </ul>
+
+    <div class="subject urdu">مغلیات عامہ:</div>
+    <ul class="urdu">
+        <li>باب: (1 تا 14)، ارتقاء زمین، پاکستان</li>
+        <li>صفحہ (1 تا 33)، مختصر غیر</li>
+        <li>بنیادی جغرافیہ و تاریخ</li>
+        <li>اہم مقامات و شخصیات</li>
+    </ul>
+</div>
+
+<button class="btn" onclick="downloadScreenshot()">Download Screenshot</button>
+
+<script>
+    function downloadScreenshot() {
+        html2canvas(document.getElementById("syllabus")).then(canvas => {
+            let link = document.createElement("a");
+            link.download = "syllabus.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Generator with Auto Copy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            
+            
+        }
+        .contain {
+          display: flex;
+        }
+
+        button {
+            display: block;
+            padding: 17px 10px;
+            font-size: 16px;
+            
+            background-color: #088178;
+            color: white;
+            border: 1px solid #fff;
+        }
+        button:hover {
+            background-color: #06655e;
+        }
+        .email-display {
+            
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .copy-message {
+            margin-top: 10px;
+            font-size: 14px;
+            color: green;
+        }
+        .link-container {
+            
+        }
+        input {
+            padding: 10px;
+            width: 280px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .links {
+          display: flex;
+          overflow-x: auto;
+          height: 100px;
+          
+        }
+        .generated-links {
+            display: flex;
+            justify-content: left;
+            text-align: left;
+            
+            
+            gap: 5px;
+        }
+        .div {
+          
+          display: block;
+          text-align: left;
+        }
+        .space {
+          width: 100px;
+        }
+        .link-btn {
+            display: block;
+            
+            margin: 2px;
+            padding: 5px 15px;
+        }
+        .delete-btn {
+          display: block;
+          padding: 0 4px;
+          
+          
+        }
+    </style>
+</head>
+<body>
+<div class="links"> <div class="generated-links" id="generatedLinks"></div>
+<div class="space">______________________________________ ______________________________________ ______________________________________</div>
+</div>
+    <div class="container">
+        <div class="contain">
+        <button onclick="generateAndCopyEmail()">Email</button>
+        
+        <button onclick="generateAndCopyPassword()">Paswrd</button>
+        
+        </div>
+
+
+        <div class="email-display" id="emailDisplay"></div>
+        <div class="copy-message" id="copyMessage" style="display: none;">copied</div>
+
+        <div class="link-container">
+            
+            <input type="text" id="buttonName" placeholder="Enter button name">
+            <input type="text" id="linkInput" placeholder="Paste your link here...">
+            <button onclick="generateLinkButton()">Add Button</button>
+            
+        </div>
+    </div>
+
+    <script>
+        function generateAndCopyEmail() {
+            const characters = "abcdefghijklmnopqrstuvwxyz0123456789QWERTYUIOPASDFGHJKLZXCVBNM";
+            let email = "";
+            const emailLength = Math.floor(Math.random() * 15) + 25;
+
+            for (let i = 0; i < emailLength; i++) {
+                email += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            email += "@coco.co";
+
+            const emailDisplay = document.getElementById("emailDisplay");
+            emailDisplay.innerText = email;
+
+            navigator.clipboard.writeText(email).then(() => {
+                const copyMessage = document.getElementById("copyMessage");
+                copyMessage.style.display = "block";
+
+                setTimeout(() => {
+                    copyMessage.style.display = "none";
+                }, 3000);
+            }).catch(err => {
+                console.error("Failed to copy email: ", err);
+            });
+        }
+
+function generateAndCopyPassword() {
+  const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const specialChars = "._-#/:'+";
+  const allCharacters = letters + numbers + specialChars;
+
+  let password = "";
+
+  // Kam az kam ek letter, ek number, aur ek special character include karna
+  password += letters.charAt(Math.floor(Math.random() * letters.length));
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  password += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
+
+  // Baaqi characters random add karna
+  const passwordLength = Math.floor(Math.random() * 6) + 8; // 10 se 15 characters tak
+  for (let i = 3; i < passwordLength; i++) { // Pehle 3 characters already hain
+    password += allCharacters.charAt(Math.floor(Math.random() * allCharacters.length));
+  }
+
+  // Password ko shuffle karna taake pehle 3 characters fix position par na rahein
+  password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+  // Password clipboard mein copy karna
+  navigator.clipboard.writeText(password).then(() => {
+    
+  }).catch(err => {
+    console.error("Failed to copy password: ", err);
+  });
+}
+        function generateLinkButton() {
+            const buttonName = document.getElementById("buttonName").value.trim();
+            const linkInput = document.getElementById("linkInput").value.trim();
+            
+            if (buttonName === "" || linkInput === "") {
+                alert("Please enter both button name and link.");
+                return;
+            }
+
+            const savedLinks = JSON.parse(localStorage.getItem("savedLinks")) || [];
+            savedLinks.push({ name: buttonName, url: linkInput });
+            localStorage.setItem("savedLinks", JSON.stringify(savedLinks));
+
+            displayButtons();
+            document.getElementById("buttonName").value = "";
+            document.getElementById("linkInput").value = "";
+        }
+
+        function displayButtons() {
+            const savedLinks = JSON.parse(localStorage.getItem("savedLinks")) || [];
+            const generatedLinksDiv = document.getElementById("generatedLinks");
+            generatedLinksDiv.innerHTML = "";
+
+            savedLinks.forEach((link, index) => {
+                const button = document.createElement("button");
+                button.innerText = link.name;
+                button.classList.add("link-btn");
+                button.onclick = () => window.open(link.url, "_blank");
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.classList.add("delete-btn");
+                deleteBtn.innerText = "×";
+                
+                deleteBtn.onclick = () => deleteButton(index);
+                let div = document.createElement('div');
+                div.classList.add("div");
+
+                
+                div.appendChild(deleteBtn);
+                div.appendChild(button);
+                generatedLinksDiv.appendChild(div);
+                
+            });
+        }
+
+        function deleteButton(index) {
+            const savedLinks = JSON.parse(localStorage.getItem("savedLinks")) || [];
+            savedLinks.splice(index, 1);
+            localStorage.setItem("savedLinks", JSON.stringify(savedLinks));
+            displayButtons();
+        }
+
+        window.onload = displayButtons;
+    </script>
+</body>
+</html>

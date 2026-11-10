@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraz.pk - Online Shopping</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        header {
+            background-color: #f57224;
+            color: white;
+            padding: 10px 15px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .search-cart {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-cart i {
+            margin-left: 15px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .main-container {
+            margin-top: 50px;
+            margin-bottom: 60px;
+        }
+        
+        .filter-bar {
+            display: flex;
+            background: white;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .filter-btn {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 15px;
+            padding: 5px 12px;
+            margin-right: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background: #f57224;
+            color: white;
+        }
+        
+        .filter-icon {
+            background: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .filter-icon button {
+            background: none;
+            border: 1px solid #f57224;
+            color: #f57224;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .filter-icon button i {
+            margin-right: 5px;
+        }
+        
+        .sort-options {
+            display: none;
+            position: absolute;
+            right: 15px;
+            top: 50px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        
+        .sort-options.show {
+            display: block;
+        }
+        
+        .sort-option {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .sort-option:hover {
+            background: #f5f5f5;
+        }
+        
+        .sort-option.active {
+            color: #f57224;
+            font-weight: bold;
+        }
+        
+        .products-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 8px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .wishlist-icon {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: #ccc;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .wishlist-icon.active {
+            color: #f57224;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            background: #f9f9f9;
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .product-info {
+            padding: 10px;
+        }
+        
+        .product-title {
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 32px;
+            cursor: pointer;
+        }
+        
+        .product-price {
+            color: #f57224;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 10px;
+        }
+        
+        .discount {
+            color: #388e3c;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+        
+        .rating {
+            color: #ffb400;
+            font-size: 10px;
+            margin-top: 5px;
+        }
+        
+        .filter-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+        }
+        
+        .filter-content {
+            background: white;
+            width: 80%;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            animation: slideIn 0.3s;
+            overflow-y: auto;
+        }
+        
+        @keyframes slideIn {
+            from {right: -80%;}
+            to {right: 0;}
+        }
+        
+        .filter-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .filter-header h3 {
+            font-size: 16px;
+        }
+        
+        .close-filter {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .filter-section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .filter-section h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .filter-option {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-option input {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        
+        .filter-apply {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .filter-apply button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .reset-btn {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .apply-btn {
+            background: #f57224;
+            color: white;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+        
+        .nav-item.active {
+            color: #f57224;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f57224;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 300;
+            padding: 15px;
+        }
+        
+        .search-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        
+        .close-search {
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .recent-searches {
+            margin-top: 20px;
+        }
+        
+        .recent-search-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .quick-view-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 400;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quick-view-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .close-quick-view {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .quick-view-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #f9f9f9;
+            margin-bottom: 15px;
+        }
+        
+        .add-to-cart-btn {
+            background: #f57224;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">daraz.pk</div>
+            <div class="search-cart">
+                <i class="fas fa-search" id="open-search"></i>
+                <div style="position: relative;">
+                    <i class="fas fa-shopping-cart" id="cart-icon"></i>
+                    <div class="cart-count" id="cart-count">0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        <div class="filter-bar">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="mobile">Mobile</button>
+            <button class="filter-btn" data-category="laptop">Laptop</button>
+            <button class="filter-btn" data-category="electronics">Electronics</button>
+            <button class="filter-btn" data-category="fashion">Fashion</button>
+            <button class="filter-btn" data-category="home">Home</button>
+            <button class="filter-btn" data-category="beauty">Beauty</button>
+        </div>
+        
+        <div class="filter-icon">
+            <span id="item-count">1,234 items found</span>
+            <div style="display: flex;">
+                <button id="sort-btn" style="margin-right: 10px;">
+                    <i class="fas fa-sort-amount-down"></i> Sort
+                </button>
+                <div class="sort-options" id="sort-options">
+                    <div class="sort-option" data-sort="popular">Popular</div>
+                    <div class="sort-option active" data-sort="newest">Newest</div>
+                    <div class="sort-option" data-sort="price-low">Price: Low to High</div>
+                    <div class="sort-option" data-sort="price-high">Price: High to Low</div>
+                    <div class="sort-option" data-sort="rating">Customer Rating</div>
+                </div>
+                <button id="open-filter">
+                    <i class="fas fa-sliders-h"></i> Filter
+                </button>
+            </div>
+        </div>
+        
+        <div class="products-container" id="products-container">
+            <!-- Products will be loaded here by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Filter Modal -->
+    <div class="filter-modal" id="filter-modal">
+        <div class="filter-content">
+            <div class="filter-header">
+                <h3>Filters</h3>
+                <button class="close-filter" id="close-filter">&times;</button>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Categories</h4>
+                <div class="filter-option">
+                    <input type="checkbox" id="category1" checked data-filter="category" value="mobile">
+                    <label for="category1">Mobile Phones</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="category2" data-filter="category" value="accessories">
+                    <label for="category2">Accessories</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="category3" data-filter="category" value="tablets">
+                    <label for="category3">Tablets</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Price Range</h4>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price1" checked data-filter="price" value="all">
+                    <label for="price1">All Prices</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price2" data-filter="price" value="0-20000">
+                    <label for="price2">Under Rs. 20,000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price3" data-filter="price" value="20000-40000">
+                    <label for="price3">Rs. 20,000 - Rs. 40,000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price4" data-filter="price" value="40000-60000">
+                    <label for="price4">Rs. 40,000 - Rs. 60,000</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="price" id="price5" data-filter="price" value="60000-100000">
+                    <label for="price5">Over Rs. 60,000</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Brand</h4>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand1" checked data-filter="brand" value="samsung">
+                    <label for="brand1">Samsung</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand2" data-filter="brand" value="xiaomi">
+                    <label for="brand2">Xiaomi</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand3" data-filter="brand" value="oppo">
+                    <label for="brand3">Oppo</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand4" data-filter="brand" value="vivo">
+                    <label for="brand4">Vivo</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand5" data-filter="brand" value="realme">
+                    <label for="brand5">Realme</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand6" data-filter="brand" value="infinix">
+                    <label for="brand6">Infinix</label>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <h4>Customer Ratings</h4>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating1" data-filter="rating" value="5">
+                    <label for="rating1">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> & Up
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating2" checked data-filter="rating" value="4">
+                    <label for="rating2">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> & Up
+                    </label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="rating3" data-filter="rating" value="3">
+                    <label for="rating3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i> & Up
+                    </label>
+                </div>
+            </div>
+            
+            <div class="filter-apply">
+                <button class="reset-btn" id="reset-filters">RESET</button>
+                <button class="apply-btn" id="apply-filters">APPLY</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Modal -->
+    <div class="search-modal" id="search-modal">
+        <div class="search-header">
+            <input type="text" class="search-input" placeholder="Search on Daraz..." id="search-input">
+            <i class="fas fa-times close-search" id="close-search"></i>
+        </div>
+        
+        <div class="recent-searches">
+            <h4>Recent Searches</h4>
+            <div class="recent-search-item">
+                <span>Mobile phones</span>
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="recent-search-item">
+                <span>Laptops</span>
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="recent-search-item">
+                <span>Headphones</span>
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick View Modal -->
+    <div class="quick-view-modal" id="quick-view-modal">
+        <div class="quick-view-content">
+            <i class="fas fa-times close-quick-view" id="close-quick-view"></i>
+            <img src="" alt="Product" class="quick-view-image" id="quick-view-image">
+            <h3 id="quick-view-title"></h3>
+            <div class="product-price" id="quick-view-price"></div>
+            <div class="rating" id="quick-view-rating"></div>
+            <p style="margin-top: 10px; font-size: 14px;" id="quick-view-desc"></p>
+            <button class="add-to-cart-btn" id="add-to-cart">ADD TO CART</button>
+        </div>
+    </div>
+    
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-heart"></i>
+            <span>Wishlist</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </div>
+    </div>
+    
+    <script>
+        // Sample product data
+        const products = [
+            {
+                id: 1,
+                title: "Xiaomi Redmi Note 10 Pro 6GB 128GB - Onyx Gray",
+                price: 39999,
+                originalPrice: 45999,
+                discount: 13,
+                rating: 4.5,
+                reviews: 125,
+                category: "mobile",
+                brand: "xiaomi",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "6.67\" AMOLED Display, 108MP Quad Camera, 5020mAh Battery, Snapdragon 732G"
+            },
+            {
+                id: 2,
+                title: "Samsung Galaxy A52 8GB 256GB - Awesome Black",
+                price: 59999,
+                originalPrice: 64999,
+                discount: 8,
+                rating: 4.0,
+                reviews: 89,
+                category: "mobile",
+                brand: "samsung",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "6.5\" Super AMOLED Display, 64MP Quad Camera, 4500mAh Battery, IP67 Water Resistance"
+            },
+            {
+                id: 3,
+                title: "Infinix Hot 10 Play 4GB 64GB - Morandi Green",
+                price: 19999,
+                originalPrice: 24999,
+                discount: 20,
+                rating: 3.0,
+                reviews: 45,
+                category: "mobile",
+                brand: "infinix",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "6.82\" HD+ Display, 13MP Dual Camera, 6000mAh Battery, Helio G35 Processor"
+            },
+            {
+                id: 4,
+                title: "Oppo A74 6GB 128GB - Prism Black",
+                price: 34999,
+                originalPrice: 39999,
+                discount: 13,
+                rating: 4.5,
+                reviews: 76,
+                category: "mobile",
+                brand: "oppo",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "6.43\" AMOLED Display, 48MP Triple Camera, 5000mAh Battery, Snapdragon 662"
+            },
+            {
+                id: 5,
+                title: "Vivo Y20 4GB 64GB - Purist Blue",
+                price: 29999,
+                originalPrice: 34999,
+                discount: 14,
+                rating: 3.0,
+                reviews: 32,
+                category: "mobile",
+                brand: "vivo",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "6.51\" HD+ Display, 13MP Triple Camera, 5000mAh Battery, Helio P35 Processor"
+            },
+            {
+                id: 6,
+                title: "Realme 8 Pro 8GB 128GB - Infinite Blue",
+                price: 49999,
+                originalPrice: 54999,
+                discount: 9,
+                rating: 5.0,
+                reviews: 112,
+                category: "mobile",
+                brand: "realme",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "6.4\" Super AMOLED Display, 108MP Quad Camera, 4500mAh Battery, Snapdragon 720G"
+            },
+            {
+                id: 7,
+                title: "Samsung Galaxy Tab A7 Lite 3GB 32GB - Gray",
+                price: 34999,
+                originalPrice: 39999,
+                discount: 13,
+                rating: 4.0,
+                reviews: 42,
+                category: "tablets",
+                brand: "samsung",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "8.7\" Display, 5100mAh Battery, Dolby Atmos Sound, LTE Support"
+            },
+            {
+                id: 8,
+                title: "Xiaomi Mi Band 6 - Black",
+                price: 5999,
+                originalPrice: 6999,
+                discount: 14,
+                rating: 4.5,
+                reviews: 215,
+                category: "accessories",
+                brand: "xiaomi",
+                image: "https://static-01.daraz.pk/p/7a1f5d1a6a6a8a8a8a8a8a8a8a8a8a8.jpg",
+                description: "1.56\" AMOLED Display, SpO2 Monitoring, 30 Sports Modes, 14-Day Battery Life"
+            }
+        ];
+
+        // Cart data
+        let cart = [];
+        
+        // Current filters
+        let currentFilters = {
+            category: [],
+            price: "all",
+            brand: [],
+            rating: []
+        };
+        
+        // Current sort
+        let currentSort = "newest";
+        
+        // DOM elements
+        const productsContainer = document.getElementById('products-container');
+        const filterModal = document.getElementById('filter-modal');
+        const openFilterBtn = document.getElementById('open-filter');
+        const closeFilterBtn = document.getElementById('close-filter');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const applyFiltersBtn = document.getElementById('apply-filters');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const sortBtn = document.getElementById('sort-btn');
+        const sortOptions = document.getElementById('sort-options');
+        const sortOptionItems = document.querySelectorAll('.sort-option');
+        const itemCount = document.getElementById('item-count');
+        const searchModal = document.getElementById('search-modal');
+        const openSearchBtn = document.getElementById('open-search');
+        const closeSearchBtn = document.getElementById('close-search');
+        const searchInput = document.getElementById('search-input');
+        const quickViewModal = document.getElementById('quick-view-modal');
+        const closeQuickViewBtn = document.getElementById('close-quick-view');
+        const quickViewImage = document.getElementById('quick-view-image');
+        const quickViewTitle = document.getElementById('quick-view-title');
+        const quickViewPrice = document.getElementById('quick-view-price');
+        const quickViewRating = document.getElementById('quick-view-rating');
+        const quickViewDesc = document.getElementById('quick-view-desc');
+        const addToCartBtn = document.getElementById('add-to-cart');
+        const cartIcon = document.getElementById('cart-icon');
+        const cartCount = document.getElementById('cart-count');
+        
+        // Initialize the page
+        function init() {
+            renderProducts(products);
+            setupEventListeners();
+            updateCartCount();
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Filter modal
+            openFilterBtn.addEventListener('click', openFilterModal);
+            closeFilterBtn.addEventListener('click', closeFilterModal);
+            resetFiltersBtn.addEventListener('click', resetFilters);
+            applyFiltersBtn.addEventListener('click', applyFilters);
+            
+            // Category filter buttons
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const category = this.dataset.category;
+                    if (category === 'all') {
+                        currentFilters.category = [];
+                    } else {
+                        currentFilters.category = [category];
+                    }
+                    
+                    filterAndSortProducts();
+                });
+            });
+            
+            // Sort options
+            sortBtn.addEventListener('click', toggleSortOptions);
+            sortOptionItems.forEach(option => {
+                option.addEventListener('click', function() {
+                    sortOptionItems.forEach(o => o.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSort = this.dataset.sort;
+                    filterAndSortProducts();
+                    sortOptions.classList.remove('show');
+                });
+            });
+            
+            // Search modal
+            openSearchBtn.addEventListener('click', openSearchModal);
+            closeSearchBtn.addEventListener('click', closeSearchModal);
+            
+            // Quick view modal
+            closeQuickViewBtn.addEventListener('click', closeQuickViewModal);
+            addToCartBtn.addEventListener('click', addToCartFromQuickView);
+            
+            // Cart icon
+            cartIcon.addEventListener('click', function() {
+                alert('Cart functionality would be implemented here');
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === filterModal) {
+                    closeFilterModal();
+                }
+                if (event.target === quickViewModal) {
+                    closeQuickViewModal();
+                }
+                if (!event.target.closest('#sort-options') && event.target !== sortBtn) {
+                    sortOptions.classList.remove('show');
+                }
+            });
+        }
+        
+        // Render products
+        function renderProducts(productsToRender) {
+            productsContainer.innerHTML = '';
+            
+            if (productsToRender.length === 0) {
+                productsContainer.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">No products found matching your filters</div>';
+                itemCount.textContent = '0 items found';
+                return;
+            }
+            
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <i class="far fa-heart wishlist-icon" data-product-id="${product.id}"></i>
+                    <img src="${product.image}" alt="${product.title}" class="product-image" data-product-id="${product.id}">
+                    <div class="product-info">
+                        <div class="product-title" data-product-id="${product.id}">${product.title}</div>
+                        <div class="product-price">Rs. ${product.price.toLocaleString()} <span class="original-price">Rs. ${product.originalPrice.toLocaleString()}</span> <span class="discount">-${product.discount}%</span></div>
+                        <div class="rating">
+                            ${renderStars(product.rating)} (${product.reviews})
+                        </div>
+                    </div>
+                `;
+                productsContainer.appendChild(productCard);
+            });
+            
+            // Update item count
+            itemCount.textContent = `${productsToRender.length} ${productsToRender.length === 1 ? 'item' : 'items'} found`;
+            
+            // Add event listeners to new elements
+            document.querySelectorAll('.wishlist-icon').forEach(icon => {
+                icon.addEventListener('click', toggleWishlist);
+            });
+            
+            document.querySelectorAll('.product-image, .product-title').forEach(el => {
+                el.addEventListener('click', function() {
+                    const productId = parseInt(this.dataset.productId);
+                    openQuickView(productId);
+                });
+            });
+        }
+        
+        // Render star rating
+        function renderStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else if (i === fullStars + 1 && hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    stars += '<i class="far fa-star"></i>';
+                }
+            }
+            
+            return stars;
+        }
+        
+        // Filter and sort products
+        function filterAndSortProducts() {
+            let filteredProducts = [...products];
+            
+            // Apply category filter
+            if (currentFilters.category.length > 0) {
+                filteredProducts = filteredProducts.filter(product => 
+                    currentFilters.category.includes(product.category)
+                );
+            }
+            
+            // Apply price filter
+            if (currentFilters.price !== 'all') {
+                const [min, max] = currentFilters.price.split('-').map(Number);
+                filteredProducts = filteredProducts.filter(product => {
+                    if (currentFilters.price === '60000-100000') {
+                        return product.price >= min;
+                    }
+                    return product.price >= min && product.price <= max;
+                });
+            }
+            
+            // Apply brand filter
+            if (currentFilters.brand.length > 0) {
+                filteredProducts = filteredProducts.filter(product => 
+                    currentFilters.brand.includes(product.brand)
+                );
+            }
+            
+            // Apply rating filter
+            if (currentFilters.rating.length > 0) {
+                const minRating = Math.min(...currentFilters.rating.map(Number));
+                filteredProducts = filteredProducts.filter(product => 
+                    product.rating >= minRating
+                );
+            }
+            
+            // Apply sorting
+            switch (currentSort) {
+                case 'popular':
+                    filteredProducts.sort((a, b) => b.reviews - a.reviews);
+                    break;
+                case 'price-low':
+                    filteredProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    filteredProducts.sort((a, b) => b.price - a.price);
+                    break;
+                case 'rating':
+                    filteredProducts.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'newest':
+                default:
+                    // Already sorted by newest (sample data is in order)
+                    break;
+            }
+            
+            renderProducts(filteredProducts);
+        }
+        
+        // Open filter modal
+        function openFilterModal() {
+            filterModal.style.display = 'block';
+        }
+        
+        // Close filter modal
+        function closeFilterModal() {
+            filterModal.style.display = 'none';
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            // Uncheck all checkboxes
+            document.querySelectorAll('.filter-section input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Check first radio button in each radio group
+            document.querySelectorAll('.filter-section input[type="radio"]').forEach((radio, index) => {
+                radio.checked = index === 0;
+            });
+            
+            // Reset current filters
+            currentFilters = {
+                category: [],
+                price: "all",
+                brand: [],
+                rating: []
+            };
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            // Get selected categories
+            currentFilters.category = Array.from(
+                document.querySelectorAll('input[data-filter="category"]:checked')
+            ).map(el => el.value);
+            
+            // Get selected price range
+            currentFilters.price = document.querySelector('input[data-filter="price"]:checked').value;
+            
+            // Get selected brands
+            currentFilters.brand = Array.from(
+                document.querySelectorAll('input[data-filter="brand"]:checked')
+            ).map(el => el.value);
+            
+            // Get selected ratings
+            currentFilters.rating = Array.from(
+                document.querySelectorAll('input[data-filter="rating"]:checked')
+            ).map(el => el.value);
+            
+            filterAndSortProducts();
+            closeFilterModal();
+        }
+        
+        // Toggle sort options
+        function toggleSortOptions() {
+            sortOptions.classList.toggle('show');
+        }
+        
+        // Open search modal
+        function openSearchModal() {
+            searchModal.style.display = 'block';
+            searchInput.focus();
+        }
+        
+        // Close search modal
+        function closeSearchModal() {
+            searchModal.style.display = 'none';
+        }
+        
+        // Toggle wishlist
+        function toggleWishlist(event) {
+            const icon = event.currentTarget;
+            icon.classList.toggle('far');
+            icon.classList.toggle('fas');
+            icon.classList.toggle('active');
+            
+            // Here you would typically update the wishlist in your backend
+        }
+        
+        // Open quick view
+        function openQuickView(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            quickViewImage.src = product.image;
+            quickViewTitle.textContent = product.title;
+            quickViewPrice.innerHTML = `Rs. ${product.price.toLocaleString()} <span class="original-price">Rs. ${product.originalPrice.toLocaleString()}</span> <span class="discount">-${product.discount}%</span>`;
+            quickViewRating.innerHTML = `${renderStars(product.rating)} (${product.reviews})`;
+            quickViewDesc.textContent = product.description;
+            addToCartBtn.dataset.productId = productId;
+            
+            quickViewModal.style.display = 'flex';
+        }
+        
+        // Close quick view
+        function closeQuickViewModal() {
+            quickViewModal.style.display = 'none';
+        }
+        
+        // Add to cart from quick view
+        function addToCartFromQuickView() {
+            const productId = parseInt(addToCartBtn.dataset.productId);
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+                const existingItem = cart.find(item => item.id === productId);
+                
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        id: product.id,
+                        title: product.title,
+                        price: product.price,
+                        image: product.image,
+                        quantity: 1
+                    });
+                }
+                
+                updateCartCount();
+                alert(`${product.title} added to cart`);
+                closeQuickViewModal();
+            }
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = count;
+            cartCount.style.display = count > 0 ? 'flex' : 'none';
+        }
+        
+        // Initialize the page
+        init();
+    </script>
+</body>
+</html>

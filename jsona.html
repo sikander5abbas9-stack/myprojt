@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Search & Upload</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 10px; background: #f4f4f4; }
+        
+        /* Stylish Search Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #088178;
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+        }
+        .search-container {
+            display: flex;
+            flex-grow: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 5px;
+            overflow: hidden;
+        }
+        #searchBox {
+            border: none;
+            padding: 10px;
+            flex-grow: 1;
+            outline: none;
+            border-radius: 20px;
+        }
+        .search-icon {
+            padding: 10px;
+            background: #088178;
+            font-size: 17px;
+            color: white;
+            border: none;
+            border-radius: 50%;
+        }
+        .upload-btn {
+            background: white;
+            color: #088178;
+            padding: 0px 12px;
+            border: none;
+            margin: 5px;
+            font-size: 38px;
+            border-radius: 50%;
+        }
+
+        /* Filter Buttons */
+        .filters-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px; white-space: nowrap; margin-top: 10px; }
+        .filter-btn { background: #ddd; padding: 10px; border: none; border-radius: 5px; }
+        .filter-btn.active { background: #088178; color: white; }
+
+        /* Medicine Display */
+        .medicine-container { display: flex; gap: 5px; margin-top: 20px; }
+        .column { width: 50%; display: flex; flex-direction: column; gap: 5px; }
+        .medicine-card { 
+            border: 1px solid #08817885; 
+            padding: 15px; 
+            border-radius: 10px;  
+            position: relative; 
+            background-color: #fff;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .medicine-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .medicine-card h3 { margin: 0; text-align: center; margin-top: 7px; }
+        .medicine-card .price { 
+            position: absolute; 
+            bottom: 3px; 
+            right: 5px; 
+            font-weight: bold; 
+            font-size: 10px;
+            color: #088178;
+        }
+        .medicine-card .formula { font-size: 1em; text-align: center; color: #144541; }
+        .medicine-card .details {  
+            border: 1px solid #B6B6B6; 
+            border-radius: 10px;
+            padding: 5px; 
+            margin: 15px 0;
+        }
+        .medicine-card .details p { margin: 0px 0; font-weight: 450; }
+
+        /* Search Result Box */
+        .search-results { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 5px; 
+            box-shadow: 2px 2px 10px #ddd; 
+            margin-top: 10px; 
+            display: none; 
+        }
+        .search-results p { margin: 5px 0; padding: 5px; border-radius: 5px; }
+        .search-results p:hover { background: #f4f4f4; }
+
+        /* Not Found Message */
+        .not-found { 
+            text-align: center; 
+            color: red; 
+            margin-top: 20px; 
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="upload-btn" id="uploadBtn">+</button>
+        <div class="search-container">
+            <input type="file" id="jsonUpload" accept=".json" style="display: none;">
+            <input type="text" id="searchBox" placeholder="Search...">
+            <button class="search-icon">🔍</button>
+        </div>
+    </div>
+
+    <!-- Search Filter Buttons -->
+    <div class="filters-container" id="searchFilters">
+        <button class="filter-btn active" data-filter="name">Name</button>
+        <button class="filter-btn" data-filter="formula">Formula</button>
+        <button class="filter-btn" data-filter="expiry_date">Expiry Date</button>
+        <button class="filter-btn" data-filter="location">Location</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-container" id="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="search">Search</button>
+    </div>
+
+    <!-- Search Results -->
+    <div id="searchResults" class="search-results"></div>
+
+    <!-- Not Found Message -->
+    <div id="notFound" class="not-found">No results found.</div>
+
+    <!-- Medicines Display -->
+    <div class="medicine-container">
+        <div id="col1" class="column"></div>
+        <div id="col2" class="column"></div>
+    </div>
+
+    <script>
+        let medicines = [];
+        let companies = new Set();
+        let activeSearchField = "name"; 
+
+        document.getElementById('uploadBtn').addEventListener('click', function() {
+            document.getElementById('jsonUpload').click();
+        });
+
+        document.getElementById('jsonUpload').addEventListener('change', function(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    medicines = JSON.parse(e.target.result);
+                    generateFilters();
+                    displayMedicines(medicines);
+                } catch (error) {
+                    alert("Invalid JSON file");
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function generateFilters() {
+            let filtersDiv = document.getElementById("filters");
+            filtersDiv.innerHTML = '<button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="search">Search</button>';
+            companies.clear();
+            
+            medicines.forEach(med => companies.add(med.company_id));
+            
+            companies.forEach(company => {
+                let btn = `<button class="filter-btn" data-filter="${company}">Company ${company}</button>`;
+                filtersDiv.innerHTML += btn;
+            });
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    let filter = this.dataset.filter;
+                    if (filter === "search") {
+                        let searchQuery = document.getElementById('searchBox').value.toLowerCase();
+                        let filteredMedicines = medicines.filter(med => med[activeSearchField].toLowerCase().includes(searchQuery));
+                        displayMedicines(filteredMedicines);
+                    } else {
+                        displayMedicines(filter === "all" ? medicines : medicines.filter(m => m.company_id === filter));
+                    }
+                });
+            });
+        }
+
+        function displayMedicines(data) {
+            let col1 = document.getElementById("col1");
+            let col2 = document.getElementById("col2");
+            col1.innerHTML = "";
+            col2.innerHTML = "";
+
+            if (data.length === 0) {
+                document.getElementById('notFound').style.display = "block";
+            } else {
+                document.getElementById('notFound').style.display = "none";
+            }
+
+            data.forEach((medicine, index) => {
+                let card = `<div class="medicine-card">
+                    <div class="price">Box: Rs. ${medicine.pricing.box_price} | Qty: ${medicine.amount}</div>
+                    <h3>${medicine.name}</h3>
+                    <div class="formula">${medicine.formula}</div>
+                    <div class="details"><p>
+                          Rs. ${medicine.pricing.one_tablet_price} per tablet</p>
+                        <p> Location: ${medicine.location}</p>
+                        <p> Company: ${medicine.company_id}</p>
+                    </div>
+                </div>`;
+                
+                if (index % 2 === 0) {
+                    col1.innerHTML += card;
+                } else {
+                    col2.innerHTML += card;
+                }
+            });
+        }
+
+        document.getElementById('searchBox').addEventListener('input', function() {
+            let searchQuery = this.value.toLowerCase();
+            let filtersDiv = document.getElementById("filters");
+            let searchFilterDiv = document.getElementById("searchFilters");
+            let resultsDiv = document.getElementById("searchResults");
+
+            if (searchQuery.length > 0) {
+                filtersDiv.style.display = "none";
+                searchFilterDiv.style.display = "flex";
+                resultsDiv.style.display = "block";
+                document.querySelector('.medicine-container').style.display = "none";
+            } else {
+                filtersDiv.style.display = "flex";
+                searchFilterDiv.style.display = "flex";
+                resultsDiv.style.display = "none";
+                document.querySelector('.medicine-container').style.display = "flex";
+            }
+
+            let filteredMedicines = medicines.filter(med => med[activeSearchField].toLowerCase().includes(searchQuery));
+            resultsDiv.innerHTML = filteredMedicines.map(m => `<p><b>${m[activeSearchField]}</b></p>`).join("");
+        });
+
+        document.querySelectorAll("#searchFilters .filter-btn").forEach(btn => {
+            btn.addEventListener("click", function() {
+                document.querySelectorAll("#searchFilters .filter-btn").forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                activeSearchField = this.dataset.filter;
+                document.getElementById('searchBox').focus();
+            });
+        });
+
+        document.getElementById('searchBox').addEventListener('keypress', function(event) {
+            if (event.key === "Enter") {
+                performSearch();
+            }
+        });
+
+        document.querySelector('.search-icon').addEventListener('click', function() {
+            performSearch();
+        });
+
+        function performSearch() {
+            let searchQuery = document.getElementById('searchBox').value.toLowerCase();
+            let filteredMedicines = medicines.filter(med => med[activeSearchField].toLowerCase().includes(searchQuery));
+            document.getElementById('filters').style.display = "flex";
+            document.querySelector('.medicine-container').style.display = "flex";
+            document.getElementById('searchResults').style.display = "none";
+            document.querySelector('.filter-btn[data-filter="search"]').click();
+        }
+    </script>
+
+</body>
+</html>

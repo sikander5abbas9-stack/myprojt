@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraz Style Product Slider</title>
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .slider-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-title h2 {
+            color: #f57224;
+            font-size: 24px;
+        }
+        
+        .view-all-btn {
+            background-color: #f57224;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .product-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            scroll-behavior: smooth;
+            padding: 10px 0;
+        }
+        
+        .product-slider::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .product-card {
+            min-width: 200px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .product-img {
+            width: 100%;
+            height: 150px;
+            object-fit: contain;
+            background: #f9f9f9;
+            margin-bottom: 10px;
+        }
+        
+        .product-title {
+            font-size: 14px;
+            margin-bottom: 5px;
+            height: 40px;
+            overflow: hidden;
+        }
+        
+        .product-price {
+            color: #f57224;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .discount-badge {
+            background-color: #f57224;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .prev-btn {
+            left: -20px;
+        }
+        
+        .next-btn {
+            right: -20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Daraz Style Product Slider -->
+    <div class="slider-container">
+        <div class="section-title">
+            <h2>Trending Products</h2>
+            <button class="view-all-btn">View All</button>
+        </div>
+        
+        <div class="product-slider">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200x150" alt="Mobile" class="product-img">
+                <div class="product-title">Infinix Hot 12 Play 4GB/64GB - 6000mAh Battery</div>
+                <div>
+                    <span class="product-price">Rs. 24,999</span>
+                    <span class="original-price">Rs. 29,999</span>
+                    <span class="discount-badge">16% OFF</span>
+                </div>
+            </div>
+            
+            <!-- Product 2 -->
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200x150" alt="Headphones" class="product-img">
+                <div class="product-title">Oraimo Wireless Bluetooth Headphones Bass</div>
+                <div>
+                    <span class="product-price">Rs. 2,499</span>
+                    <span class="original-price">Rs. 4,999</span>
+                    <span class="discount-badge">50% OFF</span>
+                </div>
+            </div>
+            
+            <!-- Product 3 -->
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200x150" alt="Watch" class="product-img">
+                <div class="product-title">MI Smart Band 6 - Full Touch AMOLED Display</div>
+                <div>
+                    <span class="product-price">Rs. 6,999</span>
+                    <span class="original-price">Rs. 8,999</span>
+                    <span class="discount-badge">22% OFF</span>
+                </div>
+            </div>
+            
+            <!-- Product 4 -->
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200x150" alt="Power Bank" class="product-img">
+                <div class="product-title">Xiaomi 20000mAh Power Bank Fast Charging</div>
+                <div>
+                    <span class="product-price">Rs. 3,999</span>
+                    <span class="original-price">Rs. 5,999</span>
+                    <span class="discount-badge">33% OFF</span>
+                </div>
+            </div>
+            
+            <!-- Product 5 -->
+            <div class="product-card">
+                <img src="https://via.placeholder.com/200x150" alt="Shoes" class="product-img">
+                <div class="product-title">Nike Running Shoes For Men - Latest Model</div>
+                <div>
+                    <span class="product-price">Rs. 7,499</span>
+                    <span class="original-price">Rs. 12,999</span>
+                    <span class="discount-badge">42% OFF</span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="nav-btn prev-btn">❮</button>
+        <button class="nav-btn next-btn">❯</button>
+    </div>
+
+    <script>
+        // JavaScript for Slider Functionality
+        const slider = document.querySelector('.product-slider');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        
+        nextBtn.addEventListener('click', () => {
+            slider.scrollBy({
+                left: 300,
+                behavior: 'smooth'
+            });
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            slider.scrollBy({
+                left: -300,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>

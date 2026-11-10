@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Data Entry (IndexedDB)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 500px; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        input, button, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #28a745; color: white; cursor: pointer; }
+        button:hover { background: #218838; }
+        .delete-btn { background: red; }
+        .storage-info { font-size: 14px; color: #333; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Medicine Data Entry (IndexedDB)</h2>
+
+    <input type="text" id="name" placeholder="Medicine Name">
+    <input type="text" id="formula" placeholder="Formula">
+    <input type="text" id="company_id" placeholder="Company ID">
+    <input type="text" id="expiry_date" placeholder="Expiry Date">
+    <input type="number" id="box_price" placeholder="Box Price">
+    <input type="number" id="amount" placeholder="Amount">
+    <input type="text" id="location" placeholder="Location">
+    <input type="text" id="availability" placeholder="Availability (Press Enter)">
+
+    <button onclick="saveMedicine()">Save Medicine</button>
+    <button class="delete-btn" onclick="removeLastMedicine()">Remove Last Entry</button>
+    <button onclick="downloadJSON()">Download JSON</button>
+
+    <h3>Stored JSON Data:</h3>
+    <textarea id="jsonOutput" rows="10"></textarea>
+
+    <p class="storage-info" id="storageInfo">Checking storage...</p>
+</div>
+
+<script>
+    let db;
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        let request = indexedDB.open("MedicineDB", 1);
+
+        request.onupgradeneeded = function(event) {
+            let db = event.target.result;
+            let store = db.createObjectStore("medicines", { keyPath: "id", autoIncrement: true });
+            store.createIndex("name", "name", { unique: false });
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            displayData();
+            checkStorageUsage();
+            loadInputData();
+        };
+
+        document.getElementById("availability").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                saveMedicine();
+            }
+        });
+
+        document.getElementById("jsonOutput").addEventListener("input", saveEditedData);
+
+        document.querySelectorAll("input").forEach(input => {
+            input.addEventListener("input", saveInputData);
+        });
+    });
+
+    function saveMedicine() {
+        let boxPrice = parseFloat(document.getElementById("box_price").value);
+        let amount = parseInt(document.getElementById("amount").value);
+        let oneTabletPrice = amount > 0 ? (boxPrice / amount).toFixed(2) : 0;
+
+        let medicine = {
+            name: document.getElementById("name").value,
+            formula: document.getElementById("formula").value,
+            company_id: document.getElementById("company_id").value,
+            expiry_date: document.getElementById("expiry_date").value,
+            pricing: {
+                one_tablet_price: parseFloat(oneTabletPrice),
+                box_price: boxPrice
+            },
+            amount: amount,
+            location: document.getElementById("location").value,
+            availability: document.getElementById("availability").value
+        };
+
+        let transaction = db.transaction(["medicines"], "readwrite");
+        let store = transaction.objectStore("medicines");
+        store.add(medicine);
+
+        transaction.oncomplete = function() {
+            clearInputs();
+            displayData();
+            checkStorageUsage();
+        };
+    }
+
+    function removeLastMedicine() {
+  let transaction = db.transaction(["medicines"], "readwrite");
+  let store = transaction.objectStore("medicines");
+  
+  // Sabse last entry ka key dhoondhna
+  store.getAllKeys().onsuccess = function(event) {
+    let keys = event.target.result;
+    if (keys.length > 0) {
+      let lastKey = keys[keys.length - 1]; // Last item ki key
+      store.delete(lastKey); // Sirf last item delete
+      displayData(); // JSON area update karega
+      checkStorageUsage(); // Storage usage update karega
+    }
+  };
+}
+
+
+    function displayData() {
+        let transaction = db.transaction(["medicines"], "readonly");
+        let store = transaction.objectStore("medicines");
+        let request = store.getAll();
+
+        request.onsuccess = function(event) {
+            let data = event.target.result;
+            let jsonData = JSON.stringify(data, null, 4);
+            document.getElementById("jsonOutput").value = jsonData;
+            localStorage.setItem("jsonBackup", jsonData);
+        };
+    }
+
+    function saveEditedData() {
+        let editedData = document.getElementById("jsonOutput").value;
+        try {
+            let parsedData = JSON.parse(editedData);
+
+            let transaction = db.transaction(["medicines"], "readwrite");
+            let store = transaction.objectStore("medicines");
+            store.clear();
+
+            parsedData.forEach(medicine => {
+                store.add(medicine);
+            });
+
+            localStorage.setItem("jsonBackup", editedData);
+        } catch (error) {
+            console.error("Invalid JSON format!");
+        }
+    }
+
+    function downloadJSON() {
+        let dataStr = document.getElementById("jsonOutput").value;
+        let blob = new Blob([dataStr], { type: "application/json" });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement("a");
+        a.href = url;
+        a.download = "medicines.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function clearInputs() {
+        document.querySelectorAll("input").forEach(input => input.value = "");
+        localStorage.removeItem("formData");
+        document.getElementById("name").focus();
+    }
+
+    function saveInputData() {
+        let formData = {};
+        document.querySelectorAll("input").forEach(input => {
+            formData[input.id] = input.value;
+        });
+        localStorage.setItem("formData", JSON.stringify(formData));
+    }
+
+    function loadInputData() {
+        let formData = JSON.parse(localStorage.getItem("formData"));
+        if (formData) {
+            document.querySelectorAll("input").forEach(input => {
+                if (formData[input.id]) {
+                    input.value = formData[input.id];
+                }
+            });
+        }
+    }
+
+    function checkStorageUsage() {
+        if (navigator.storage && navigator.storage.estimate) {
+            navigator.storage.estimate().then(estimate => {
+                let usedMB = (estimate.usage / (1024 * 1024)).toFixed(2);
+                let totalMB = (estimate.quota / (1024 * 1024)).toFixed(2);
+                document.getElementById("storageInfo").innerText = `Used: ${usedMB} MB / Available: ${totalMB} MB`;
+            });
+        } else {
+            document.getElementById("storageInfo").innerText = "Storage info not available";
+        }
+    }
+</script>
+
+</body>
+</html>
