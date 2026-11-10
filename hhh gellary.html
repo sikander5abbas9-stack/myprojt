@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Precision Touch Gallery</title>
+    <style>
+        /* Gallery Styles */
+        .gallery-container {
+            width: 90%;
+            height: 300px;
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            position: relative;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        .gallery-slider {
+            display: flex;
+            height: 100%;
+            transition: transform 0.3s ease-out;
+        }
+
+        .gallery-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f8f8;
+            position: relative;
+        }
+
+        .gallery-slide img, 
+        .gallery-slide video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-slide.loaded img, 
+        .gallery-slide.loaded video {
+            opacity: 1;
+        }
+
+        .gallery-counter {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        /* Non-interactive Skeleton */
+        .skeleton-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0;
+            pointer-events: none; /* Makes skeleton non-interactive */
+        }
+
+        /* Page Content */
+        .content {
+            height: 200vh;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Precision Touch Gallery</h1>
+        <p>Scroll normally. Only clear horizontal swipes on the gallery will slide images.</p>
+        
+        <!-- Gallery 1 -->
+        <div id="gallery1"></div>
+        
+        <p style="text-align: center;">Content between galleries...</p>
+        
+        <!-- Gallery 2 -->
+        <div id="gallery2"></div>
+        
+        <p style="text-align: center;">Continue scrolling...</p>
+    </div>
+
+    <script>
+        /**
+         * Creates a gallery with precise touch handling
+         * @param {string} divId - ID of the container div
+         * @param {...string} mediaUrls - Array of image/video URLs
+         */
+        function createGallery(divId, ...mediaUrls) {
+            const galleryDiv = document.getElementById(divId);
+            if (!galleryDiv) return;
+
+            // Setup gallery structure
+            galleryDiv.className = 'gallery-container';
+            galleryDiv.innerHTML = `
+                <div class="gallery-slider"></div>
+                <div class="gallery-counter">1/${mediaUrls.length}</div>
+            `;
+
+            const slider = galleryDiv.querySelector('.gallery-slider');
+            const counter = galleryDiv.querySelector('.gallery-counter');
+            let currentIndex = 0;
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            let sliderPosition = 0;
+            const SWIPE_THRESHOLD = 50; // Minimum pixels to consider a swipe
+
+            // Create slides with skeleton loading
+            mediaUrls.forEach((url, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'gallery-slide';
+                
+                // Non-interactive skeleton
+                const skeleton = document.createElement('div');
+                skeleton.className = 'skeleton-box';
+                slide.appendChild(skeleton);
+
+                let mediaElement;
+                if (url.match(/\.(mp4|webm)$/i)) {
+                    mediaElement = document.createElement('video');
+                    mediaElement.controls = true;
+                    mediaElement.muted = true;
+                } else {
+                    mediaElement = document.createElement('img');
+                    mediaElement.alt = `Slide ${index + 1}`;
+                }
+
+                mediaElement.onload = mediaElement.onloadeddata = () => {
+                    slide.classList.add('loaded');
+                    skeleton.style.display = 'none';
+                };
+                
+                mediaElement.src = url;
+                slide.appendChild(mediaElement);
+                slider.appendChild(slide);
+            });
+
+            // Update slide counter
+            function updateCounter() {
+                counter.textContent = `${currentIndex + 1}/${mediaUrls.length}`;
+            }
+
+            // Navigate to specific slide
+            function goToSlide(index) {
+                if (index < 0 || index >= mediaUrls.length) return;
+                currentIndex = index;
+                sliderPosition = -currentIndex * 100;
+                slider.style.transform = `translateX(${sliderPosition}%)`;
+                updateCounter();
+            }
+
+            // Touch event handlers
+            function handleTouchStart(e) {
+                startX = e.touches[0].clientX;
+                currentX = startX;
+                isDragging = true;
+                slider.style.transition = 'none';
+            }
+
+            function handleTouchMove(e) {
+                if (!isDragging) return;
+                
+                const touchX = e.touches[0].clientX;
+                const diffX = touchX - currentX;
+                currentX = touchX;
+                
+                // Calculate new position with boundaries
+                const newPosition = sliderPosition + (diffX / galleryDiv.offsetWidth * 100);
+                const maxPosition = 0;
+                const minPosition = -(mediaUrls.length - 1) * 100;
+                
+                // Apply rubber band effect at boundaries
+                if (newPosition > maxPosition) {
+                    sliderPosition = maxPosition + (newPosition - maxPosition) * 0.3;
+                } else if (newPosition < minPosition) {
+                    sliderPosition = minPosition + (newPosition - minPosition) * 0.3;
+                } else {
+                    sliderPosition = newPosition;
+                }
+                
+                slider.style.transform = `translateX(${sliderPosition}%)`;
+                e.preventDefault();
+            }
+
+            function handleTouchEnd(e) {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                slider.style.transition = 'transform 0.3s ease-out';
+                
+                const endX = e.changedTouches[0].clientX;
+                const diffX = endX - startX;
+                
+                if (Math.abs(diffX) > SWIPE_THRESHOLD) {
+                    if (diffX < 0) {
+                        goToSlide(currentIndex + 1); // Swiped left
+                    } else {
+                        goToSlide(currentIndex - 1); // Swiped right
+                    }
+                } else {
+                    // Return to current slide if threshold not met
+                    goToSlide(currentIndex);
+                }
+            }
+
+            // Mouse event handlers (for desktop)
+            function handleMouseDown(e) {
+                startX = e.clientX;
+                currentX = startX;
+                isDragging = true;
+                slider.style.transition = 'none';
+                galleryDiv.style.cursor = 'grabbing';
+            }
+
+            function handleMouseMove(e) {
+                if (!isDragging) return;
+                
+                const mouseX = e.clientX;
+                const diffX = mouseX - currentX;
+                currentX = mouseX;
+                
+                // Calculate new position with boundaries
+                const newPosition = sliderPosition + (diffX / galleryDiv.offsetWidth * 100);
+                const maxPosition = 0;
+                const minPosition = -(mediaUrls.length - 1) * 100;
+                
+                // Apply rubber band effect at boundaries
+                if (newPosition > maxPosition) {
+                    sliderPosition = maxPosition + (newPosition - maxPosition) * 0.3;
+                } else if (newPosition < minPosition) {
+                    sliderPosition = minPosition + (newPosition - minPosition) * 0.3;
+                } else {
+                    sliderPosition = newPosition;
+                }
+                
+                slider.style.transform = `translateX(${sliderPosition}%)`;
+                e.preventDefault();
+            }
+
+            function handleMouseUp(e) {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                slider.style.transition = 'transform 0.3s ease-out';
+                galleryDiv.style.cursor = '';
+                
+                const endX = e.clientX;
+                const diffX = endX - startX;
+                
+                if (Math.abs(diffX) > SWIPE_THRESHOLD) {
+                    if (diffX < 0) {
+                        goToSlide(currentIndex + 1); // Dragged left
+                    } else {
+                        goToSlide(currentIndex - 1); // Dragged right
+                    }
+                } else {
+                    // Return to current slide if threshold not met
+                    goToSlide(currentIndex);
+                }
+            }
+
+            // Add event listeners
+            galleryDiv.addEventListener('touchstart', handleTouchStart, { passive: false });
+            galleryDiv.addEventListener('touchmove', handleTouchMove, { passive: false });
+            galleryDiv.addEventListener('touchend', handleTouchEnd);
+            
+            galleryDiv.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        // Create Gallery 1 with different images
+        createGallery(
+            'gallery1',
+            '/gsh/a.jpg',
+            'https://source.unsplash.com/random/800x600?beach',
+            'https://source.unsplash.com/random/800x600?forest',
+            'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'
+        );
+
+        // Create Gallery 2 with different images
+        createGallery(
+            'gallery2',
+            'https://source.unsplash.com/random/800x600?architecture',
+            'https://source.unsplash.com/random/800x600?technology',
+            'https://source.unsplash.com/random/800x600?abstract',
+            'https://samplelib.com/lib/preview/mp4/sample-10s.mp4'
+        );
+    </script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="/hhh/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .product-container {
+            width: 95%;
+            margin: 80px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+        }
+        .product-item {
+          position: fixed;
+          bottom: 0;
+            display: flex;
+            flex-direction: row;
+            
+            padding: 15px 0;
+            position: relative;
+        }
+        .product-item img {
+            width: 80px;
+            height: 80px;
+            margin: 0 15px 0 10px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            transition: transform 0.2s;
+        }
+        .product-item img:hover {
+            transform: scale(1.05);
+        }
+        .product-details {
+            width: 220px;
+            font-weight: 500;
+        }
+        .product-price {
+            color: #088178;
+            font-size: 20px;
+            font-weight: 500;
+            position: absolute;
+            bottom: 30px;
+        }
+        .quantity-control {
+            display: flex;
+            height: 22px;
+            position: absolute;
+            right: 5px;
+            bottom: 15px;
+        }
+        .quantity-control button {
+            background-color: #eee;
+            border: none;
+            padding: 1px 10px;
+            font-size: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .quantity-control button:hover {
+            background-color: #dcdcdc;
+        }
+        .quantity-control span {
+            margin: 1px 5px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        .info-container {
+            margin: 10px;
+            padding: 20px;
+            width: 95%;
+            border-radius: 10px;
+            border: 1px solid #7D7D7D;
+            position: absolute;
+            bottom: 150px;
+        }
+        .delivery-info {
+            margin: 15px 0;
+            font-size: 15px;
+            padding-top: 10px;
+            color: #333;
+        }
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .bottom-nav {
+            background-color: #fff;
+            font-size: 1rem;
+            padding: 20px;
+            width: 80%;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+            gap: 30px;
+            display: flex;
+            flex-direction: row;
+            box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .bottom-nav .total-price {
+            font-size: 33px;
+            font-weight: 500;
+            color: #000;
+        }
+        .bottom-nav button {
+            padding: 12px;
+            background-color: #088178;
+            font-size: 1.01rem;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .bottom-nav button:hover {
+            background-color: #066d5b;
+        }
+    </style>
+</head>
+<body>
+    <div class="product-container">
+        <div id="product-items"></div>
+    </div>
+    <div class="info-container">
+        <div class="delivery-info">
+            <p>Standard Delivery <span style="float: right;">Rs. 0</span></p>
+            <p style="color: #888;">Get by 8-11 Nov</p>
+        </div>
+        <div class="total-section" id="subtotal-section">
+            <span>Merchandise Subtotal (1 item)</span>
+            <span id="subtotal-amount">Rs. 0</span>
+        </div>
+        <div class="total-section">
+            <span>Shipping Fee Subtotal</span>
+            <span id="shipping-fee">Rs. 0</span>
+        </div>
+        <div class="total-section" style="font-size: 22px; color: #ff5722;">
+            <span>Total:</span>
+            <span id="total-amount">Rs. 0</span>
+        </div>
+    </div>
+    <div class="bottom-nav">
+        <span class="total-price" id="bottom-total">Rs. 0</span>
+        <button onclick="buyNow()">Buy Now</button>
+    </div>
+
+    
+<script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+  
+  // Firebase Configuration
+  const firebaseConfig = {
+  apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+  authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+  projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+  storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+  messagingSenderId: "246983910789",
+  appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+};
+
+  // Firebase Initialization
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  
+  async function loadProductDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+    
+    if (!productId) {
+      console.error("Product ID not found in URL.");
+      return;
+    }
+    
+    try {
+      const docRef = doc(db, "products", productId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const product = docSnap.data();
+        const deliveryCharges = 149;
+        const productPrice = parseFloat(product.price) || 0;
+        
+        const productItemsContainer = document.getElementById("product-items");
+        productItemsContainer.innerHTML = `
+                    <div class="product-item">
+                        <img src="${product.images.split(',')[0].trim()}" alt="${product.name || 'Product Image'}">
+                        <div class="product-details">
+                            <p>${product.name || "No Name Available"}</p>
+                            <p class="product-price">Rs. ${Math.round(productPrice)}</p>
+                        </div>
+                        <div class="quantity-control">
+                            <button onclick="decreaseQuantity()">-</button>
+                            <span id="product-quantity">1</span>
+                            <button onclick="increaseQuantity()">+</button>
+                        </div>
+                    </div>
+                `;
+        
+        updateTotalPrice(productPrice, deliveryCharges);
+      } else {
+        console.error("Product not found in Firestore database.");
+      }
+    } catch (error) {
+      console.error("Error loading product details:", error);
+    }
+  }
+  
+  let quantity = 1;
+  
+  function increaseQuantity() {
+    quantity++;
+    document.getElementById("product-quantity").innerText = quantity;
+    updateTotalPrice();
+  }
+  
+  function decreaseQuantity() {
+    if (quantity > 1) {
+      quantity--;
+      document.getElementById("product-quantity").innerText = quantity;
+      updateTotalPrice();
+    }
+  }
+  
+  function updateTotalPrice() {
+    const price = parseFloat(document.querySelector(".product-price").innerText.replace('Rs. ', '')) || 0;
+    const subtotal = quantity * price;
+    const deliveryCharges = 149;
+    const totalPrice = subtotal + deliveryCharges;
+    
+    document.getElementById("subtotal-amount").innerText = `Rs. ${Math.round(subtotal)}`;
+    document.getElementById("total-amount").innerText = `Rs. ${Math.round(totalPrice)}`;
+    document.getElementById("bottom-total").innerText = `Rs. ${Math.round(totalPrice)}`;
+  }
+  
+  function buyNow() {
+    alert("Thank you for your purchase!");
+  }
+  
+  window.onload = loadProductDetails;
+</script>
+</body>
+</html>

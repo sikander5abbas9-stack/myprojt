@@ -1,0 +1,258 @@
+<!doctype html>
+
+<html lang="ur">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lo-Shu Grid Generator</title>
+  <style>
+    :root{--accent:#088178}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans",Arial;display:flex;align-items:flex-start;justify-content:center;padding:28px;background:#f6fbfb;margin:0}
+    .card{width:100%;max-width:920px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.06);padding:18px}
+    h1{font-size:18px;margin:0 0 12px}
+    .controls{display:flex;gap:12px;flex-wrap:wrap}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
+    input[type=date], input[type=text], button, select{padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px}
+    button{background:var(--accent);color:#fff;border:none;cursor:pointer}
+    .grid-wrap{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+    .grid{width:320px;height:320px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px}
+    .cell{background:#f4f9f9;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;position:relative;border:1px solid #e6efef}
+    .digit{font-weight:700;font-size:20px}
+    .count{font-size:16px;margin-top:6px}
+    .badge{position:absolute;top:8px;right:8px;background:var(--accent);color:#fff;padding:4px 8px;border-radius:999px;font-size:12px}
+    .list{flex:1;min-width:260px}
+    .section{margin-bottom:12px}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+    .muted{color:#666;font-size:13px}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .legend span{background:#eef9f8;padding:6px 8px;border-radius:6px;font-size:13px}
+    .highlight{box-shadow:0 6px 12px rgba(8,129,120,0.12);border-color:var(--accent)}
+    .small{font-size:13px;color:#444}
+    .mapping{max-height:200px;overflow:auto;border:1px solid #eee;padding:8px;border-radius:6px;background:#fafafa}
+    @media(max-width:760px){.grid-wrap{flex-direction:column;align-items:stretch}.grid{width:100%;height:280px}}
+  </style>
+</head>
+<body>
+  <div class="card" role="main">
+    <h1>Lo-Shu Grid Generator</h1><div class="controls">
+  <div class="field">
+    <label class="small">Date (birth / event)</label>
+    <input id="dateInput" type="date" />
+  </div>
+
+  <div class="field">
+    <label class="small">Format</label>
+    <select id="dateFormat">
+      <option value="ddmmyyyy">DD MM YYYY (default)</option>
+      <option value="yyyymmdd">YYYY MM DD</option>
+    </select>
+  </div>
+
+  <div class="field" style="align-self:end">
+    <button id="makeGrid">Generate Grid</button>
+  </div>
+
+  <div style="flex-basis:100%"></div>
+
+  <div class="field" style="flex:1;min-width:260px">
+    <label class="small">Name finder</label>
+    <input id="nameInput" type="text" placeholder="Name in English, e.g. Sikandar Abbas" />
+  </div>
+
+  <div class="field" style="align-self:end">
+    <button id="mapName">Find Name Numbers</button>
+  </div>
+
+  <div class="field" style="flex-basis:100%"></div>
+
+  <div class="field" style="flex:1;min-width:260px">
+    <label class="small">Results</label>
+    <div id="summary" class="mapping small">Grid not generated yet.</div>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div>
+    <div class="small">Lo-Shu 3x3 Grid</div>
+    <div id="grid" class="grid" aria-hidden="false"></div>
+    <div class="legend">
+      <span>Digit label in bold</span>
+      <span>Count from input shown under it</span>
+      <span>Badge shows name count overlap</span>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="section">
+      <div class="small">Mapping table (Pythagorean)</div>
+      <div class="mapping" id="mappingTable"></div>
+    </div>
+
+    <div class="section">
+      <div class="small">Total numbers</div>
+      <div class="mono" id="totalsDisplay">—</div>
+    </div>
+
+    <div class="section">
+      <div class="small">Usage notes</div>
+      <div class="muted">Enter a date, then press Generate Grid. Digits in the date are counted and placed into Lo-Shu positions. Then type a name and press Find Name Numbers to see how the name's numbers map to the same grid.</div>
+    </div>
+  </div>
+</div>
+
+  </div>  <script>
+    // Lo-Shu position order. Each cell shows this digit and its counts.
+    // Standard Lo-Shu mapping positions by digit: 1..9 map to these grid indices
+    // We'll create cells in the order: [4,9,2,3,5,7,8,1,6]
+    const loShuOrder = [4,9,2,3,5,7,8,1,6];
+
+    const letterValues = {
+      A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,
+      J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,
+      S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8
+    };
+
+    const gridEl = document.getElementById('grid');
+    const mappingTable = document.getElementById('mappingTable');
+    const summary = document.getElementById('summary');
+    const totalsDisplay = document.getElementById('totalsDisplay');
+
+    // build cells
+    function makeCells() {
+      gridEl.innerHTML = '';
+      for (let i = 0; i < loShuOrder.length; i++) {
+        const digit = loShuOrder[i];
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.digit = digit;
+        cell.innerHTML = `<div class="digit">${digit}</div><div class="count" data-count>0</div>`;
+        gridEl.appendChild(cell);
+      }
+    }
+
+    makeCells();
+
+    // show mapping table
+    function renderMapping() {
+      const parts = [];
+      for (let ch = 'A'.charCodeAt(0); ch <= 'Z'.charCodeAt(0); ch++) {
+        const c = String.fromCharCode(ch);
+        parts.push(c + ' = ' + (letterValues[c]||0));
+      }
+      mappingTable.textContent = parts.join(' , ');
+    }
+
+    renderMapping();
+
+    function parseDateToDigits(dateStr, format) {
+      // Accepts date string produced by input[type=date] which is yyyy-mm-dd
+      if (!dateStr) return [];
+      let parts = dateStr.split('-');
+      if (format === 'ddmmyyyy') {
+        // date input is yyyy-mm-dd, convert to dd mm yyyy
+        const y = parts[0], m = parts[1], d = parts[2];
+        parts = [d, m, y];
+      }
+      // join and get digits
+      const all = parts.join('');
+      return all.split('').filter(ch => /[0-9]/.test(ch)).map(Number);
+    }
+
+    function countsFromDigits(digits) {
+      const counts = Array(10).fill(0); // 0..9
+      for (const d of digits) {
+        if (d >= 1 && d <= 9) counts[d]++;
+      }
+      return counts;
+    }
+
+    function updateGrid(counts, nameCounts) {
+      // counts and nameCounts are arrays length 10
+      const cells = gridEl.querySelectorAll('.cell');
+      cells.forEach(cell => {
+        const digit = Number(cell.dataset.digit);
+        const cnt = counts[digit] || 0;
+        const nameCnt = (nameCounts && nameCounts[digit]) || 0;
+        cell.querySelector('[data-count]').textContent = cnt;
+        cell.classList.toggle('highlight', cnt > 0 || nameCnt > 0);
+
+        // show badge for name overlaps
+        let badge = cell.querySelector('.badge');
+        if (nameCnt > 0) {
+          if (!badge) {
+            badge = document.createElement('div');
+            badge.className = 'badge';
+            cell.appendChild(badge);
+          }
+          badge.textContent = nameCnt;
+        } else if (badge) {
+          badge.remove();
+        }
+      });
+    }
+
+    function reduceToSingle(n) {
+      let x = Math.abs(Math.floor(n));
+      while (x > 9) {
+        let s = 0;
+        while (x > 0) {
+          s += x % 10;
+          x = Math.floor(x / 10);
+        }
+        x = s;
+      }
+      return x;
+    }
+
+    document.getElementById('makeGrid').addEventListener('click', () => {
+      const dateVal = document.getElementById('dateInput').value;
+      const format = document.getElementById('dateFormat').value;
+      const digits = parseDateToDigits(dateVal, format);
+      if (!digits.length) {
+        summary.textContent = 'Please select a date first.';
+        return;
+      }
+      const counts = countsFromDigits(digits);
+      updateGrid(counts, null);
+
+      // totals
+      const total = digits.reduce((a,b)=>a+b,0);
+      const single = reduceToSingle(total);
+      totalsDisplay.textContent = `Digits raw: ${digits.join(' ')}\nTotal sum: ${total} , Single digit: ${single}`;
+      summary.textContent = `Grid generated from date digits. Non-zero cells highlighted.`;
+
+      // store last grid counts on window for name finder
+      window._lastGridCounts = counts;
+    });
+
+    document.getElementById('mapName').addEventListener('click', () => {
+      const name = document.getElementById('nameInput').value.toUpperCase().replace(/[^A-Z]/g,'');
+      if (!name) { summary.textContent = 'Please enter a name.'; return; }
+      // compute name digits
+      const nameDigits = [];
+      const pairs = [];
+      for (const ch of name) {
+        const v = letterValues[ch] || 0;
+        if (v >= 1 && v <= 9) nameDigits.push(v);
+        pairs.push(ch+'='+v);
+      }
+      const nameCounts = countsFromDigits(nameDigits);
+
+      // totals
+      const total = nameDigits.reduce((a,b)=>a+b,0);
+      const single = reduceToSingle(total);
+      totalsDisplay.textContent = `Name mapping: ${pairs.join(' , ')}\nName total: ${total} , Single digit: ${single}`;
+      summary.textContent = `Name numbers calculated. Cells with name numbers show badge count.`;
+
+      // update grid overlay using last grid counts if present
+      const base = window._lastGridCounts || Array(10).fill(0);
+      updateGrid(base, nameCounts);
+
+      // also store for later
+      window._lastNameCounts = nameCounts;
+    });
+
+    // initialize empty grid with zeros
+    updateGrid(Array(10).fill(0), null);
+  </script></body>
+</html>

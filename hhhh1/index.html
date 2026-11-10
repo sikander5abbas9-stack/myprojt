@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Project</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .page-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .page-container.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    iframe {
+      height: 100%;
+      width: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- First Page -->
+  <div id="first-page" class="page-container active">
+    <iframe id="first-iframe"></iframe>
+  </div>
+
+  <!-- Second Page -->
+  <div id="second-page" class="page-container">
+    <iframe id="second-iframe"></iframe>
+  </div>
+
+  <script>
+    // ====== CONFIGURATION ======
+    const config = {
+      firstHtmlFile: './hhhh/main.html',
+      secondHtmlFile: './hhhh/search.html',
+      switchToSecondButtonId: 'searchInput', // ID in first iframe
+      switchToFirstButtonId: 'back',         // ID in second iframe
+      autoFocusInputId: 'searchInput',       // input focus on second page
+      transitionDuration: 300                // in ms
+    };
+    // ===========================
+
+    let currentPage = 'first';
+    let backButtonPressed = false;
+
+    function switchPage(target) {
+      const firstPage = document.getElementById('first-page');
+      const secondPage = document.getElementById('second-page');
+
+      if (target === 'second') {
+        firstPage.classList.remove('active');
+        secondPage.classList.add('active');
+
+        setTimeout(() => {
+          try {
+            const input = document.getElementById('second-iframe').contentDocument.getElementById(config.autoFocusInputId);
+            if (input) {
+              input.focus();
+              input.select();
+            }
+          } catch (e) {
+            console.warn('Input not focused:', e);
+          }
+        }, config.transitionDuration);
+
+        history.pushState({ page: 'second' }, '', '#search');
+        currentPage = 'second';
+      } else {
+        secondPage.classList.remove('active');
+        firstPage.classList.add('active');
+
+        if (backButtonPressed) {
+          backButtonPressed = false;
+        } else {
+          history.replaceState({ page: 'first' }, '', '#');
+        }
+
+        currentPage = 'first';
+      }
+    }
+
+    window.addEventListener('message', function (event) {
+      if (event.data === 'switch-to-second') {
+        switchPage('second');
+      } else if (event.data === 'switch-to-first') {
+        switchPage('first');
+      }
+    });
+
+    window.addEventListener('popstate', function () {
+      if (currentPage === 'second') {
+        backButtonPressed = true;
+        switchPage('first');
+      } else {
+        // Optional: Exit app or show alert on final back
+        if (window.history.length <= 1) {
+          if (window.navigator && window.navigator.app) {
+            window.navigator.app.exitApp(); // For Cordova
+          } else {
+            alert('Press back again to exit');
+            window.history.pushState(null, null, '#exit');
+            setTimeout(() => {
+              window.history.replaceState(null, null, '#');
+            }, 0);
+          }
+        }
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      history.replaceState({ page: 'first' }, '', '#');
+
+      const firstIframe = document.getElementById('first-iframe');
+      const secondIframe = document.getElementById('second-iframe');
+
+      firstIframe.src = config.firstHtmlFile;
+      secondIframe.src = config.secondHtmlFile;
+
+      // Inject click event to first iframe button
+      firstIframe.onload = function () {
+        try {
+          const script = document.createElement('script');
+          script.text = `
+            const btn = document.getElementById('${config.switchToSecondButtonId}');
+            if (btn) {
+              btn.onclick = () => parent.postMessage('switch-to-second', '*');
+            }
+          `;
+          firstIframe.contentDocument.body.appendChild(script);
+        } catch (e) {
+          console.warn('Error injecting first iframe script:', e);
+        }
+      };
+
+      // Inject back event to second iframe button
+      secondIframe.onload = function () {
+        try {
+          const script = document.createElement('script');
+          script.text = `
+            const backBtn = document.getElementById('${config.switchToFirstButtonId}');
+            if (backBtn) {
+              backBtn.onclick = () => parent.postMessage('switch-to-first', '*');
+            }
+
+            setTimeout(() => {
+              const input = document.getElementById('${config.autoFocusInputId}');
+              if (input) {
+                input.focus();
+                input.select();
+              }
+            }, 100);
+          `;
+          secondIframe.contentDocument.body.appendChild(script);
+        } catch (e) {
+          console.warn('Error injecting second iframe script:', e);
+        }
+      };
+
+      // Cordova/Android back button handler
+      document.addEventListener('deviceready', function () {
+        document.addEventListener('backbutton', function (e) {
+          if (currentPage === 'second') {
+            e.preventDefault();
+            switchPage('first');
+          } else {
+            if (confirm('Do you want to exit?')) {
+              navigator.app.exitApp();
+            }
+          }
+        }, false);
+      }, false);
+    });
+  </script>
+</body>
+</html>

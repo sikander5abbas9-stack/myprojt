@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Smart Web App</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    
+    <style>
+        body { background-color: #f8f9fa; padding-top: 50px; }
+        .app-card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #installBtn { display: none; } /* Sirf tab dikhega jab app installable hogi */
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card app-card p-4">
+                <h2 class="mb-4">Khush Amdeed!</h2>
+                <p>Ye ek installable web app hai jo GitHub aur Vercel par host hai.</p>
+                
+                <button id="installBtn" class="btn btn-primary btn-block mb-3">
+                    App Install Karen
+                </button>
+                
+                <div class="alert alert-info">
+                    Agar aap Chrome use kar rahe hain, to URL bar mein "Install" ka icon nazar ayega.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Service Worker Register karna
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then(() => console.log("Service Worker Registered"));
+    }
+
+    // Install Prompt Handle karna
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block'; // Button dikhao
+    });
+
+    installBtn.addEventListener('click', () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User ne install kar liya');
+                }
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

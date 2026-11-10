@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Application - Sikandar Abbas</title>
+    <!-- html2canvas library for taking high-quality screenshot -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Action Buttons Area */
+        .btn-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            background-color: #075e54; /* WhatsApp Green theme color */
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .action-btn:hover {
+            background-color: #128c7e;
+        }
+
+        /* Portrait Paper Setup */
+        .letter-page {
+            background-color: #ffffff;
+            width: 450px; /* Mobile standard screen sharing width */
+            min-height: 600px; /* Good aspect ratio for mobile view */
+            padding: 40px 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            color: #333333;
+            line-height: 1.6;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .school-name {
+            font-weight: bold;
+            font-size: 17px;
+            color: #111111;
+        }
+
+        .subject {
+            font-weight: bold;
+            margin: 25px 0;
+            font-size: 16px;
+            text-decoration: underline;
+        }
+
+        .content {
+            margin-bottom: 40px;
+            text-align: justify;
+        }
+
+        .closing {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Download/Screenshot Button Area -->
+    <div class="btn-container">
+        <button class="action-btn" onclick="takeScreenshot()">Download Screenshot for WhatsApp</button>
+    </div>
+
+    <!-- The Actual Portrait Paper View -->
+    <div id="application-paper" class="letter-page">
+        <div class="header">
+            To,<br>
+            <strong>Sir Javahir Hussain</strong>,<br>
+            <span class="school-name">Janbaz Public High Tuition</span>,<br>
+            Uch Sharif.
+        </div>
+
+        <div class="subject">
+            Subject: Leave Application for Absence
+        </div>
+
+        <div class="content">
+            Respected Sir,<br><br>
+            I am writing to inform you that I could not attend the tuition class this morning due to some urgent work. 
+            <br><br>
+            Furthermore, I may not be able to attend the class for the next two days as well. I will ensure that I cover the missed syllabus as soon as I return. 
+            <br><br>
+            Kindly grant me leave for these days. I shall be very grateful to you.
+        </div>
+
+        <div class="closing">
+            Yours obediently,<br><br>
+            <strong>Sikandar Abbas</strong><br>
+            Student
+        </div>
+    </div>
+
+    <script>
+        function takeScreenshot() {
+            const element = document.getElementById("application-paper");
+            
+            // Generate canvas from HTML
+            html2canvas(element, {
+                scale: 2, // Increases quality for crisp WhatsApp sharing
+                useCORS: true
+            }).then(canvas => {
+                // Convert canvas to image URL
+                const image = canvas.toDataURL("image/png");
+                
+                // Create a dynamic anchor link to auto-download
+                const link = document.createElement("a");
+                link.download = "Sikandar_Abbas_Leave.png";
+                link.href = image;
+                link.click();
+            });
+        }
+    </script>
+
+</body>
+</html>

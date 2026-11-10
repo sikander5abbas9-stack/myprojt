@@ -1,0 +1,16 @@
+{
+  "name": "Sikandar Smart App",
+  "short_name": "SmartApp",
+  "description": "Ek behtareen web app jo install ho sakti hai.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1081/1081048.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

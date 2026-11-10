@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sikandar Abbas - Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #088178;
+            --secondary: #06635c;
+            --dark: #043833;
+            --light: #f5f7f7;
+            --gray: #9ca3af;
+            --accent: #FF4081;
+            --card-bg: #ffffff;
+            --header-bg: #ffffff;
+            --text-dark: #043833;
+            --text-light: #5C6BC0;
+            --shadow: 0 4px 6px rgba(8, 129, 120, 0.1);
+            --shadow-hover: 0 10px 15px -3px rgba(8, 129, 120, 0.2);
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header - Simplified */
+        header {
+            background-color: var(--header-bg);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        
+        /* Search Bar - Enhanced */
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+            margin: 0 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--light);
+            border-radius: 50px;
+            padding: 12px 20px;
+            border: 1px solid var(--primary);
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8, 129, 120, 0.2);
+        }
+        
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-size: 1rem;
+            padding: 0 10px;
+            color: var(--text-dark);
+        }
+        
+        .search-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--dark);
+            margin-left: 10px;
+        }
+        
+        .search-shortcut-hint {
+            background-color: var(--light);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 0.7rem;
+            color: var(--dark);
+            margin-right: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .search-results.active {
+            display: block;
+        }
+        
+        .search-result-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .search-result-item:hover {
+            background-color: #f5f7ff;
+        }
+        
+        .search-result-item i {
+            color: var(--primary);
+        }
+        
+        /* Profile Icon */
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .profile-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Profile Popup - Enhanced with social links */
+        .profile-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .profile-popup.active {
+            display: block;
+            animation: popIn 0.3s ease;
+        }
+        
+        @keyframes popIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .popup-header {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            padding: 30px 20px 60px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.3s;
+            color: var(--dark);
+        }
+        
+        .popup-close:hover {
+            background: white;
+        }
+        
+        .popup-profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: var(--shadow-hover);
+            margin-bottom: 15px;
+        }
+        
+        .popup-body {
+            padding: 50px 30px 30px;
+            text-align: center;
+            margin-top: -40px;
+        }
+        
+        .popup-body h2 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .popup-body p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--light);
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+        
+        .social-link:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .popup-overlay.active {
+            display: block;
+        }
+        
+        /* Projects Section - Grid Layout with filtering */
+        .projects {
+            padding: 100px 0 80px;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.2rem;
+            color: var(--dark);
+        }
+        
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--light);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .project-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .project-img {
+            height: 200px;
+            background: linear-gradient(45deg, #088178, #4DB6AC);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-img::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.1));
+        }
+        
+        .project-content {
+            padding: 20px;
+        }
+        
+        .project-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .project-desc {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .project-tag {
+            background-color: var(--light);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+        
+        .project-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .project-link:hover {
+            color: var(--secondary);
+        }
+        
+        /* Footer - Enhanced with contact info */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .footer-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .footer-profile-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+        
+        .footer-profile-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .footer-profile-info p {
+            color: #d1d5db;
+        }
+        
+        .footer-contact {
+            margin: 20px 0;
+        }
+        
+        .footer-contact a {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        
+        .footer-contact a:hover {
+            color: var(--primary);
+        }
+        
+        .copyright {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #9ca3af;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .scroll-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-top:hover {
+            background-color: var(--secondary);
+            transform: translateY(-5px);
+        }
+        
+        /* No Results Message */
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 40px;
+            color: var(--text-light);
+        }
+        
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: var(--secondary);
+        }
+        
+        /* Search query display */
+        .search-query {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* Loading animation */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(8, 129, 120, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            .logo span {
+                display: none;
+            }
+            
+            .search-container {
+                order: 0;
+                width: auto;
+                margin: 0;
+                flex: 1;
+            }
+            
+            .search-shortcut-hint {
+                display: none;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .profile-popup {
+                width: 95%;
+            }
+            
+            .footer-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-contact a {
+                display: block;
+                margin: 10px 0;
+            }
+            
+            .scroll-top {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        /* Animation for search results */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .search-results.active {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Project card animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .project-card {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .project-card:nth-child(1) { animation-delay: 0.1s; }
+        .project-card:nth-child(2) { animation-delay: 0.2s; }
+        .project-card:nth-child(3) { animation-delay: 0.3s; }
+        .project-card:nth-child(4) { animation-delay: 0.4s; }
+        .project-card:nth-child(5) { animation-delay: 0.5s; }
+        .project-card:nth-child(6) { animation-delay: 0.6s; }
+        .project-card:nth-child(7) { animation-delay: 0.7s; }
+        .project-card:nth-child(8) { animation-delay: 0.8s; }
+        .project-card:nth-child(9) { animation-delay: 0.9s; }
+        .project-card:nth-child(10) { animation-delay: 1.0s; }
+    </style>
+</head>
+<body>
+    <!-- Header with logo, search and profile -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-code logo-icon"></i>
+                    <span>Portfolio</span>
+                </a>
+                <div class="search-container">
+                    <div class="search-box">
+                        <span class="search-shortcut-hint">Ctrl+K</span>
+                        <input type="text" id="searchInput" placeholder="Search projects by name, description or tags...">
+                        <button class="search-btn" id="searchButton"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="search-results" id="searchResults">
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+                <img src="myself.jpg" alt="Profile" class="profile-icon" id="profileIcon">
+            </div>
+        </div>
+    </header>
+
+    <!-- Scroll to top button -->
+    <div class="scroll-top" id="scrollTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Profile Popup -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="profile-popup" id="profilePopup">
+        <div class="popup-header">
+            <div class="popup-close" id="popupClose">
+                <i class="fas fa-times"></i>
+            </div>
+            <img src="myself.jpg" alt="Sikandar Abbas" class="popup-profile-img">
+        </div>
+        <div class="popup-body">
+            <h2>Sikandar Abbas</h2>
+            <p>Web Developer & Designer</p>
+            <p>Welcome to my portfolio! I create small web projects and tools that are both functional and beautiful. All projects are hosted on GitHub and deployed with Vercel.</p>
+            
+            <div class="social-links">
+                <a href="https://github.com/sikandarabbas" class="social-link"><i class="fab fa-github"></i></a>
+                <a href="https://linkedin.com/in/sikandarabbas" class="social-link"><i class="fab fa-linkedin"></i></a>
+                <a href="https://twitter.com/sikandarabbas" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="mailto:sikandar@example.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="container">
+            <div id="searchInfo"></div>
+            <h2 class="section-title">My Projects</h2>
+            
+            <div class="filter-container" id="filterContainer">
+                <!-- Filter buttons will be dynamically inserted here -->
+            </div>
+            
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer - Enhanced with contact info -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-profile">
+                    <img src="myself.jpg" alt="Sikandar Abbas" class="footer-profile-img">
+                    <div class="footer-profile-info">
+                        <h3>Sikandar Abbas</h3>
+                        <p>Web Developer & Designer</p>
+                    </div>
+                </div>
+                
+                <div class="footer-contact">
+                    <a href="mailto:sikandar@example.com"><i class="fas fa-envelope"></i> sikandar@example.com</a>
+                    <a href="https://github.com/sikandarabbas" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://linkedin.com/in/sikandarabbas" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                </div>
+                
+                <div class="copyright">
+                    <p>&copy; 2023 Sikandar Abbas. All projects open sourced on GitHub and deployed with Vercel.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+
+    <script src="main.js"></script> <script>
+     
+     showbottomandtopbar('home')
+        // DOM elements
+        const projectsGrid = document.getElementById('projectsGrid');
+        const filterContainer = document.getElementById('filterContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchButton = document.getElementById('searchButton');
+        const searchInfo = document.getElementById('searchInfo');
+        const profileIcon = document.getElementById('profileIcon');
+        const profilePopup = document.getElementById('profilePopup');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const popupClose = document.getElementById('popupClose');
+        const scrollTop = document.getElementById('scrollTop');
+
+        // Projects data will be loaded from JSON file
+        let projects = [];
+
+        // Load projects from JSON file
+        async function loadProjects() {
+            try {
+                const response = await fetch('projects.json');
+                projects = await response.json();
+                initializePage();
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                // Fallback to empty array if JSON fails to load
+                projects = [];
+                initializePage();
+            }
+        }
+
+        // Get all unique tags for filtering
+        function getAllTags() {
+            const allTags = new Set();
+            projects.forEach(project => {
+                project.tags.forEach(tag => allTags.add(tag));
+            });
+            return Array.from(allTags).sort();
+        }
+
+        // Create filter buttons
+        function createFilterButtons() {
+            const tags = getAllTags();
+            
+            // Add "All" button
+            const allButton = document.createElement('button');
+            allButton.className = 'filter-btn active';
+            allButton.textContent = 'All';
+            allButton.dataset.filter = 'all';
+            allButton.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                allButton.classList.add('active');
+                displayProjects(projects);
+                updateURL('', '');
+            });
+            filterContainer.appendChild(allButton);
+            
+            // Add tag buttons
+            tags.forEach(tag => {
+                const button = document.createElement('button');
+                button.className = 'filter-btn';
+                button.textContent = tag;
+                button.dataset.filter = tag;
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    filterProjectsByTag(tag);
+                    updateURL('', tag);
+                });
+                filterContainer.appendChild(button);
+            });
+        }
+
+        // Filter projects by tag
+        function filterProjectsByTag(tag) {
+            if (tag === 'all') {
+                displayProjects(projects);
+                return;
+            }
+            
+            const filteredProjects = projects.filter(project => 
+                project.tags.includes(tag)
+            );
+            
+            displayProjects(filteredProjects);
+        }
+
+        // Get parameters from URL
+        function getURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q') || '';
+            const projectFilter = urlParams.get('project') || '';
+            const tagFilter = urlParams.get('tag') || '';
+            
+            return { searchQuery, projectFilter, tagFilter };
+        }
+
+        // Update URL with search query and filters
+        function updateURL(searchQuery, tagFilter) {
+            const url = new URL(window.location);
+            
+            if (searchQuery) {
+                url.searchParams.set('q', searchQuery);
+            } else {
+                url.searchParams.delete('q');
+            }
+            
+            if (tagFilter) {
+                url.searchParams.set('tag', tagFilter);
+            } else {
+                url.searchParams.delete('tag');
+            }
+            
+            window.history.replaceState({}, '', url);
+        }
+
+        // Display projects function
+        function displayProjects(projectsToShow, searchQuery = '') {
+            projectsGrid.innerHTML = '';
+            
+            // Show search info if there's a search query
+            if (searchQuery) {
+                searchInfo.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <p>Showing results for: <span class="search-query">"${searchQuery}"</span></p>
+                        <a href="javascript:void(0)" onclick="clearSearch()" class="back-button">
+                            <i class="fas fa-arrow-left"></i> Clear Search
+                        </a>
+                    </div>
+                `;
+            } else {
+                searchInfo.innerHTML = '';
+            }
+            
+            if (projectsToShow.length === 0) {
+                projectsGrid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                        <h3>No projects found</h3>
+                        <p>Try different search terms or browse all projects</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            projectsToShow.forEach(project => {
+                const projectCard = document.createElement('div');
+                projectCard.className = 'project-card';
+                projectCard.innerHTML = `
+                    <div class="project-img">
+                        <i class="${project.icon}"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">${project.title}</h3>
+                        <p class="project-desc">${project.description}</p>
+                        <div class="project-tags">
+                            ${project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="project-links">
+                            <a href="${project.demo}" target="_blank" class="project-link"><i class="fas fa-external-link-alt"></i> Live Demo</a>
+                            <a href="${project.code}" target="_blank" class="project-link"><i class="fab fa-github"></i> Code</a>
+                        </div>
+                    </div>
+                `;
+                projectsGrid.appendChild(projectCard);
+            });
+        }
+
+        // Search functionality
+        function searchProjects(searchTerm, updateHistory = true) {
+            if (updateHistory) {
+                updateURL(searchTerm, '');
+            }
+            
+            if (!searchTerm) {
+                searchResults.classList.remove('active');
+                displayProjects(projects);
+                return;
+            }
+            
+            const filteredProjects = projects.filter(project => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                    project.title.toLowerCase().includes(searchLower) ||
+                    project.description.toLowerCase().includes(searchLower) ||
+                    project.tags.some(tag => tag.toLowerCase().includes(searchLower))
+                );
+            });
+            
+            // Display search results in dropdown
+            searchResults.innerHTML = '';
+            
+            if (filteredProjects.length === 0) {
+                searchResults.innerHTML = `<div class="search-result-item">No results found for "${searchTerm}"</div>`;
+            } else {
+                filteredProjects.slice(0, 5).forEach(project => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.innerHTML = `
+                        <i class="${project.icon}"></i>
+                        <div>
+                            <div>${project.title}</div>
+                            <small>${project.tags.slice(0, 2).join(', ')}</small>
+                        </div>
+                    `;
+                    resultItem.addEventListener('click', () => {
+                        searchInput.value = project.title;
+                        searchProjects(project.title);
+                        searchResults.classList.remove('active');
+                        window.scrollTo({
+                            top: projectsGrid.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    });
+                    searchResults.appendChild(resultItem);
+                });
+            }
+            
+            searchResults.classList.add('active');
+            displayProjects(filteredProjects, searchTerm);
+        }
+
+        // Filter project by name from URL parameter
+        function filterProjectByName(projectName) {
+            const filteredProjects = projects.filter(project => 
+                project.title.toLowerCase() === projectName.toLowerCase()
+            );
+            
+            if (filteredProjects.length > 0) {
+                displayProjects(filteredProjects, '');
+                searchInfo.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <p>Showing project: <span class="search-query">"${projectName}"</span></p>
+                        <a href="javascript:void(0)" onclick="clearSearch()" class="back-button">
+                            <i class="fas fa-arrow-left"></i> View All Projects
+                        </a>
+                    </div>
+                `;
+            } else {
+                displayProjects(projects);
+            }
+        }
+
+        // Clear search function
+        function clearSearch() {
+            searchInput.value = '';
+            updateURL('', '');
+            displayProjects(projects);
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
+        }
+
+        // Profile popup functionality
+        profileIcon.addEventListener('click', () => {
+            profilePopup.classList.add('active');
+            popupOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        function closePopup() {
+            profilePopup.classList.remove('active');
+            popupOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        popupClose.addEventListener('click', closePopup);
+        popupOverlay.addEventListener('click', closePopup);
+
+        // Close popup with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // Scroll to top functionality
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTop.classList.add('active');
+            } else {
+                scrollTop.classList.remove('active');
+            }
+        });
+
+        scrollTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Initialize the page
+        function initializePage() {
+            // Create filter buttons
+            createFilterButtons();
+            
+            // Get URL parameters
+            const { searchQuery, projectFilter, tagFilter } = getURLParams();
+            
+            // Apply URL parameters
+            if (projectFilter) {
+                filterProjectByName(projectFilter);
+            } else if (searchQuery) {
+                searchInput.value = searchQuery;
+                searchProjects(searchQuery, false);
+            } else if (tagFilter) {
+                // Activate the corresponding filter button
+                const filterButton = document.querySelector(`[data-filter="${tagFilter}"]`);
+                if (filterButton) {
+                    filterButton.click();
+                }
+            } else {
+                // Display all projects initially
+                displayProjects(projects);
+            }
+            
+            // Add search event listener
+            searchInput.addEventListener('input', (e) => {
+                searchProjects(e.target.value, false);
+            });
+            
+            // Add debounced search for better performance
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchProjects(e.target.value);
+                }, 300);
+            });
+            
+            // Search button click handler
+            searchButton.addEventListener('click', () => {
+                searchProjects(searchInput.value);
+            });
+            
+            // Enter key handler for search
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchProjects(searchInput.value);
+                }
+            });
+            
+            // Focus search box when pressing Ctrl+K
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+            
+            // Show keyboard shortcut hint on focus
+            searchInput.addEventListener('focus', () => {
+                document.querySelector('.search-shortcut-hint').style.display = 'inline';
+            });
+            
+            searchInput.addEventListener('blur', () => {
+                document.querySelector('.search-shortcut-hint').style.display = 'none';
+            });
+        }
+
+        // Start loading projects when DOM is ready
+        document.addEventListener('DOMContentLoaded', loadProjects);
+    </script>
+</body>
+</html>

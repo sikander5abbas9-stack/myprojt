@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding-top: 60px;
+        }
+        
+        /* Top Navigation Bar */
+        .top-nav {
+            height: 60px;
+            background: linear-gradient(135deg, #088178, #05a79d);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .back-btn {
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+            text-decoration: none;
+        }
+        
+        .search-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            height: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .search-icon {
+            padding: 0 12px;
+            color: #888;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            height: 100%;
+            font-size: 14px;
+            padding-right: 40px; /* Space for search icon */
+        }
+        
+        .search-btn-inside {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 34px;
+            background: #088178 ;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .clear-input {
+            position: absolute;
+            right: 40px; /* Position it before the search button */
+            top: 0;
+            height: 100%;
+            width: 34px;
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Recent Searches */
+        .recent-searches {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .clear-btn {
+            color: #088178;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .search-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .search-tag {
+            background: #f5f5f5;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .remove-tag {
+            margin-left: 8px;
+            color: #999;
+            cursor: pointer;
+        }
+        
+        /* Search Results */
+        .results-container {
+            background: white;
+        }
+        
+        .result-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        /* Popular Searches */
+        .popular-searches {
+            background: white;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .popular-title {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .popular-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .popular-item {
+            background: #f5f5f5;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        /* Loading Indicator */
+        .loading {
+            text-align: center;
+            padding: 10px;
+            color: #088178;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <a href="#" id="back" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+        <div class="search-container">
+            <div class="search-icon"><i class="fas fa-search"></i></div>
+            <input type="text" class="search-input" placeholder="Search for products..." id="searchInput" autocomplete="off">
+            <button class="clear-input" id="clearInput">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="search-btn-inside" id="searchBtnInside">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Recent Searches -->
+    <div class="recent-searches" id="recentSearches">
+        <div class="section-title">
+            <span>Recent Searches</span>
+            <span class="clear-btn" id="clearAll">Clear all</span>
+        </div>
+        <div class="search-tags" id="searchTags">
+            <!-- Recent searches will appear here -->
+        </div>
+    </div>
+    
+    <!-- Search Results -->
+    <div class="results-container" id="resultsContainer">
+        <div class="no-results">
+            <i class="fas fa-search" style="font-size: 24px; margin-bottom: 10px; color: #ccc;"></i>
+            <div style="font-size: 16px; margin-bottom: 5px;">Search for products</div>
+            <div style="font-size: 14px; color: #999;">Find what you're looking for</div>
+        </div>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div class="loading" id="loadingIndicator">
+        <i class="fas fa-spinner fa-spin"></i> Loading...
+    </div>
+    
+    <!-- Popular Searches -->
+    <div class="popular-searches">
+        <div class="popular-title">Popular Searches</div>
+        <div class="popular-list">
+            <div class="popular-item">Mobile Phones</div>
+            <div class="popular-item">Laptops</div>
+            <div class="popular-item">Headphones</div>
+            <div class="popular-item">Smart Watches</div>
+            <div class="popular-item">Shoes</div>
+            <div class="popular-item">T-Shirts</div>
+            <div class="popular-item">Watches</div>
+            <div class="popular-item">Perfumes</div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+            authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+            projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+            storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+            messagingSenderId: "246983910789",
+            appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtnInside = document.getElementById('searchBtnInside');
+            const searchTags = document.getElementById('searchTags');
+            const clearAll = document.getElementById('clearAll');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const recentSearchesSection = document.getElementById('recentSearches');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const clearInput = document.getElementById('clearInput');
+            
+            let searches = JSON.parse(localStorage.getItem('ecomRecentSearches')) || [];
+            let typingTimer;
+            const doneTypingInterval = 500; // 0.5 seconds
+            let lastVisibleDoc = null;
+            let isFetching = false;
+            let hasMore = true;
+            
+            // Initialize the page
+            updateRecentSearches();
+            
+            // Search button click handler (inside input)
+            searchBtnInside.addEventListener('click', function() {
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm) {
+                    saveSearchTerm(searchTerm);
+                    redirectToShoppingPage(searchTerm);
+                }
+            });
+            
+            // Clear all recent searches
+            clearAll.addEventListener('click', function() {
+                searches = [];
+                localStorage.setItem('ecomRecentSearches', JSON.stringify(searches));
+                updateRecentSearches();
+            });
+            
+            // Search on Enter key
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = searchInput.value.trim();
+                    if (searchTerm) {
+                        saveSearchTerm(searchTerm);
+                        redirectToShoppingPage(searchTerm);
+                    }
+                }
+            });
+            
+            // Live search on typing
+            searchInput.addEventListener('input', function() {
+                clearInput.style.display = this.value.trim() ? 'flex' : 'none';
+                clearTimeout(typingTimer);
+                const searchTerm = searchInput.value.trim();
+                
+                if (searchTerm) {
+                    typingTimer = setTimeout(function() {
+                        performSearch(searchTerm, true);
+                    }, doneTypingInterval);
+                } else {
+                    showDefaultState();
+                }
+            });
+            
+            // Clear input when clicked
+            clearInput.addEventListener('click', function() {
+                searchInput.value = '';
+                clearInput.style.display = 'none';
+                showDefaultState();
+                searchInput.focus();
+            });
+            
+            function saveSearchTerm(term) {
+                // Add to recent searches if not already there
+                if (!searches.includes(term)) {
+                    searches.unshift(term);
+                    // Keep only last 5 searches
+                    if (searches.length > 5) {
+                        searches.pop();
+                    }
+                    localStorage.setItem('ecomRecentSearches', JSON.stringify(searches));
+                    updateRecentSearches();
+                }
+            }
+            
+            function updateRecentSearches() {
+                searchTags.innerHTML = '';
+                
+                if (searches.length === 0) {
+                    recentSearchesSection.style.display = 'none';
+                    return;
+                }
+                
+                recentSearchesSection.style.display = 'block';
+                
+                searches.forEach(term => {
+                    const tag = document.createElement('div');
+                    tag.className = 'search-tag';
+                    tag.innerHTML = `
+                        ${term}
+                        <span class="remove-tag" data-term="${term}"><i class="fas fa-times"></i></span>
+                    `;
+                    searchTags.appendChild(tag);
+                    
+                    // Add click handlers
+                    tag.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('remove-tag') || e.target.classList.contains('fa-times')) {
+                            // Remove this term
+                            searches = searches.filter(t => t !== term);
+                            localStorage.setItem('ecomRecentSearches', JSON.stringify(searches));
+                            updateRecentSearches();
+                            e.stopPropagation();
+                        } else {
+                            // Search this term again
+                            searchInput.value = term;
+                            redirectToShoppingPage(term);
+                        }
+                    });
+                });
+            }
+            
+            function redirectToShoppingPage(searchTerm) {
+                // Encode the search term for URL
+                const encodedTerm = encodeURIComponent(searchTerm);
+                
+                // Check if we're in an iframe
+                if (window.self !== window.top) {
+                    // Open in new tab/window
+                    window.top.location.href =`../search/?search=${encodedTerm}`;
+                
+                } else {
+                    // Regular redirect
+                    window.location.href = `../search/?search=${encodedTerm}`;
+                }
+            }
+            
+            async function performSearch(term, isLiveSearch = false) {
+    recentSearchesSection.style.display = 'none';
+    loadingIndicator.style.display = 'block';
+    resultsContainer.innerHTML = '';
+    
+    try {
+        const productsRef = collection(db, "products");
+        
+        // Name search query
+        const nameQuery = query(
+            productsRef,
+            where("name", ">=", term),
+            where("name", "<=", term + '\uf8ff'),
+            orderBy("name"),
+            limit(isLiveSearch ? 5 : 10)
+        );
+        
+        // Keywords search query
+        const keywordsQuery = query(
+            productsRef,
+            where("keywords", "array-contains", term.toLowerCase()),
+            limit(isLiveSearch ? 5 : 10)
+        );
+        
+        // Run both queries in parallel
+        const [nameSnap, keywordsSnap] = await Promise.all([
+            getDocs(nameQuery),
+            getDocs(keywordsQuery)
+        ]);
+        
+        const products = new Map();
+        
+        // Add name search results
+        nameSnap.forEach((doc) => {
+            products.set(doc.id, {
+                id: doc.id,
+                name: doc.data().name,
+                price: doc.data().price
+            });
+        });
+        
+        // Add keywords search results (if not already in map)
+        keywordsSnap.forEach((doc) => {
+            if (!products.has(doc.id)) {
+                products.set(doc.id, {
+                    id: doc.id,
+                    name: doc.data().name,
+                    price: doc.data().price
+                });
+            }
+        });
+        
+        if (products.size === 0) {
+            showNoResults();
+        } else {
+            displayResults(Array.from(products.values()));
+        }
+        
+    } catch (error) {
+        console.error("Error searching products:", error);
+        showNoResults();
+    } finally {
+        loadingIndicator.style.display = 'none';
+    }
+}
+            
+            function displayResults(products) {
+    resultsContainer.innerHTML = '';
+    
+    products.forEach(product => {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        item.innerHTML = `
+            <strong>${product.name}</strong><br>
+            <small>Rs. ${product.price}</small>
+        `;
+        item.addEventListener('click', () => {
+            redirectToShoppingPage(product.name);
+        });
+        resultsContainer.appendChild(item);
+    });
+}
+            
+            function showNoResults() {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="far fa-frown" style="font-size: 24px; margin-bottom: 10px; color: #ccc;"></i>
+                        <div style="font-size: 16px; margin-bottom: 5px;">No results found</div>
+                        <div style="font-size: 14px; color: #999;">Try different keywords</div>
+                    </div>
+                `;
+            }
+            
+            function showDefaultState() {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search" style="font-size: 24px; margin-bottom: 10px; color: #ccc;"></i>
+                        <div style="font-size: 16px; margin-bottom: 5px;">Search for products</div>
+                        <div style="font-size: 14px; color: #999;">Find what you're looking for</div>
+                    </div>
+                `;
+                
+                if (searches.length > 0) {
+                    recentSearchesSection.style.display = 'block';
+                }
+            }
+            
+            // Handle clicks on popular items
+            document.querySelectorAll('.popular-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const term = this.textContent;
+                    searchInput.value = term;
+                    saveSearchTerm(term);
+                    redirectToShoppingPage(term);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

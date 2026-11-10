@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List with Dynamic Filters</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+          font-family: Helvetica, Sans-Serif;
+          padding-top: 60px;
+          height: 100svh;
+          background-color: #fff;
+      height: 100svh;
+        
+      }
+      
+      .fullscreen-loader {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          flex-direction: column;
+      }
+      .fullscreen-loader .spinner {
+          width: 50px;
+          height: 50px;
+          border: 5px solid #f3f3f3;
+          border-top: 5px solid #088178;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+      .fullscreen-loader p {
+          margin-top: 20px;
+          color: #088178;
+          font-weight: bold;
+      }
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+      
+      .price-filter-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          padding: 12px;
+          gap: 12px;
+          background: #fff;
+          overflow-x: auto;
+          scrollbar-width: none;
+          z-index: 100;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      .price-filter-container::-webkit-scrollbar {
+          display: none;
+      }
+      .price-filter-container button {
+          flex: 0 0 auto;
+          padding: 12px 15px;
+          background: #fff;
+          color: #088178;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+          font-weight: 500;
+      }
+      .price-filter-container button.active {
+          background: #f0f9f8;
+          color: #088178;
+          transform: scale(1.05);
+      }
+      .price-filter-container button.active::after {
+          content: '';
+          position: absolute;
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 3px;
+          background-color: #088178;
+          border-radius: 3px;
+      }
+      
+      /* Swiper container styles */
+      .swiper {
+          width: 100%;
+          height: calc(100svh - 60px);
+      }
+      
+      .swiper-slide {
+          height: 100%;
+          overflow-y: auto;
+          scrollbar-width: none;
+      }
+      .swiper-slide::-webkit-scrollbar {
+          display: none;
+      }
+      
+      .product-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          padding: 15px;
+          min-height: calc(100% + 1px);
+      }
+      .pro-container, .pro-container-two {
+          display: contents;
+      }
+      .pro {
+          width: auto;
+          height: auto;
+          border-radius: 12px;
+          margin: 10px 0;
+          transition: 0.2s ease;
+          position: relative;
+      }
+      .pro .img {
+          width: 100%;
+          height: 170px;
+          object-fit: cover;
+          border-radius: 12px;
+          transition: opacity 0.3s ease-in-out;
+          cursor: pointer;
+      }
+     .pro .details {
+  text-align: start;
+  padding: 5px 0;
+}
+
+.pro .price {
+  font-weight: bold;
+  color: #0D115B;
+  font-size: 18px;
+}
+
+.pro .old-price {
+  text-decoration: line-through;
+  color: gray;
+  font-size: 14px;
+  margin-left: 5px;
+}
+
+.pro .discount {
+  color: green;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.pro .name {
+  color: #313474;
+  font-size: 15px;
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+.pro .stock {
+  color: #0D115B;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pro .stock i {
+  color: #0D115B;
+}
+
+.pro .rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #FECC83;
+  font-size: 14px;
+}
+
+      .not-found {
+          grid-column: 1 / -1;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          color: #666;
+          padding: 20px 0;
+          margin: 20px 0;
+      }
+      .not-found i {
+          font-size: 40px;
+          color: #ccc;
+          margin-bottom: 15px;
+      }
+      .not-found p {
+          font-size: 18px;
+          margin: 0;
+          color: #666;
+      }
+
+      .bottom-not-found {
+          grid-column: 1 / -1;
+          width: 100%;
+          text-align: center;
+          padding: 20px 0;
+          color: #666;
+          margin-top: 20px;
+      }
+      .bottom-not-found i {
+          font-size: 30px;
+          color: #ccc;
+          margin-bottom: 10px;
+      }
+      .bottom-not-found p {
+          font-size: 16px;
+          margin: 0;
+      }
+
+      .skeleton {
+          background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 300% 100%;
+          animation: loading 3.5s infinite;
+          border-radius: 12px;
+          margin: 10px 0;
+      }
+      @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -100% 0; }
+      }
+      .skeleton-image {
+          background: linear-gradient(-50deg, #f0f0f0 30%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 300% 100%;
+          animation: loading 3.5s infinite;
+          border-radius: 12px;
+          width: 100%;
+          height: 170px;
+          position: relative;
+      }
+      .skeleton-box {
+          border-radius: 4px;
+          margin-bottom: 8px;
+      }
+      
+      .bottom-loader {
+          grid-column: 1 / -1;
+          width: 100%;
+          padding: 20px;
+          text-align: center;
+          color: #088178;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .bottom-loader .spinner.small {
+          width: 30px;
+          height: 30px;
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #088178;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+      }
+    </style>
+</head>
+<body>
+    <div class="fullscreen-loader" id="fullscreenLoader">
+        <div class="spinner"></div>
+        <p>Loading Products...</p>
+    </div>
+
+    <div class="price-filter-container" id="priceFilterContainer"></div>
+    
+    <!-- Swiper Container -->
+    <div class="swiper" id="productSwiper">
+        <div class="swiper-wrapper" id="swiperWrapper"></div>
+    </div>
+<script src="main.js">main.js</script>
+<!-- Add Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy, where, limit, startAfter, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+    authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+    projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+    storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+    messagingSenderId: "246983910789",
+    appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // DOM elements
+  const fullscreenLoader = document.getElementById('fullscreenLoader');
+  const priceFilterContainer = document.getElementById('priceFilterContainer');
+  const swiperWrapper = document.getElementById('swiperWrapper');
+
+  // App state
+  let productSwiper = null;
+  let isLoading = false;
+  let loadedProducts = {};
+  let loadedStates = [];
+  let isFetching = false;
+  let isLoadingMore = false;
+  let hasMore = true;
+  let lastVisibleDocs = {};
+  let totalProductsCount = {};
+  let productCache = {};
+
+  // Filter configurations
+  const filters = [
+  {
+    id: 'all',
+    label: 'All',
+    conditions: []  // ✅ No conditions means all products
+  },
+  {
+    id: '100-500',
+    label: '100 to 500',
+    conditions: [
+      { field: 'price', op: '>=', value: 100 },
+      { field: 'price', op: '<=', value: 500 }
+    ]
+  },
+  {
+    id: '500-1000',
+    label: '500 to 1000',
+    conditions: [
+      { field: 'price', op: '>=', value: 500 },
+      { field: 'price', op: '<=', value: 1000 }
+    ]
+  },
+  {
+    id: 'under-1000',
+    label: 'Under 1000',
+    conditions: [
+       { field: 'price', op: '>=', value: 0 }, { field: 'price', op: '<=', value: 1000 }
+    ]
+  },
+  {
+    id: 'under-2000',
+    label: 'Under 2000',
+    conditions: [
+      { field: 'price', op: '>=', value: 0 }, { field: 'price', op: '<=', value: 1000 }]
+  }
+];
+
+  // Initialize product cache
+  filters.forEach(filter => {
+    productCache[filter.id] = [];
+    loadedProducts[filter.id] = new Set();
+  });
+
+  // Build Firestore query
+  function buildQuery(filter, lastDoc = null) {
+  let ref = collection(db, "products");
+  let q = ref;
+  
+  filter.conditions?.forEach(cond => {
+    q = query(q, where(cond.field, cond.op, cond.value));
+  });
+  
+  // ✅ Always order by price for range queries
+  if (filter.conditions.length) {
+    q = query(q, orderBy("price"));
+  } else {
+    q = query(q, orderBy("price"));
+  }
+  
+  if (lastDoc) {
+    q = query(q, startAfter(lastDoc));
+  }
+  
+  return query(q, limit(6));
+}
+
+function buildCountQuery(filter) {
+  let q = collection(db, "products");
+  
+  filter.conditions?.forEach(cond => {
+    q = query(q, where(cond.field, cond.op, cond.value));
+  });
+  
+  if (filter.conditions.length) {
+    q = query(q, orderBy("price"));
+  }
+  
+  return getCountFromServer(q);
+}
+  // Initialize the UI
+  function initializeUI() {
+    createFilterButtons();
+    createSwiperSlides();
+    initializeSwiper();
+    fetchProductCounts();
+  }
+
+  // Create filter buttons
+  function createFilterButtons() {
+    priceFilterContainer.innerHTML = '';
+    
+    filters.forEach((filter, index) => {
+      const button = document.createElement('button');
+      button.className = 'price-filter-container button';
+      if (index === 0) button.classList.add('active');
+      button.dataset.slide = index;
+      button.textContent = filter.label;
+      button.addEventListener('click', () => {
+        productSwiper.slideTo(index);
+      });
+      priceFilterContainer.appendChild(button);
+    });
+  }
+
+  // Create swiper slides
+  function createSwiperSlides() {
+    filters.forEach((filter, index) => {
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide';
+      slide.id = `${filter.id}-slide`;
+      slide.innerHTML = `
+        <div class="product-grid">
+          <div class="pro-container" id="${filter.id}-container"></div>
+          <div class="pro-container-two" id="${filter.id}-container-two"></div>
+        </div>
+      `;
+      swiperWrapper.appendChild(slide);
+    });
+
+    loadedStates = new Array(filters.length).fill(false);
+  }
+
+  // Initialize Swiper
+  function initializeSwiper() {
+    productSwiper = new Swiper('#productSwiper', {
+      longSwipesRatio: 0.2,
+  
+      on: {
+        slideChange: function() {
+          updateActiveButton(this.activeIndex);
+          if (!loadedStates[this.activeIndex]) {
+            showSkeletonLoaderForTab(this.activeIndex);
+            loadProductsForFilter(filters[this.activeIndex], true);
+            loadedStates[this.activeIndex] = true;
+          }
+        }
+      }
+    });
+  }
+
+  // Fetch product counts
+  function fetchProductCounts() {
+  Promise.all(filters.map(filter => buildCountQuery(filter)))
+    .then(counts => {
+      counts.forEach((snapshot, index) => {
+        totalProductsCount[filters[index].id] = snapshot.data().count;
+        
+        // ✅ Debugging ke liye console mein dekh lo
+        console.log(`Total products for filter '${filters[index].id}':`, totalProductsCount[filters[index].id]);
+      });
+      
+      setTimeout(() => {
+        fullscreenLoader.style.display = 'none';
+        initializeEventHandlers();
+        loadProductsForFilter(filters[0], true);
+        loadedStates[0] = true;
+      }, 1000);
+    })
+    .catch(error => {
+      console.error("Error getting total product counts:", error);
+      fullscreenLoader.style.display = 'none';
+    });
+}
+  // Initialize event handlers
+  function initializeEventHandlers() {
+    document.querySelectorAll('.swiper-slide').forEach(slide => {
+      slide.addEventListener('scroll', handleSlideScroll);
+    });
+  }
+
+  // Handle slide scroll
+  function handleSlideScroll(event) {
+    const slide = event.target;
+    if (isLoadingMore || !hasMore) return;
+
+    const scrollHeight = slide.scrollHeight;
+    const scrollTop = slide.scrollTop;
+    const clientHeight = slide.clientHeight;
+
+    if (scrollHeight - scrollTop - clientHeight < 200) {
+      const hasNotFound = slide.querySelector('.not-found');
+      if (hasNotFound) return;
+
+      isLoadingMore = true;
+      const slideIndex = Array.from(document.querySelectorAll('.swiper-slide')).indexOf(slide);
+      loadProductsForFilter(filters[slideIndex], false);
+    }
+  }
+
+  // Update active button
+  function updateActiveButton(index) {
+  document.querySelectorAll('.price-filter-container button').forEach((btn, i) => {
+    const isActive = i === index;
+    btn.classList.toggle('active', isActive);
+    if (isActive) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  });
+}
+  // Load products for filter
+  async function loadProductsForFilter(filter, initialLoad = true) {
+  if (isFetching) return;
+  isFetching = true;
+  
+  const container1 = document.getElementById(`${filter.id}-container`);
+  const container2 = document.getElementById(`${filter.id}-container-two`);
+  const slide = document.getElementById(`${filter.id}-slide`);
+  
+  try {
+    if (initialLoad) {
+      if (productCache[filter.id].length > 0) {
+        displayProducts(productCache[filter.id], container1, container2, true);
+        isFetching = false;
+        return;
+      }
+      
+      container1.innerHTML = '';
+      container2.innerHTML = '';
+      showSkeletonLoader(container1);
+      showSkeletonLoader(container2);
+      loadedProducts[filter.id].clear();
+      lastVisibleDocs[filter.id] = null;
+      hasMore = true;
+    } else {
+      showBottomLoader(slide);
+    }
+    
+    // ✅ Check if totalProductsCount is 0
+    if (totalProductsCount[filter.id] === 0) {
+      hasMore = false;
+      if (initialLoad) {
+        showNotFoundMessage(container1);
+      } else {
+        showBottomNotFoundMessage(container1, container2);
+      }
+      return;
+    }
+    
+    const q = buildQuery(filter, lastVisibleDocs[filter.id]);
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty || loadedProducts[filter.id].size >= totalProductsCount[filter.id]) {
+      hasMore = false;
+      if (initialLoad) {
+        showNotFoundMessage(container1);
+      } else {
+        showBottomNotFoundMessage(container1, container2);
+      }
+      return;
+    }
+    
+    lastVisibleDocs[filter.id] = querySnapshot.docs[querySnapshot.docs.length - 1];
+    
+    const newProducts = querySnapshot.docs
+      .filter(doc => !loadedProducts[filter.id].has(doc.id))
+      .map(doc => ({ id: doc.id, data: doc.data() }));
+    
+    productCache[filter.id] = [...productCache[filter.id], ...newProducts];
+    newProducts.forEach(product => loadedProducts[filter.id].add(product.id));
+    
+    displayProducts(newProducts, container1, container2, initialLoad);
+    
+  } catch (error) {
+    console.error("Error loading products:", error);
+    showNotFoundMessage(container1);
+  } finally {
+    isFetching = false;
+    isLoadingMore = false;
+    removeBottomLoader(slide);
+  }
+}
+  // Show skeleton loader for tab
+  function showSkeletonLoaderForTab(tabIndex) {
+  const { id } = filters[tabIndex];
+  ['container', 'container-two'].forEach(suffix => {
+    const container = document.getElementById(`${id}-${suffix}`);
+    if (container) {
+      container.innerHTML = '';
+      showSkeletonLoader(container);
+    }
+  });
+}
+
+  // Show skeleton loader
+  function showSkeletonLoader(container, count = 6) {
+  const createSkeletonBox = (width) => `
+    <div class="skeleton skeleton-box" style="height: 20px; width: ${width}; ${width !== '60%' ? '' : 'margin: 5px 0;'}"></div>
+  `;
+  
+  for (let i = 0; i < count; i++) {
+    const skeletonDiv = document.createElement('div');
+    skeletonDiv.className = 'pro';
+    
+    skeletonDiv.innerHTML = `
+      <div class="skeleton skeleton-image"></div>
+      <div class="details">
+        ${createSkeletonBox('80%')}
+        ${createSkeletonBox('60%')}
+        ${createSkeletonBox('40%')}
+      </div>
+    `;
+    
+    container.appendChild(skeletonDiv);
+  }
+}
+  // Show bottom loader
+  function showBottomLoader(container) {
+    const loader = document.createElement('div');
+    loader.className = 'bottom-loader';
+    loader.innerHTML = `
+      <div class="spinner small"></div>
+      <p>Loading more products...</p>
+    `;
+    container.appendChild(loader);
+  }
+
+  // Remove bottom loader
+  function removeBottomLoader(container) {
+    if (!container) return;
+    const loader = container.querySelector('.bottom-loader');
+    if (loader) {
+      loader.remove();
+    }
+  }
+
+  // Show not found message
+  function showNotFoundMessage(container) {
+    const productGrid = container.closest('.product-grid');
+    if (!productGrid) return;
+    
+    productGrid.innerHTML = `
+      <div class="not-found">
+        <i class="fas fa-search"></i>
+        <p>No products found in this filter</p>
+      </div>
+    `;
+  }
+
+  // Show bottom not found message
+  function showBottomNotFoundMessage(container1, container2) {
+    const productGrid = container1.closest('.product-grid');
+    if (!productGrid) return;
+    
+    const notFoundDiv = document.createElement('div');
+    notFoundDiv.className = 'bottom-not-found';
+    notFoundDiv.innerHTML = `
+      <i class="fas fa-search"></i>
+      <p>No more products found</p>
+    `;
+    
+    productGrid.appendChild(notFoundDiv);
+  }
+
+  // Remove bottom not found message
+  function removeBottomNotFoundMessage(container) {
+    const productGrid = container.closest('.product-grid');
+    if (!productGrid) return;
+    
+    const existing = productGrid.querySelector('.bottom-not-found');
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+function createProductElement(product, productId) {
+  const productDiv = document.createElement('div');
+  productDiv.classList.add('pro');
+  
+  const priceHtml = `<span class="price">Rs. ${product.price}</span>`;
+  const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice}</span>` : '';
+  const discountHtml = product.discount ? `<span class="discount">-${product.discount}%</span>` : '';
+  
+  const stockHtml = product.stock ? `<div class="stock"><i class="fas fa-box"></i> ${product.stock} in Stock</div>` : '';
+  const ratingHtml = product.rating ? `<div class="rating"><i class="fas fa-star"></i> ${product.rating}</div>` : '';
+  
+  productDiv.innerHTML = `
+    <img class="img" alt="${product.name}" style="opacity: 0; transition: opacity 0.3s ease;" data-product-id="${productId}">
+    <div class="details">
+      <div>${priceHtml} ${oldPriceHtml} ${discountHtml}</div>
+      <div class="name">${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</div>
+      ${stockHtml}
+      ${ratingHtml}
+    </div>
+  `;
+  
+  const imgElement = productDiv.querySelector('.img');
+  const skeletonImage = document.createElement('div');
+  skeletonImage.classList.add('skeleton', 'skeleton-image');
+  imgElement.parentElement.insertBefore(skeletonImage, imgElement);
+  
+  const tempImage = new Image();
+  tempImage.src = product.image;
+  
+  tempImage.onload = () => {
+    imgElement.src = product.image;
+    imgElement.style.opacity = 1;
+    skeletonImage.remove();
+  };
+  
+  tempImage.onerror = () => {
+    skeletonImage.remove();
+    imgElement.src = 'placeholder-image.jpg';
+    imgElement.alt = `${product.name} (image not available)`;
+  };
+  
+  productDiv.addEventListener('click', () => routing(productId));
+  
+  return productDiv;
+}
+
+  // Display products
+  function displayProducts(products, container1, container2, initialLoad) {
+  [container1, container2].forEach(container => {
+    removeBottomNotFoundMessage(container);
+    if (initialLoad) container.innerHTML = '';
+  });
+  
+  if (!products.length) {
+    if (initialLoad) showNotFoundMessage(container1);
+    return;
+  }
+  
+  const productGrid = container1.closest('.product-grid');
+  productGrid?.querySelector('.not-found')?.remove();
+  
+  products.forEach((product) => {
+    const productElement = createProductElement(product.data, product.id);
+    const total = container1.children.length + container2.children.length;
+    (total % 2 === 0 ? container1 : container2).appendChild(productElement);
+  });
+}
+  // Initialize the app
+  initializeUI();
+
+  // Routing function
+  // Routing function
+window.routing = function(productId) {
+  if (window.top !== window.self) {
+    // Inside an iframe: open in full window
+    window.top.location.href = `../product/?id=${productId}`;
+  } else {
+    // Not in iframe (fallback)
+    window.location.href = `../product/?id=${productId}`;
+  }
+};
+
+
+</script>
+</body>
+</html>
+

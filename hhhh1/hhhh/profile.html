@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.0.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css" type="text/css" media="all" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            padding: 70px 0 70px 0;
+        }
+        
+        .auth-container, .profile-container {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s ease-out forwards;
+            transform-origin: top center;
+            margin: 20px 0;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #088178;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .profile-pic:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .edit-btn, .contact-btn, .auth-btn {
+            background: #088178;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .contact-btn {
+            background: #25D366;
+        }
+        
+        .google-btn {
+            background: #DB4437;
+        }
+        
+        .logout-btn {
+            background: #f44336;
+        }
+        
+        .edit-btn:hover {
+            background: #06685e;
+            transform: translateY(-2px);
+        }
+        
+        .contact-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+        
+        .google-btn:hover {
+            background: #C1351B;
+            transform: translateY(-2px);
+        }
+        
+        .logout-btn:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .info-section {
+            text-align: left;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .info-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h3 {
+            color: #088178;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .member-gold {
+            color: #FFD700;
+            font-weight: bold;
+            text-shadow: 0 0 1px rgba(0,0,0,0.3);
+            margin: 10px 0;
+        }
+        
+        .member-basic {
+            color: #555;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .info-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        strong {
+            color: #555;
+        }
+        
+        .value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .auth-form input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .auth-form button {
+            width: 100%;
+        }
+        
+        .auth-toggle {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .auth-toggle a {
+            color: #088178;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .success-message {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .divider::before {
+            margin-right: 10px;
+        }
+        
+        .divider::after {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="top-bar">
+        <i class="fas fa-arrow-left back-arrow" onclick="history.back()"></i>
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <i class="ri-search-line"></i>
+                <input type="search" id="searchInput" placeholder="Search in Daraz" autocomplete="off">
+            </div>
+            <button class="search-button" id="searchButton">
+                <i class="ri-search-line"></i>
+            </button>
+            <a href="setting.html" class="cart-icon">
+<i class="fa-solid fa-ellipsis-v"></i>
+        
+            </a>
+        </div>
+    </div>
+
+    <div id="auth-container" class="auth-container" style="display: none;">
+        <h2>Welcome</h2>
+        <div id="auth-error" class="error-message"></div>
+        <div id="auth-success" class="success-message"></div>
+        
+        <div id="login-form">
+            <form class="auth-form" id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <button type="submit" class="auth-btn">
+                    <i class="ri-login-box-line"></i> Sign In
+                </button>
+            </form>
+            <div class="auth-toggle">
+                Don't have an account? <a id="showRegister">Register</a>
+            </div>
+        </div>
+        
+        <div id="register-form" style="display: none;">
+            <form class="auth-form" id="registerForm">
+                <input type="text" id="registerName" placeholder="Full Name" required>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+                <input type="password" id="registerPassword" placeholder="Password (min 6 chars)" required minlength="6">
+                <button type="submit" class="auth-btn">
+                    <i class="ri-user-add-line"></i> Register
+                </button>
+            </form>
+            <div class="auth-toggle">
+                Already have an account? <a id="showLogin">Sign In</a>
+            </div>
+        </div>
+        
+        <div class="divider">OR</div>
+        
+        <div class="btn-container">
+            <button id="googleSignIn" class="auth-btn google-btn">
+                <i class="ri-google-fill"></i> Continue with Google
+            </button>
+        </div>
+    </div>
+
+    <div id="profile-container" class="profile-container" style="display: none;">
+        <header>
+            <img id="profilePicture" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Profile Picture" class="profile-pic">
+            <h2 id="profileName">Guest User</h2>
+            <p id="memberStatus" class="member-basic">Basic Member</p>
+            <div class="btn-container">
+                <button class="edit-btn" id="editProfileBtn">
+                    <i class="ri-edit-line"></i> Edit
+                </button>
+                <button class="contact-btn" id="contactBtn">
+                    <i class="ri-whatsapp-line"></i> Contact
+                </button>
+                <button class="logout-btn auth-btn" id="logoutBtn">
+                    <i class="ri-logout-box-r-line"></i> Logout
+                </button>
+            </div>
+        </header>
+        
+        <section class="info-section">
+            <h3>Personal Information</h3>
+            <div class="info-item">
+                <strong>Email:</strong>
+                <span class="value" id="profileEmail">Not available</span>
+            </div>
+            <div class="info-item">
+                <strong>Phone:</strong>
+                <span class="value" id="profilePhone">Not provided</span>
+            </div>
+            <div class="info-item">
+                <strong>Account Type:</strong>
+                <span class="value" id="accountType">Basic</span>
+            </div>
+        </section>
+    </div>
+    
+    <div id="bottom-bar"></div>
+<script src="main.js">main.js</script>
+<script>showbottomandtopbar('profile')</script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+    <script>
+    
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+            authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+            projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+            storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+            messagingSenderId: "246983910789",
+            appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM elements
+        const authContainer = document.getElementById('auth-container');
+        const profileContainer = document.getElementById('profile-container');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        const loginFormDiv = document.getElementById('login-form');
+        const registerFormDiv = document.getElementById('register-form');
+        const googleSignIn = document.getElementById('googleSignIn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authError = document.getElementById('auth-error');
+        const authSuccess = document.getElementById('auth-success');
+        
+        // Profile elements
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profilePhone = document.getElementById('profilePhone');
+        const profilePicture = document.getElementById('profilePicture');
+        const memberStatus = document.getElementById('memberStatus');
+        const accountType = document.getElementById('accountType');
+        const contactBtn = document.getElementById('contactBtn');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+
+        // Auth state listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                showProfile(user);
+                
+            } else {
+                // No user is signed in
+                showAuth();
+                
+            }
+        });
+
+        // Show authentication forms
+        function showAuth() {
+            authContainer.style.display = 'block';
+            profileContainer.style.display = 'none';
+        }
+
+        // Show profile
+        function showProfile(user) {
+            authContainer.style.display = 'none';
+            profileContainer.style.display = 'block';
+            
+            // Update profile info
+            profileName.textContent = user.displayName || 'Guest User';
+            profileEmail.textContent = user.email || 'Not available';
+            
+            // Set profile picture
+            if (user.photoURL) {
+                profilePicture.src = user.photoURL;
+            } else {
+                // Default avatar based on first letter of name
+                const name = user.displayName || 'GU';
+                const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+                profilePicture.src = `https://ui-avatars.com/api/?name=${initials}&background=088178&color=fff&size=100`;
+            }
+            
+            // Check if user is gold member (you can implement your own logic here)
+            const isGoldMember = Math.random() > 0.5; // Random for demo
+            if (isGoldMember) {
+                memberStatus.textContent = 'Gold Member';
+                memberStatus.className = 'member-gold';
+                accountType.textContent = 'Premium';
+            } else {
+                memberStatus.textContent = 'Basic Member';
+                memberStatus.className = 'member-basic';
+                accountType.textContent = 'Basic';
+            }
+        }
+
+        // Toggle between login and register forms
+        showRegister.addEventListener('click', () => {
+            loginFormDiv.style.display = 'none';
+            registerFormDiv.style.display = 'block';
+            authError.textContent = '';
+        });
+
+        showLogin.addEventListener('click', () => {
+            registerFormDiv.style.display = 'none';
+            loginFormDiv.style.display = 'block';
+            authError.textContent = '';
+        });
+
+        // Login with email/password
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    authSuccess.textContent = 'Login successful!';
+                    authError.textContent = '';
+                })
+                .catch(error => {
+                    authError.textContent = error.message;
+                    authSuccess.textContent = '';
+                });
+        });
+
+        // Register with email/password
+        registerForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(cred => {
+                    // Add display name
+                    return cred.user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .then(() => {
+                    authSuccess.textContent = 'Registration successful!';
+                    authError.textContent = '';
+                    // Switch to login form
+                    registerFormDiv.style.display = 'none';
+                    loginFormDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    authError.textContent = error.message;
+                    authSuccess.textContent = '';
+                });
+        });
+
+        // Google Sign-In
+        googleSignIn.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(() => {
+                    authSuccess.textContent = 'Google sign-in successful!';
+                    authError.textContent = '';
+                })
+                .catch(error => {
+                    authError.textContent = error.message;
+                    authSuccess.textContent = '';
+                });
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut()
+                .then(() => {
+                    authSuccess.textContent = 'Logged out successfully!';
+                    setTimeout(() => {
+                        authSuccess.textContent = '';
+                    }, 3000);
+                })
+                .catch(error => {
+                    authError.textContent = error.message;
+                });
+        });
+
+        // Contact button
+        contactBtn.addEventListener('click', () => {
+            const phoneNumber = "03019382521";
+            const message = "Hello";
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        // Edit profile button
+        editProfileBtn.addEventListener('click', () => {
+            alert('Edit profile functionality would be implemented here');
+        });
+
+        // Initialize UI based on auth state
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (authContainer.style.display !== 'none') {
+                    authContainer.style.opacity = '1';
+                }
+                if (profileContainer.style.display !== 'none') {
+                    profileContainer.style.opacity = '1';
+                }
+            }, 100);
+        });
+        
+    </script>
+</body>
+</html>

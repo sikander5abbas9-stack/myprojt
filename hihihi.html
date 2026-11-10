@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>GoldenPaper • Custom Ratio System</title>
+    <!-- Bootstrap 4 + Swiper + FontAwesome + html2canvas + html2pdf -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #eef2f7;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 20px 12px 40px;
+        }
+        .app-container {
+            max-width: 850px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        /* Tools Panel */
+        .tools-card {
+            background: white;
+            border-radius: 32px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+        .tools-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .tool-item {
+            background: #f8fafc;
+            border-radius: 48px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #e2edf2;
+        }
+        .tool-item input, .tool-item select {
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            padding: 5px 10px;
+            width: auto;
+            background: white;
+        }
+        .tool-item button {
+            background: #eef2ff;
+            border: none;
+            border-radius: 30px;
+            padding: 5px 12px;
+            font-size: 0.7rem;
+        }
+        .page-badge {
+            background: #1e293b;
+            color: white;
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        input[type="number"] { width: 65px; }
+        .custom-ratio-group {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .custom-ratio-group input {
+            width: 50px;
+        }
+        
+        /* Per-page JSON Panel */
+        .per-page-json-card {
+            background: white;
+            border-radius: 32px;
+            padding: 20px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+        .page-selector-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .page-selector-bar select {
+            border-radius: 40px;
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            background: white;
+        }
+        .json-textarea {
+            width: 100%;
+            border-radius: 24px;
+            border: 1px solid #cbd5e6;
+            background: #fefce8;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.8rem;
+            padding: 16px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        .textarea-help {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            margin-top: 8px;
+        }
+        .golden-rule {
+            background: #fef3c7;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 0.7rem;
+        }
+        
+        /* Swiper Stage - Canvas Wrapper with fixed ratio */
+        .swiper-stage {
+            border-radius: 32px;
+        }
+        .swiper {
+            border-radius: 32px;
+            padding-bottom: 40px;
+        }
+        .swiper-slide {
+            height: auto;
+            display: flex;
+            justify-content: center;
+        }
+        .canvas-wrapper {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.2s;
+            width: 100%;
+            max-width: 100%;
+        }
+        /* Fixed ratio container */
+        .ratio-container {
+            position: relative;
+            width: 100%;
+            background: white;
+        }
+        .paper-journal {
+            background: white;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        /* Dynamic top/bottom using percentages of total height */
+        .top-brand {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.8rem;
+            background: white;
+            border-bottom: 2px solid #eef2f8;
+        }
+        .brand-title {
+            font-weight: 800;
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            color: #0f172a;
+        }
+        .brand-icon {
+            width: clamp(35px, 7vw, 48px);
+            height: clamp(35px, 7vw, 48px);
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+        }
+        .paper-content {
+            padding: 1.5rem 2rem;
+            flex: 1;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+        .bottom-footer {
+            border-top: 2px solid #eef2f8;
+            text-align: center;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .paper-line {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .hide-lines .paper-line {
+            border-bottom: none;
+        }
+        .download-row {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-dl {
+            flex: 1;
+            background: #1f2937;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 12px;
+            font-weight: 600;
+        }
+        @media (max-width: 550px) {
+            .paper-content { padding: 1rem 1rem; }
+            .top-brand { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- TOOLS PANEL with custom ratio -->
+    <div class="tools-card">
+        <div class="tools-flex">
+            <div class="tool-item"><i class="fas fa-ruler"></i> Ratio: 
+                <select id="ratioSelect">
+                    <option value="A4">A4 (1:1.414)</option>
+                    <option value="A3">A3 (1:1.414)</option>
+                    <option value="Letter">Letter (1:1.294)</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            <div class="tool-item custom-ratio-group" id="customRatioGroup" style="display:none;">
+                <i class="fas fa-arrows-alt-h"></i>
+                <input type="number" id="customWidth" placeholder="W" value="16" step="1"> :
+                <input type="number" id="customHeight" placeholder="H" value="9" step="1">
+            </div>
+            <div class="tool-item"><i class="fas fa-grip-lines"></i> Gap(px): <input type="number" id="lineGapInput" value="12" step="1"></div>
+            <div class="tool-item"><i class="fas fa-text-height"></i> Font %: <input type="number" id="fontPercentInput" value="100" step="5"></div>
+            <div class="tool-item"><i class="fas fa-arrows-alt-h"></i> LR Margin(px): <input type="number" id="lrMarginInput" value="0" step="2"></div>
+            <div class="tool-item"><i class="fas fa-arrow-up"></i> Top %: <input type="number" id="topPercentInput" value="8" step="1" min="4" max="25"></div>
+            <div class="tool-item"><i class="fas fa-arrow-down"></i> Bottom %: <input type="number" id="bottomPercentInput" value="4" step="1" min="2" max="15"></div>
+            <div class="tool-item"><button id="toggleLinesBtn"><i class="fas fa-eye-slash"></i> Lines</button></div>
+            <div class="tool-item"><button id="addPageBtn"><i class="fas fa-plus"></i> Add Page</button><button id="deletePageBtn"><i class="fas fa-trash"></i> Del</button></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+            <span id="pageCounter" class="page-badge"><i class="far fa-file-alt"></i> Pages: 0</span>
+            <span class="text-muted small"><i class="fas fa-crown"></i> Golden Rule: tag#text#/css/  |  double-tap counter → line limit</span>
+        </div>
+    </div>
+
+    <!-- PER-PAGE JSON EDITOR -->
+    <div class="per-page-json-card">
+        <div class="page-selector-bar">
+            <i class="fas fa-code"></i>
+            <strong>Edit Page JSON:</strong>
+            <select id="pageSelector">
+                <option value="0">Page 1</option>
+            </select>
+            <span class="golden-rule"><i class="fas fa-star"></i> t1#Title#/font-size:24px;color:red; | t2#Head#/css | t3#Text#/css</span>
+        </div>
+        <textarea id="pageJsonTextarea" class="json-textarea" rows="5" placeholder='t1#My Title#/font-size: 28px; font-weight: bold; color: #2c3e66; text-align: center;
+t2#Subheading#/font-size: 20px; color: #e67e22; margin-top: 12px;
+t3#Your content here.#/font-size: 14px; line-height: 1.6;'></textarea>
+        <div class="textarea-help">
+            💡 <strong>Golden Rule:</strong> tag#your text#/CSS properties;  (tag = t1, t2, or t3). Each page has independent JSON.
+        </div>
+    </div>
+
+    <!-- SWIPER SLIDER with fixed ratio -->
+    <div class="swiper-stage">
+        <div class="swiper paperSwiper">
+            <div class="swiper-wrapper" id="swiperWrapper"></div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+
+    <!-- DOWNLOAD BUTTONS -->
+    <div class="download-row">
+        <button id="downloadPdfBtn" class="btn-dl"><i class="fas fa-file-pdf"></i> PDF All Pages</button>
+        <button id="downloadCurrentImageBtn" class="btn-dl"><i class="fas fa-camera-retro"></i> Current Page HQ</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    // GOLDEN RULE PARSER: tag#text#/css/
+    function parseGoldenRuleToHtml(line) {
+        if (typeof line !== 'string') return "";
+        line = line.trim();
+        if (line.length === 0) return "";
+        
+        const regex = /^(t1|t2|t3)#(.*?)#\/(.*?)$/s;
+        const match = line.match(regex);
+        if (!match) {
+            return `<div class="paper-line text-t3">${escapeHtml(line)}</div>`;
+        }
+        const tag = match[1];
+        const textContent = match[2].trim();
+        let rawCss = match[3].trim();
+        
+        const baseClass = `text-${tag}`;
+        let bulletClass = '';
+        if (rawCss.includes('list-style') || rawCss.includes('disc') || rawCss.includes('bullet')) {
+            bulletClass = ' bullet-item';
+        }
+        const wrapper = document.createElement('div');
+        wrapper.className = `paper-line ${baseClass}${bulletClass}`;
+        if (rawCss) wrapper.style.cssText = rawCss;
+        wrapper.innerHTML = escapeHtml(textContent);
+        return wrapper.outerHTML;
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // STATE
+    let pagesContent = [];           // array of raw text lines per page
+    let pagesHtmlCache = [];         // array of HTML line arrays per page
+    let swiper = null;
+    let linesPerPage = 20;
+    let lineGuidesVisible = true;
+    let globalFontPercent = 100;
+    let lineGapPx = 12;
+    let leftRightMarginPx = 0;
+    let topPercent = 8;
+    let bottomPercent = 4;
+    let currentRatio = "A4";
+    let customRatioW = 16;
+    let customRatioH = 9;
+    
+    // DOM elements
+    const swiperWrapper = document.getElementById("swiperWrapper");
+    const pageCounterSpan = document.getElementById("pageCounter");
+    const ratioSelect = document.getElementById("ratioSelect");
+    const customRatioGroup = document.getElementById("customRatioGroup");
+    const customWidth = document.getElementById("customWidth");
+    const customHeight = document.getElementById("customHeight");
+    const lineGapInput = document.getElementById("lineGapInput");
+    const fontPercentInput = document.getElementById("fontPercentInput");
+    const lrMarginInput = document.getElementById("lrMarginInput");
+    const topPercentInput = document.getElementById("topPercentInput");
+    const bottomPercentInput = document.getElementById("bottomPercentInput");
+    const toggleLinesBtn = document.getElementById("toggleLinesBtn");
+    const addPageBtn = document.getElementById("addPageBtn");
+    const deletePageBtn = document.getElementById("deletePageBtn");
+    const pageSelector = document.getElementById("pageSelector");
+    const pageJsonTextarea = document.getElementById("pageJsonTextarea");
+    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+    const downloadCurrentImageBtn = document.getElementById("downloadCurrentImageBtn");
+    
+    // Get aspect ratio based on selection
+    function getAspectRatio() {
+        if (currentRatio === "A4") return 1 / 1.414;  // height/width ≈ 0.707
+        if (currentRatio === "A3") return 1 / 1.414;
+        if (currentRatio === "Letter") return 1 / 1.294;
+        if (currentRatio === "custom") return customRatioH / customRatioW;
+        return 0.707;
+    }
+    
+    // Apply fixed ratio to canvas-wrapper and update top/bottom percentages dynamically
+    function applyRatioAndTopBottom() {
+        const aspectRatio = getAspectRatio();
+        const wrapperWidth = document.querySelector('.swiper-stage')?.clientWidth || 400;
+        const wrapperHeight = wrapperWidth * aspectRatio;
+        
+        // Apply to all canvas-wrapper elements
+        document.querySelectorAll('.canvas-wrapper').forEach(wrapper => {
+            wrapper.style.position = 'relative';
+            wrapper.style.width = '100%';
+            wrapper.style.paddingBottom = (aspectRatio * 100) + '%';
+        });
+        
+        // Update ratio-container and paper-journal positioning
+        document.querySelectorAll('.ratio-container').forEach(container => {
+            container.style.position = 'relative';
+            container.style.width = '100%';
+            container.style.height = '0';
+            container.style.paddingBottom = (aspectRatio * 100) + '%';
+        });
+        
+        // Apply top/bottom percentages to the flex layout inside paper-journal
+        const topHeightPercent = topPercent;
+        const bottomHeightPercent = bottomPercent;
+        const contentHeightPercent = 100 - topPercent - bottomPercent;
+        
+        const styleId = 'dynamic-tb-styles';
+        let styleTag = document.getElementById(styleId);
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = styleId;
+            document.head.appendChild(styleTag);
+        }
+        styleTag.innerHTML = `
+            .paper-journal { 
+                display: flex; 
+                flex-direction: column; 
+                height: 100%;
+                width: 100%;
+            }
+            .top-brand { 
+                flex: 0 0 ${topHeightPercent}%; 
+                min-height: 45px;
+                display: flex; 
+                align-items: center;
+            }
+            .bottom-footer { 
+                flex: 0 0 ${bottomHeightPercent}%; 
+                min-height: 35px;
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+            }
+            .paper-content { 
+                flex: 0 0 ${contentHeightPercent}%;
+                overflow-y: auto;
+            }
+        `;
+        
+        // Force swiper update
+        if (swiper) {
+            setTimeout(() => {
+                swiper.update();
+                swiper.updateSlides();
+            }, 50);
+        }
+    }
+    
+    function applyGlobalStyling() {
+        document.documentElement.style.setProperty('--line-gap-val', lineGapPx + 'px');
+        const scale = globalFontPercent / 100;
+        document.documentElement.style.setProperty('--t1-size', (24 * scale) + 'pt');
+        document.documentElement.style.setProperty('--t2-size', (18 * scale) + 'pt');
+        document.documentElement.style.setProperty('--t3-size', (12 * scale) + 'pt');
+        let styleTag = document.getElementById('global-styles');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'global-styles';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.innerHTML = `
+            .text-t1 { font-size: var(--t1-size, 24pt) !important; font-weight: 800; }
+            .text-t2 { font-size: var(--t2-size, 18pt) !important; font-weight: 700; }
+            .text-t3 { font-size: var(--t3-size, 12pt) !important; font-weight: 500; }
+            .paper-line { margin-bottom: var(--line-gap-val, 12px); }
+        `;
+        document.querySelectorAll('.paper-content').forEach(el => {
+            el.style.paddingLeft = leftRightMarginPx + 'px';
+            el.style.paddingRight = leftRightMarginPx + 'px';
+        });
+        applyRatioAndTopBottom();
+    }
+    
+    function convertRawLinesToHtml(rawLinesArray) {
+        return rawLinesArray.map(line => parseGoldenRuleToHtml(line)).filter(html => html !== "");
+    }
+    
+    function renderSwiperWithPages() {
+        if (!swiperWrapper) return;
+        swiperWrapper.innerHTML = "";
+        if (pagesHtmlCache.length === 0) {
+            swiperWrapper.innerHTML = `<div class="swiper-slide"><div class="canvas-wrapper"><div class="ratio-container"><div class="paper-journal"><div class="top-brand"><span class="brand-title">Notes</span><img class="brand-icon" src="https://mylife63.vercel.app/IMG_20260422_214838_34.jpg" alt="icon"></div><div class="paper-content" style="min-height:300px; text-align:center; color:#aaa;"><i class="fas fa-feather-alt fa-3x"></i><p>Add a page using + button</p></div><div class="bottom-footer">—</div></div></div></div></div>`;
+            if (swiper) swiper.update();
+            return;
+        }
+        for (let i = 0; i < pagesHtmlCache.length; i++) {
+            const slideHtmlLines = pagesHtmlCache[i];
+            const slideDiv = document.createElement('div');
+            slideDiv.className = 'swiper-slide';
+            const canvasWrapper = document.createElement('div');
+            canvasWrapper.className = 'canvas-wrapper';
+            const ratioContainer = document.createElement('div');
+            ratioContainer.className = 'ratio-container';
+            const journal = document.createElement('div');
+            journal.className = 'paper-journal';
+            
+            // TOP BAR
+            const topBar = document.createElement('div');
+            topBar.className = 'top-brand';
+            topBar.innerHTML = `<span class="brand-title">Notes</span><img class="brand-icon" src="https://mylife63.vercel.app/IMG_20260422_214838_34.jpg" alt="identity">`;
+            
+            // CONTENT
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'paper-content';
+            if (!lineGuidesVisible) contentDiv.classList.add('hide-lines');
+            contentDiv.style.paddingLeft = leftRightMarginPx + 'px';
+            contentDiv.style.paddingRight = leftRightMarginPx + 'px';
+            if (slideHtmlLines.length === 0) {
+                contentDiv.innerHTML = '<div class="text-muted text-center py-5"><i class="far fa-file"></i> Empty page — edit JSON</div>';
+            } else {
+                for (let lineHtml of slideHtmlLines) {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = lineHtml;
+                    while (temp.firstChild) contentDiv.appendChild(temp.firstChild);
+                }
+            }
+            
+            // BOTTOM BAR with simple page number (no slash)
+            const bottomBar = document.createElement('div');
+            bottomBar.className = 'bottom-footer';
+            bottomBar.innerText = `${i+1}`;
+            
+            journal.appendChild(topBar);
+            journal.appendChild(contentDiv);
+            journal.appendChild(bottomBar);
+            ratioContainer.appendChild(journal);
+            canvasWrapper.appendChild(ratioContainer);
+            slideDiv.appendChild(canvasWrapper);
+            swiperWrapper.appendChild(slideDiv);
+        }
+        if (swiper) {
+            swiper.update();
+            swiper.updateSlides();
+        } else {
+            swiper = new Swiper('.paperSwiper', {
+                direction: 'horizontal',
+                pagination: { el: '.swiper-pagination', clickable: true },
+                navigation: false,
+                grabCursor: true,
+                spaceBetween: 20,
+                slidesPerView: 1,
+            });
+            swiper.on('slideChange', () => {
+                updateJsonTextareaFromCurrentPage();
+            });
+        }
+        applyGlobalStyling();
+        updatePageCounter();
+    }
+    
+    function rebuildFromPagesContent() {
+        pagesHtmlCache = [];
+        for (let i = 0; i < pagesContent.length; i++) {
+            const rawLines = pagesContent[i];
+            const htmlLines = convertRawLinesToHtml(rawLines);
+            pagesHtmlCache.push(htmlLines);
+        }
+        renderSwiperWithPages();
+        updatePageCounter();
+        updatePageSelector();
+        saveToLocalStorage();
+    }
+    
+    function updatePageCounter() {
+        pageCounterSpan.innerHTML = `<i class="far fa-file-alt"></i> Pages: ${pagesContent.length}`;
+    }
+    
+    function updatePageSelector() {
+        pageSelector.innerHTML = '';
+        for (let i = 0; i < pagesContent.length; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `Page ${i+1}`;
+            pageSelector.appendChild(option);
+        }
+        if (pagesContent.length > 0 && swiper) {
+            pageSelector.value = swiper.activeIndex;
+            updateJsonTextareaFromCurrentPage();
+        }
+    }
+    
+    function updateJsonTextareaFromCurrentPage() {
+        if (!swiper) return;
+        const activeIdx = swiper.activeIndex;
+        if (pagesContent[activeIdx]) {
+            pageJsonTextarea.value = pagesContent[activeIdx].join('\n');
+        } else {
+            pageJsonTextarea.value = '';
+        }
+    }
+    
+    function saveCurrentPageJson() {
+        if (!swiper) return;
+        const activeIdx = swiper.activeIndex;
+        const rawLines = pageJsonTextarea.value.split(/\r?\n/).filter(l => l.trim().length > 0);
+        pagesContent[activeIdx] = rawLines;
+        pagesHtmlCache[activeIdx] = convertRawLinesToHtml(rawLines);
+        renderSwiperWithPages();
+        if (swiper) swiper.slideTo(activeIdx);
+        saveToLocalStorage();
+    }
+    
+    function addNewPage() {
+        const defaultPageContent = [
+            "t1#New Page#/font-size: 28px; font-weight: bold; color: #2c3e66; text-align: center; margin-bottom: 16px;",
+            "t2#Your Content Here#/font-size: 20px; color: #e67e22; margin-top: 12px;",
+            "t3#Edit this JSON in the panel above. Use golden rule: tag#text#/css/#/font-size: 14px; line-height: 1.5; color: #334155;"
+        ];
+        pagesContent.push(defaultPageContent);
+        pagesHtmlCache.push(convertRawLinesToHtml(defaultPageContent));
+        renderSwiperWithPages();
+        if (swiper) swiper.slideTo(pagesContent.length - 1);
+        updatePageSelector();
+        saveToLocalStorage();
+    }
+    
+    function deleteCurrentPage() {
+        if (pagesContent.length <= 1) {
+            alert("Cannot delete last page. Minimum one page required.");
+            return;
+        }
+        const activeIdx = swiper.activeIndex;
+        pagesContent.splice(activeIdx, 1);
+        pagesHtmlCache.splice(activeIdx, 1);
+        renderSwiperWithPages();
+        updatePageSelector();
+        if (swiper) swiper.slideTo(Math.min(activeIdx, pagesContent.length - 1));
+        saveToLocalStorage();
+    }
+    
+    function updateLinesPerPageAndRepaginate(newLimit) {
+        if (newLimit < 1) newLimit = 1;
+        linesPerPage = newLimit;
+        let allRawLines = [];
+        for (let page of pagesContent) {
+            allRawLines.push(...page);
+        }
+        const allHtmlLines = allRawLines.map(line => parseGoldenRuleToHtml(line));
+        const newPaginatedHtml = [];
+        for (let i = 0; i < allHtmlLines.length; i += linesPerPage) {
+            newPaginatedHtml.push(allHtmlLines.slice(i, i + linesPerPage));
+        }
+        if (newPaginatedHtml.length === 0) newPaginatedHtml.push([]);
+        
+        let rawCopy = [...allRawLines];
+        const newPagesRaw = [];
+        for (let i = 0; i < newPaginatedHtml.length; i++) {
+            const lineCount = newPaginatedHtml[i].length;
+            const segment = rawCopy.splice(0, lineCount);
+            newPagesRaw.push(segment);
+        }
+        pagesContent = newPagesRaw;
+        pagesHtmlCache = newPaginatedHtml;
+        renderSwiperWithPages();
+        updatePageSelector();
+        saveToLocalStorage();
+    }
+    
+    async function downloadCurrentPageHighQuality() {
+        if (!swiper || pagesHtmlCache.length === 0) return;
+        const activeCanvas = document.querySelector('.swiper-slide-active .canvas-wrapper');
+        if (!activeCanvas) { alert("Page not found"); return; }
+        try {
+            const canvas = await html2canvas(activeCanvas, {
+                scale: 3.5,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true,
+                windowWidth: activeCanvas.scrollWidth,
+                windowHeight: activeCanvas.scrollHeight
+            });
+            const link = document.createElement('a');
+            link.download = `page_${swiper.activeIndex+1}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch(err) { alert("Image error: " + err); }
+    }
+    
+    async function downloadAllPagesPDF() {
+        if (!swiper || pagesHtmlCache.length === 0) return;
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.background = "white";
+        pdfContainer.style.padding = "16px";
+        for (let i = 0; i < pagesHtmlCache.length; i++) {
+            const tempWrapper = document.createElement('div');
+            tempWrapper.style.background = "white";
+            tempWrapper.style.marginBottom = "20px";
+            tempWrapper.style.borderRadius = "24px";
+            tempWrapper.style.overflow = "hidden";
+            let contentHtml = '';
+            for (let ln of pagesHtmlCache[i]) contentHtml += ln;
+            const topHtml = `<div style="display:flex; justify-content:space-between; padding:1rem 1.5rem; border-bottom:2px solid #eef2f8;"><span style="font-weight:800; font-size:1.2rem;">Notes</span><img src="https://mylife63.vercel.app/IMG_20260422_214838_34.jpg" style="width:40px; height:40px; border-radius:50%; object-fit:cover;"></div>`;
+            const bottomHtml = `<div style="text-align:center; padding:0.8rem; border-top:2px solid #eef2f8;">${i+1}</div>`;
+            tempWrapper.innerHTML = topHtml + `<div style="padding:1.5rem;">${contentHtml || '<div>Empty</div>'}</div>` + bottomHtml;
+            pdfContainer.appendChild(tempWrapper);
+        }
+        const opt = { margin: [0.5,0.5,0.5,0.5], filename: 'pages.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+        html2pdf().set(opt).from(pdfContainer).save();
+    }
+    
+    function toggleLineGuides() {
+        lineGuidesVisible = !lineGuidesVisible;
+        document.querySelectorAll('.paper-content').forEach(el => {
+            if (lineGuidesVisible) el.classList.remove('hide-lines');
+            else el.classList.add('hide-lines');
+        });
+    }
+    
+    function saveToLocalStorage() {
+        const storageData = {
+            pagesContent: pagesContent,
+            linesPerPage: linesPerPage,
+            lineGapPx: lineGapPx,
+            globalFontPercent: globalFontPercent,
+            leftRightMarginPx: leftRightMarginPx,
+            topPercent: topPercent,
+            bottomPercent: bottomPercent,
+            currentRatio: currentRatio,
+            customRatioW: customRatioW,
+            customRatioH: customRatioH
+        };
+        localStorage.setItem('goldenPaperSystem', JSON.stringify(storageData));
+    }
+    
+    function loadFromStorage() {
+        const saved = localStorage.getItem('goldenPaperSystem');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                pagesContent = data.pagesContent || [];
+                linesPerPage = data.linesPerPage || 20;
+                lineGapPx = data.lineGapPx || 12;
+                globalFontPercent = data.globalFontPercent || 100;
+                leftRightMarginPx = data.leftRightMarginPx || 0;
+                topPercent = data.topPercent || 8;
+                bottomPercent = data.bottomPercent || 4;
+                currentRatio = data.currentRatio || "A4";
+                customRatioW = data.customRatioW || 16;
+                customRatioH = data.customRatioH || 9;
+                
+                lineGapInput.value = lineGapPx;
+                fontPercentInput.value = globalFontPercent;
+                lrMarginInput.value = leftRightMarginPx;
+                topPercentInput.value = topPercent;
+                bottomPercentInput.value = bottomPercent;
+                ratioSelect.value = currentRatio;
+                customWidth.value = customRatioW;
+                customHeight.value = customRatioH;
+                
+                if (currentRatio === 'custom') customRatioGroup.style.display = 'inline-flex';
+                else customRatioGroup.style.display = 'none';
+                
+                pagesHtmlCache = [];
+                for (let i = 0; i < pagesContent.length; i++) {
+                    pagesHtmlCache.push(convertRawLinesToHtml(pagesContent[i]));
+                }
+                renderSwiperWithPages();
+                updatePageSelector();
+                return;
+            } catch(e) { console.warn(e); }
+        }
+        // Default demo
+        pagesContent = [[
+            "t1#✨ Golden Paper System#/font-size: 32px; font-weight: bold; color: #0f172a; text-align: center; margin-bottom: 20px;",
+            "t2#Custom Ratio Support#/font-size: 22px; color: #b45309; margin-top: 12px; border-left: 4px solid #e67e22; padding-left: 12px;",
+            "t3#Top and bottom bars take exact percentage of page height.#/font-size: 14px; line-height: 1.6; color: #334155;",
+            "t1#Features#/font-size: 18px; font-weight: bold; margin-top: 16px;",
+            "t2#• Fixed ratio per page • Independent JSON#/display: list-item; list-style-type: disc; margin-left: 1.5rem; font-size: 14px;",
+            "t3#• Page numbers show as 1, 2, 3... • HQ export#/font-size: 13px; color: #4a5568;"
+        ]];
+        pagesHtmlCache = [convertRawLinesToHtml(pagesContent[0])];
+        renderSwiperWithPages();
+        updatePageSelector();
+        saveToLocalStorage();
+    }
+    
+    function bindEvents() {
+        ratioSelect.addEventListener('change', (e) => {
+            currentRatio = e.target.value;
+            if (currentRatio === 'custom') customRatioGroup.style.display = 'inline-flex';
+            else customRatioGroup.style.display = 'none';
+            applyRatioAndTopBottom();
+            saveToLocalStorage();
+        });
+        customWidth.addEventListener('change', () => {
+            customRatioW = parseInt(customWidth.value) || 16;
+            customRatioH = parseInt(customHeight.value) || 9;
+            if (currentRatio === 'custom') applyRatioAndTopBottom();
+            saveToLocalStorage();
+        });
+        customHeight.addEventListener('change', () => {
+            customRatioW = parseInt(customWidth.value) || 16;
+            customRatioH = parseInt(customHeight.value) || 9;
+            if (currentRatio === 'custom') applyRatioAndTopBottom();
+            saveToLocalStorage();
+        });
+        lineGapInput.addEventListener('change', (e) => { lineGapPx = parseInt(e.target.value) || 12; applyGlobalStyling(); saveToLocalStorage(); });
+        fontPercentInput.addEventListener('change', (e) => { globalFontPercent = parseInt(e.target.value) || 100; applyGlobalStyling(); saveToLocalStorage(); });
+        lrMarginInput.addEventListener('change', (e) => { leftRightMarginPx = parseInt(e.target.value) || 0; applyGlobalStyling(); saveToLocalStorage(); });
+        topPercentInput.addEventListener('change', (e) => { topPercent = parseInt(e.target.value) || 8; applyRatioAndTopBottom(); saveToLocalStorage(); });
+        bottomPercentInput.addEventListener('change', (e) => { bottomPercent = parseInt(e.target.value) || 4; applyRatioAndTopBottom(); saveToLocalStorage(); });
+        toggleLinesBtn.addEventListener('click', toggleLineGuides);
+        addPageBtn.addEventListener('click', addNewPage);
+        deletePageBtn.addEventListener('click', deleteCurrentPage);
+        pageSelector.addEventListener('change', (e) => {
+            const idx = parseInt(e.target.value);
+            if (swiper) swiper.slideTo(idx);
+            updateJsonTextareaFromCurrentPage();
+        });
+        pageJsonTextarea.addEventListener('input', () => { if (swiper) saveCurrentPageJson(); });
+        downloadPdfBtn.addEventListener('click', downloadAllPagesPDF);
+        downloadCurrentImageBtn.addEventListener('click', downloadCurrentPageHighQuality);
+        pageCounterSpan.addEventListener('dblclick', () => {
+            let newLimit = prompt("Lines per page:", linesPerPage);
+            if (newLimit && !isNaN(parseInt(newLimit))) updateLinesPerPageAndRepaginate(parseInt(newLimit));
+        });
+        window.addEventListener('resize', () => { applyRatioAndTopBottom(); });
+    }
+    
+    function init() {
+        bindEvents();
+        loadFromStorage();
+    }
+    init();
+</script>
+</body>
+</html>

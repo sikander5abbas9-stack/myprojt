@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Zip Uploader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #2ea44f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2c974b;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background-color: #e7f5ff;
+            color: #0c5460;
+        }
+        .progress {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #ddd;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Zip Uploader</h1>
+        
+        <label for="repoUrl">GitHub Repository URL:</label>
+        <input type="text" id="repoUrl" placeholder="https://github.com/username/repo" required>
+        
+        <label for="githubToken">GitHub Personal Access Token:</label>
+        <input type="password" id="githubToken" placeholder="ghp_yourTokenHere" required>
+        
+        <label for="branch">Branch (default: main):</label>
+        <input type="text" id="branch" placeholder="main" value="main">
+        
+        <label for="commitMessage">Commit Message:</label>
+        <input type="text" id="commitMessage" placeholder="Update files from zip upload" value="Update files from zip upload">
+        
+        <label for="zipFile">Select Zip File:</label>
+        <input type="file" id="zipFile" accept=".zip">
+        
+        <button id="saveBtn">Save Settings</button>
+        <button id="uploadBtn">Upload & Push to GitHub</button>
+        
+        <div id="progressContainer" style="display: none;">
+            <div>Upload Progress:</div>
+            <div class="progress">
+                <div id="progressBar" class="progress-bar" style="width: 0%">0%</div>
+            </div>
+            <div id="fileStatus">Preparing upload...</div>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // Load saved values from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const repoUrl = localStorage.getItem('repoUrl');
+            const githubToken = localStorage.getItem('githubToken');
+            const branch = localStorage.getItem('branch') || 'main';
+            const defaultCommitMessage = localStorage.getItem('commitMessage') || 'Update files from zip upload';
+            
+            if (repoUrl) document.getElementById('repoUrl').value = repoUrl;
+            if (githubToken) document.getElementById('githubToken').value = githubToken;
+            document.getElementById('branch').value = branch;
+            document.getElementById('commitMessage').value = defaultCommitMessage;
+            
+            // Save settings button
+            document.getElementById('saveBtn').addEventListener('click', saveSettings);
+            
+            // Upload button
+            document.getElementById('uploadBtn').addEventListener('click', processZipAndUpload);
+        });
+
+        function saveSettings() {
+            const repoUrl = document.getElementById('repoUrl').value;
+            const githubToken = document.getElementById('githubToken').value;
+            const branch = document.getElementById('branch').value;
+            const commitMessage = document.getElementById('commitMessage').value;
+            
+            localStorage.setItem('repoUrl', repoUrl);
+            localStorage.setItem('githubToken', githubToken);
+            localStorage.setItem('branch', branch);
+            localStorage.setItem('commitMessage', commitMessage);
+            
+            updateStatus('Settings saved to local storage!', 'success');
+        }
+
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+        }
+
+        function updateProgress(percent, currentFile) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+            
+            const fileStatus = document.getElementById('fileStatus');
+            fileStatus.textContent = currentFile ? `Processing: ${currentFile}` : 'Processing files...';
+        }
+
+        async function processZipAndUpload() {
+            const repoUrl = document.getElementById('repoUrl').value;
+            const githubToken = document.getElementById('githubToken').value;
+            const branch = document.getElementById('branch').value;
+            const commitMessage = document.getElementById('commitMessage').value;
+            const zipFileInput = document.getElementById('zipFile');
+            
+            if (!repoUrl || !githubToken) {
+                updateStatus('Please enter both repository URL and GitHub token', 'error');
+                return;
+            }
+            
+            if (!zipFileInput.files || zipFileInput.files.length === 0) {
+                updateStatus('Please select a zip file', 'error');
+                return;
+            }
+            
+            try {
+                // Show progress container
+                document.getElementById('progressContainer').style.display = 'block';
+                updateStatus('Starting upload process...', 'info');
+                
+                // Extract repo owner and name from URL
+                const repoMatch = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/);
+                if (!repoMatch) {
+                    throw new Error('Invalid GitHub repository URL format. Use: https://github.com/username/repo');
+                }
+                const owner = repoMatch[1];
+                const repo = repoMatch[2].replace(/\.git$/, '');
+                
+                // Read zip file
+                const zipFile = zipFileInput.files[0];
+                const zip = new JSZip();
+                updateProgress(5, 'Reading zip file...');
+                const zipContent = await zip.loadAsync(zipFile);
+                
+                // Get all files in the zip
+                const filePaths = Object.keys(zipContent.files).filter(path => !zipContent.files[path].dir);
+                let processedCount = 0;
+                const totalFiles = filePaths.length;
+                
+                if (totalFiles === 0) {
+                    throw new Error('No files found in the zip archive');
+                }
+                
+                updateStatus(`Found ${totalFiles} files to process...`, 'info');
+                
+                // Process each file in the zip
+                for (const relativePath of filePaths) {
+                    const file = zipContent.files[relativePath];
+                    updateProgress(Math.floor((processedCount / totalFiles) * 100), relativePath);
+                    
+                    try {
+                        const content = await file.async('text');
+                        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(relativePath)}`;
+                        
+                        // First check if file exists to get its SHA (required for updates)
+                        let sha = null;
+                        try {
+                            const checkResponse = await fetch(`${apiUrl}?ref=${branch}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `token ${githubToken}`,
+                                    'Accept': 'application/vnd.github.v3+json'
+                                }
+                            });
+                            
+                            if (checkResponse.ok) {
+                                const fileData = await checkResponse.json();
+                                sha = fileData.sha;
+                            }
+                        } catch (e) {
+                            // File doesn't exist, will create new
+                        }
+                        
+                        // Create or update file
+                        const response = await fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${githubToken}`,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/vnd.github.v3+json'
+                            },
+                            body: JSON.stringify({
+                                message: commitMessage,
+                                content: btoa(unescape(encodeURIComponent(content))),
+                                sha: sha, // This will be null for new files
+                                branch: branch
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(`Failed to upload ${relativePath}: ${errorData.message}`);
+                        }
+                        
+                        processedCount++;
+                        updateProgress(Math.floor((processedCount / totalFiles) * 100), relativePath);
+                        
+                    } catch (fileError) {
+                        console.error(`Error processing ${relativePath}:`, fileError);
+                        throw new Error(`Failed to process ${relativePath}: ${fileError.message}`);
+                    }
+                }
+                
+                updateProgress(100, 'Completed!');
+                updateStatus(`Successfully uploaded/updated ${processedCount} files to GitHub!`, 'success');
+                
+            } catch (error) {
+                updateProgress(0, 'Error occurred');
+                updateStatus(`Error: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

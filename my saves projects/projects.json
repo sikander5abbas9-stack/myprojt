@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "title": "Unit Converter",
+    "description": "A simple tool to convert between different units of measurement like length, weight, and volume.",
+    "icon": "fas fa-calculator",
+    "demo": "https://unit-converter-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/unit-converter",
+    "tags": ["JavaScript", "CSS", "Converter", "Tool"]
+  },
+  {
+    "id": 2,
+    "title": "Note Taking App",
+    "description": "A clean and simple note-taking application with local storage support.",
+    "icon": "fas fa-sticky-note",
+    "demo": "https://notes-app-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/notes-app",
+    "tags": ["JavaScript", "LocalStorage", "Productivity", "App"]
+  },
+  {
+    "id": 3,
+    "title": "Weather App",
+    "description": "Get current weather information and forecasts for any location around the world.",
+    "icon": "fas fa-cloud-sun",
+    "demo": "https://weather-app-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/weather-app",
+    "tags": ["API", "Weather", "JavaScript", "Web App"]
+  },
+  {
+    "id": 4,
+    "title": "Expense Tracker",
+    "description": "Track your expenses and income with visual charts and spending categories.",
+    "icon": "fas fa-chart-pie",
+    "demo": "https://expense-tracker-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/expense-tracker",
+    "tags": ["React", "Charts", "Finance", "Tool"]
+  },
+  {
+    "id": 5,
+    "title": "Password Generator",
+    "description": "Generate strong, secure passwords with customizable options for length and character types.",
+    "icon": "fas fa-lock",
+    "demo": "https://password-generator-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/password-generator",
+    "tags": ["Security", "JavaScript", "Tool", "Generator"]
+  },
+  {
+    "id": 6,
+    "title": "Recipe Finder",
+    "description": "Search for recipes by ingredients with step-by-step cooking instructions.",
+    "icon": "fas fa-utensils",
+    "demo": "https://recipe-finder-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/recipe-finder",
+    "tags": ["API", "Food", "React", "Search"]
+  },
+  {
+    "id": 7,
+    "title": "Task Manager",
+    "description": "A drag-and-drop task management board with priority levels and due dates.",
+    "icon": "fas fa-tasks",
+    "demo": "https://task-manager-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/task-manager",
+    "tags": ["Productivity", "Drag & Drop", "JavaScript", "App"]
+  },
+  {
+    "id": 8,
+    "title": "Currency Converter",
+    "description": "Real-time currency conversion with up-to-date exchange rates.",
+    "icon": "fas fa-money-bill-wave",
+    "demo": "https://currency-converter-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/currency-converter",
+    "tags": ["API", "Finance", "Real-time", "Converter"]
+  },
+  {
+    "id": 9,
+    "title": "Markdown Editor",
+    "description": "A live markdown editor with preview pane and export functionality.",
+    "icon": "fas fa-markdown",
+    "demo": "https://markdown-editor-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/markdown-editor",
+    "tags": ["Markdown", "Editor", "JavaScript", "Tool"]
+  },
+  {
+    "id": 10,
+    "title": "Quiz App",
+    "description": "Interactive quiz application with multiple categories and score tracking.",
+    "icon": "fas fa-question-circle",
+    "demo": "https://quiz-app-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/quiz-app",
+    "tags": ["Quiz", "Interactive", "JavaScript", "Game"]
+  },
+  {
+    "id": 11,
+    "title": "Drawing Canvas",
+    "description": "A web-based drawing application with multiple brush types and colors.",
+    "icon": "fas fa-paint-brush",
+    "demo": "https://drawing-canvas-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/drawing-canvas",
+    "tags": ["Canvas", "Drawing", "Creative", "Tool"]
+  },
+  {
+    "id": 12,
+    "title": "Blog Platform",
+    "description": "A minimalist blogging platform with markdown support and responsive design.",
+    "icon": "fas fa-blog",
+    "demo": "https://blog-platform-sikandar.vercel.app",
+    "code": "https://github.com/sikandarabbas/blog-platform",
+    "tags": ["Blog", "CMS", "React", "Content"]
+  }
+]

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraz.pk Clone</title>
+    <!-- Using Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.0.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <style>
+        /* ========== GENERAL STYLES ========== */
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 70px 0 70px 0;
+    
+        }
+
+
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ========== BANNER STYLES ========== */
+        .banner-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            height: 180px;
+            margin-top: 15px;
+            border-radius: 12px;
+            margin-left: 10px;
+            margin-right: 10px;
+            width: calc(100% - 20px);
+        }
+        .banner-slider {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%;
+            border-radius: 12px;
+        }
+        .banner-slide {
+            min-width: 100%;
+            height: 100%;
+        }
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .banner-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 20px;
+            padding: 3px 8px;
+            background: #59595952;
+            display: flex;
+        }
+        .banner-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            margin: 0 2px;
+            cursor: pointer;
+            
+        }
+        .banner-dot.active {
+            background-color: #088178;
+            width: 15px;
+            border-radius: 5px;
+        }
+
+        /* ========== CATEGORIES ========== */
+        .categories {
+            padding: 15px;
+            background-color: #fff;
+            margin: 15px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title a {
+            color: #088178;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .section-title a i {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .category-item {
+            width: calc(20% - 10px);
+            text-align: center;
+            padding: 12px 5px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            font-size: 12px;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .category-item:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .category-item i {
+            font-size: 24px;
+            color: #088178;
+            margin-bottom: 8px;
+            background: rgba(8, 129, 120, 0.1);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* ========== IFRAME WITH CUSTOM OVERLAY ========== */
+        .iframe-wrapper {
+            position: relative;
+            margin-top: 15px;
+            background-color: #fff;
+            height: calc(100vh - 150px);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .iframe-container {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .iframe-sticky {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 85px;
+            z-index: 50;
+            height: auto !important;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        .iframe-overlay {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 70px);
+            background-color: transparent;
+            z-index: 60;
+            pointer-events: auto;
+        }
+        
+        .iframe-sticky .iframe-overlay {
+            pointer-events: none;
+        }
+
+
+
+        /* ========== MOBILE OPTIMIZATIONS ========== */
+        @media (max-width: 480px) {
+            .banner-container {
+                height: 160px;
+            }
+            .category-item {
+                width: calc(20% - 8px);
+                padding: 10px 3px;
+                font-size: 11px;
+            }
+            .category-item i {
+                font-size: 22px;
+                width: 36px;
+                height: 36px;
+            }
+            .iframe-wrapper {
+                height: calc(100vh - 140px);
+            }
+           
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <!-- ========== TOP BAR ========== -->
+    <div id="top-bar">
+      
+    </div>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <div class="main-content">
+        <!-- Banner -->
+        <div class="banner-container">
+            <div class="banner-slider" id="bannerSlider"></div>
+            <div class="banner-dots" id="bannerDots"></div>
+        </div>
+        <!-- Categories -->
+        <div class="categories">
+            <h2 class="section-title">Shop by Category <a href="#">See All <i class="ri-arrow-right-line"></i></a></h2>
+            <div class="category-list" id="categoryList"></div>
+        </div>
+
+        <!-- Iframe with Custom Overlay -->
+        <div class="iframe-wrapper" id="iframeWrapper">
+            <div class="iframe-container" id="iframeContainer">
+                <div class="iframe-overlay" id="iframeOverlay"></div>
+                <iframe src="/hhhh1/hhhh/shop.html" title="Daraz Promotion" id="myIframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ENHANCED BOTTOM BAR ========== -->
+  <div id="bottom-bar" >
+   
+    </div>
+
+    <script type="module">
+    showbottombar('cata')
+function showbottombar(activeIcon) {
+    const navItems = [
+        { name: 'home', label: 'Home', url: '/home.html' },
+        { name: 'cata', label: 'Categories', url: '/categories.html' },
+        { name: 'cart', label: 'Cart', url: '/cart.html' },
+        { name: 'profile', label: 'Account', url: '/profile.html' }
+    ];
+    
+    const cartCount = localStorage.getItem('cartCount') || 0;
+    
+    let html = '';
+    
+    navItems.forEach(item => {
+        const isActive = item.name === activeIcon;
+        const imgSrc = isActive ? `/gsh/${item.name} 1.svg` : `/gsh/${item.name}.svg`;
+        const activeClass = isActive ? 'nav-item active' : 'nav-item';
+        
+        html += `
+            <a href="${item.url}" target="_top" class="${activeClass}">
+                <img src="${imgSrc}" class="icon" alt="${item.label}">
+                <span class="nav-label">${item.label}</span>
+                ${item.name === 'cart' && cartCount > 0 ? `<span class="cart-badge">${cartCount}</span>` : ''}
+            </a>
+        `;
+    });
+    
+    document.getElementById('bottom-bar').innerHTML = html;
+    
+    main(); // optional main() call
+}
+function main() {
+    const style = document.createElement('style');
+    
+    
+    style.innerHTML = `
+    /* ========== ENHANCED BOTTOM BAR ========== */
+#bottom-bar {
+    background-color: #088178;
+    padding: 8px 0 5px;
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 65px;
+ border-radius: 20px 20px 0px 0;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #f0f0f0;
+}
+
+#bottom-bar .nav-item {
+    position: relative;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 25%;
+    padding: 5px 0;
+}
+
+#bottom-bar .icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+}
+
+#bottom-bar .nav-label {
+    font-size: 25px;
+    color: #fff;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: capitalize;
+}
+
+#bottom-bar .nav-item.active .nav-label {
+    
+}
+
+#bottom-bar .nav-item.active .icon {
+    transform: translateY(-7px);
+}
+#bottom-bar .cart-badge {
+    position: absolute;
+    top: -3px;
+    
+    right: 22%;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    border: 2px solid white;
+}
+
+/* Active state indicator */
+#bottom-bar .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    width: 35px;
+    height: 35px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 360px) {
+    #bottom-bar {
+        height: 70px;
+        padding: 14px 0 0 0;
+    }
+    
+    $bottom-bar .icon {
+        width: 25px;
+        height: 25px;
+    }
+    
+    #bottom-bar .nav-label {
+        font-size: 12px;
+    }
+}
+
+
+
+
+       /* ========== TOP BAR STYLES ========== */
+#top-bar {
+    background: linear-gradient(135deg, #088178, #05a79d);
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    
+    align-items: center;
+    position: fixed;
+    top: 0;
+    height: 70px;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.search-input-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+}
+
+.search-input-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+#top-bar input[type="search"] {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: none;
+    border-radius: 8px 0 0 8px;
+    font-size: 14px;
+    outline: none;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+#top-bar input[type="search"]:focus {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.search-button {
+    background-color: #088178;
+    color: white;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    padding: 0 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: inline-block;
+}
+
+.search-button:hover {
+    background-color: #05a79d;
+}
+.cart-icon img {
+    height: 100%;
+    width: 100%;
+}
+.cart-icon {
+    position: relative;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20%;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    padding: 7px;
+}
+
+.cart-icon:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+      
+
+  `;
+    
+    document.getElementById('top-bar').innerHTML = `
+     <div class="search-container">
+     <div class="search-input-wrapper">
+         <i class="ri-search-line"></i>
+         <input type="search" id="searchInput" placeholder="Search in Daraz" autocomplete="off">
+     </div>
+     <button class="search-button" id="searchButton">
+         <i class="ri-search-line"></i>
+     </button>
+     <div class="cart-icon">
+         <img src="/gsh/cart.svg" alt="">
+         <span class="badge">3</span>
+     </div>
+ </div>
+    `;
+    
+    document.head.appendChild(style);
+
+}
+
+        // ========== DYNAMIC DATA ==========
+        const bannerImages = [
+            { img: "https://img.freepik.com/free-vector/flat-sale-banner-with-photo_23-2149026968.jpg", link: "#" },
+            { img: "https://img.freepik.com/free-vector/gradient-sale-banner-template_23-2148934474.jpg", link: "#" },
+            { img: "https://img.freepik.com/free-vector/gradient-black-friday-sale-banner_23-2149026965.jpg", link: "#" }
+        ];
+
+        const categories = [
+            { name: "Mobiles", icon: "smartphone-line" },
+            { name: "Electronics", icon: "computer-line" },
+            { name: "Fashion", icon: "t-shirt-line" },
+            { name: "Home", icon: "home-3-line" },
+            { name: "Beauty", icon: "heart-line" },
+            { name: "Groceries", icon: "shopping-basket-line" },
+            { name: "Sports", icon: "football-line" },
+            { name: "Kids", icon: "bear-smile-line" },
+            { name: "Books", icon: "book-line" },
+            { name: "More", icon: "more-2-line" }
+        ];
+
+        // ========== INITIALIZATION FUNCTIONS ==========
+        function initBanner() {
+            const bannerSlider = document.getElementById('bannerSlider');
+            const bannerDots = document.getElementById('bannerDots');
+
+            bannerImages.forEach((banner, index) => {
+                // Add slide
+                const slide = document.createElement('div');
+                slide.className = 'banner-slide';
+                slide.innerHTML = `<a href="${banner.link}"><img src="${banner.img}" alt="Banner ${index + 1}"></a>`;
+                bannerSlider.appendChild(slide);
+
+                // Add dot
+                const dot = document.createElement('div');
+                dot.className = 'banner-dot' + (index === 0 ? ' active' : '');
+                dot.addEventListener('click', () => goToSlide(index));
+                bannerDots.appendChild(dot);
+            });
+
+            // Auto slide
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.banner-slide');
+            const dots = document.querySelectorAll('.banner-dot');
+
+            function goToSlide(index) {
+                currentSlide = index;
+                bannerSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentSlide);
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                goToSlide(currentSlide);
+            }
+
+            setInterval(nextSlide, 3000);
+        }
+
+        function initCategories() {
+            const categoryList = document.getElementById('categoryList');
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.innerHTML = `
+                    <i class="ri-${category.icon}"></i>
+                    <span class="category-name">${category.name}</span>
+                `;
+                categoryList.appendChild(item);
+            });
+        }
+
+       
+
+        // ========== IFRAME WITH CUSTOM OVERLAY ==========
+        function setupStickyIframe() {
+            const iframeWrapper = document.getElementById('iframeWrapper');
+            const iframeContainer = document.getElementById('iframeContainer');
+            const overlay = document.getElementById('iframeOverlay');
+            const topBarHeight = 70;
+            const bottomBarHeight = 85;
+            
+            function handleScroll() {
+                const wrapperRect = iframeWrapper.getBoundingClientRect();
+                
+                if (wrapperRect.top <= topBarHeight) {
+                    iframeContainer.classList.add('iframe-sticky');
+                    iframeContainer.style.height = `calc(100vh - ${topBarHeight + bottomBarHeight}px)`;
+                    overlay.style.pointerEvents = 'none';
+                } else {
+                    iframeContainer.classList.remove('iframe-sticky');
+                    iframeContainer.style.height = '100%';
+                    overlay.style.pointerEvents = 'auto';
+                }
+            }
+
+            let ticking = false;
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        handleScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+            
+            window.addEventListener('resize', handleScroll);
+            handleScroll();
+        }
+
+        // Initialize components when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initBanner();
+            initCategories();
+            
+            setupStickyIframe();
+        });
+    </script>
+</body>
+</html>

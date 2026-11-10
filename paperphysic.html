@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>React ZIP Uploader & In-Browser Builder</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:16px;color:#0b3}
+    h1{font-size:18px;margin:6px 0}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .panel{background:#f7f7f7;padding:12px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);min-width:280px}
+    input[type=file]{display:block}
+    #fileList{max-height:260px;overflow:auto;margin-top:8px}
+    pre{white-space:pre-wrap;word-break:break-word;background:#fff;padding:8px;border-radius:6px;border:1px solid #e6e6e6}
+    button{padding:8px 10px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer}
+    iframe{width:100%;height:560px;border:1px solid #ddd;border-radius:6px}
+    .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+    .file-row{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;border-bottom:1px solid #eee}
+    .small{font-size:13px;color:#666}
+  </style>
+  <!-- CDN libraries used by this tool. These are not injected into the user's project by default. The tool will inject them into the project's index.html when needed. -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+  <h1>React ZIP Uploader, In-Browser Build, Show in iframe</h1>
+  <div class="row">
+    <div class="panel" style="flex:1 1 380px">
+      <label class="small">Upload zip of your React project</label>
+      <input id="zipInput" type="file" accept=".zip" />
+
+      <div class="actions">
+        <button id="inspectBtn">Inspect zip</button>
+        <button id="openBtn">Open in iframe</button>
+        <button id="downloadAllBtn">Download modified index.html</button>
+      </div>
+
+      <div id="fileList"></div>
+    </div>
+
+    <div class="panel" style="flex:1 1 300px">
+      <label class="small">File preview / actions</label>
+      <div id="preview" style="margin-top:8px"><em>Select a file to preview</em></div>
+    </div>
+  </div>
+
+  <h1 class="small">Preview</h1>
+  <iframe id="viewer" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+
+  <script>
+    // Map of path -> {blobUrl, text, uint8}
+    const filesMap = new Map();
+    let zipRootName = '';
+    let modifiedIndexBlobUrl = null;
+
+    const zipInput = document.getElementById('zipInput');
+    const inspectBtn = document.getElementById('inspectBtn');
+    const openBtn = document.getElementById('openBtn');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const fileList = document.getElementById('fileList');
+    const preview = document.getElementById('preview');
+    const viewer = document.getElementById('viewer');
+
+    function reset() {
+      filesMap.forEach(v => { try{ URL.revokeObjectURL(v.blobUrl) } catch(e){} });
+      filesMap.clear();
+      fileList.innerHTML = '';
+      preview.innerHTML = '<em>Select a file to preview</em>';
+      if (modifiedIndexBlobUrl) { try{ URL.revokeObjectURL(modifiedIndexBlobUrl) } catch(e){} }
+      modifiedIndexBlobUrl = null;
+      viewer.src = 'about:blank';
+    }
+
+    zipInput.addEventListener('change', e => {
+      reset();
+      const f = e.target.files[0];
+      if (!f) return;
+      JSZip.loadAsync(f).then(zip => {
+        // find common root folder if any
+        const entries = Object.keys(zip.files);
+        if (entries.length === 0) return;
+        const first = entries[0];
+        const parts = first.split('/');
+        if (parts.length > 1) zipRootName = parts[0] + '/'; else zipRootName = '';
+
+        const promises = entries.map(path => {
+          const z = zip.files[path];
+          if (z.dir) return Promise.resolve();
+          return z.async('uint8array').then(uint8 => {
+            const mime = guessMime(path);
+            const blob = new Blob([uint8], {type: mime});
+            const blobUrl = URL.createObjectURL(blob);
+            const textPromise = isTextMime(mime) ? z.async('string') : Promise.resolve(null);
+            return textPromise.then(text => {
+              filesMap.set(path, {blobUrl, text, uint8, mime});
+            });
+          });
+        });
+        return Promise.all(promises).then(()=> renderFileList());
+      }).catch(err=> {
+        alert('Zip read error: ' + err.message);
+      });
+    });
+
+    function renderFileList(){
+      fileList.innerHTML = '';
+      const keys = Array.from(filesMap.keys()).sort();
+      if (keys.length === 0) fileList.innerHTML = '<em>No files in zip or only directories</em>';
+      keys.forEach(path => {
+        const row = document.createElement('div');
+        row.className = 'file-row';
+        const left = document.createElement('div');
+        left.innerHTML = '<strong>' + path + '</strong><div class="small">' + filesMap.get(path).mime +'</div>';
+        const right = document.createElement('div');
+        const btnView = document.createElement('button'); btnView.textContent = 'Read';
+        const btnDL = document.createElement('button'); btnDL.textContent = 'Download';
+        btnView.onclick = ()=> showPreview(path);
+        btnDL.onclick = ()=> downloadFile(path);
+        right.appendChild(btnView); right.appendChild(btnDL);
+        row.appendChild(left); row.appendChild(right);
+        fileList.appendChild(row);
+      });
+    }
+
+    function showPreview(path){
+      const info = filesMap.get(path);
+      if (!info) return;
+      if (info.text !== null) {
+        preview.innerHTML = '<pre>' + escapeHtml(info.text.slice(0, 20000)) + '</pre>';
+      } else {
+        preview.innerHTML = '<div class="small">Binary file, cannot preview</div>';
+      }
+    }
+
+    function downloadFile(path){
+      const info = filesMap.get(path);
+      if (!info) return;
+      const a = document.createElement('a');
+      a.href = info.blobUrl;
+      a.download = path.split('/').pop();
+      a.click();
+    }
+
+    inspectBtn.addEventListener('click', ()=>{
+      if (filesMap.size === 0) return alert('Pehle zip upload karo');
+      renderFileList();
+      alert('Zip load ho chuka hai. Ab "Open in iframe" ya kisi file ko read kar saktay ho');
+    });
+
+    openBtn.addEventListener('click', async ()=>{
+      if (filesMap.size === 0) return alert('Pehle zip upload karo');
+      // Find index.html candidate
+      const candidates = ['index.html', 'public/index.html', zipRootName + 'index.html', 'build/index.html', 'dist/index.html'];
+      let indexPath = null;
+      for (const c of candidates) if (filesMap.has(c)) { indexPath = c; break; }
+      if (!indexPath) {
+        // try any html file
+        for (const k of filesMap.keys()) if (k.toLowerCase().endsWith('.html')) { indexPath = k; break; }
+      }
+      if (!indexPath) return alert('index.html nahi mila. Ensure a top-level index.html hai.');
+
+      const indexText = filesMap.get(indexPath).text || '';
+      const injected = await prepareIndex(indexText, indexPath);
+      const blob = new Blob([injected], {type: 'text/html'});
+      if (modifiedIndexBlobUrl) try{ URL.revokeObjectURL(modifiedIndexBlobUrl) } catch(e){}
+      modifiedIndexBlobUrl = URL.createObjectURL(blob);
+      viewer.src = modifiedIndexBlobUrl;
+      downloadAllBtn.onclick = ()=> downloadBlobAs(modifiedIndexBlobUrl, 'index.modified.html');
+      alert('Iframe updated. Agar React ka source JSX use karta hai to Babel CDN inject ho chuka hai');
+    });
+
+    function downloadBlobAs(url, name){
+      const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    }
+
+    // guesses
+    function guessMime(path){
+      const ext = path.split('.').pop().toLowerCase();
+      if (['html','htm'].includes(ext)) return 'text/html';
+      if (['js','mjs','cjs'].includes(ext)) return 'application/javascript';
+      if (['css'].includes(ext)) return 'text/css';
+      if (['json'].includes(ext)) return 'application/json';
+      if (['png'].includes(ext)) return 'image/png';
+      if (['jpg','jpeg'].includes(ext)) return 'image/jpeg';
+      if (['svg'].includes(ext)) return 'image/svg+xml';
+      if (['mp4'].includes(ext)) return 'video/mp4';
+      return 'application/octet-stream';
+    }
+    function isTextMime(m){ return m.startsWith('text') || m === 'application/javascript' || m === 'application/json' || m === 'image/svg+xml'; }
+
+    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    async function prepareIndex(indexText, indexPath){
+      // Create blob urls for all files and update references in the index
+      // Create map of original relative paths to blobUrls
+      const mapping = {};
+      for (const [path, info] of filesMap.entries()) {
+        mapping[trimRoot(path)] = info.blobUrl;
+      }
+
+      let doc = indexText;
+
+      // Inject React and ReactDOM from jsDelivr if index uses them or if there are .jsx files
+      const hasJSX = Array.from(filesMap.keys()).some(k=> k.toLowerCase().endsWith('.jsx') || k.toLowerCase().endsWith('.tsx'));
+      const needsReact = doc.includes('react') || hasJSX;
+
+      const injectHead = [];
+      if (needsReact) {
+        injectHead.push('<script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>');
+        injectHead.push('<script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>');
+      }
+      // If any file has .jsx or index has type text/babel or contains JSX like <div> in JS, inject Babel standalone
+      const containsBabelNeed = hasJSX || /type=\"text\/babel\"/.test(doc) || /React\.createElement|class\s+\w+\s+extends\s+React/.test(doc);
+      if (containsBabelNeed) {
+        injectHead.push('<script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>');
+      }
+
+      // Replace local asset links with blob urls
+      // Replace <script src="...">, <link href="...">, <img src="...">, <video src="..."> etc.
+      // Use a simple regexp replacement for common patterns
+
+      // Replace link href
+      doc = doc.replace(/<link[^>]+href=["']([^"']+)["'][^>]*>/gi, (m, href) => {
+        const p = normalizePath(href, indexPath);
+        if (mapping[p]) return m.replace(href, mapping[p]);
+        return m;
+      });
+
+      // Replace img src and video source src
+      doc = doc.replace(/(<(?:img|source|video)[^>]+src=["'])([^"']+)(["'][^>]*>)/gi, (m, pre, src, post) => {
+        const p = normalizePath(src, indexPath);
+        if (mapping[p]) return pre + mapping[p] + post;
+        return m;
+      });
+
+      // Replace script src
+      doc = doc.replace(/<script[^>]+src=["']([^"']+)["'][^>]*><\/script>/gi, (m, src) => {
+        const p = normalizePath(src, indexPath);
+        if (mapping[p]) {
+          const info = filesMap.get(p);
+          // If .jsx or we need babel, convert to type text/babel so Babel compiles it inside iframe
+          if (p.toLowerCase().endsWith('.jsx') || containsBabelNeed) {
+            return '<script type="text/babel" src="' + mapping[p] + '"></script>';
+          }
+          return '<script src="' + mapping[p] + '"></script>';
+        }
+        return m;
+      });
+
+      // Also handle inline module script with type=module referencing local files via import. We cannot fully bundle modules here.
+      // Provide a fallback: for modules, convert to non-module by injecting the code inline and replacing import/export minimally.
+      if (doc.includes('type="module"') || doc.includes("type='module'")) {
+        // Try to inline simple module scripts that reference local files
+        doc = doc.replace(/<script[^>]*type=["']module["'][^>]*src=["']([^"']+)["'][^>]*><\/script>/gi, (m, src) => {
+          const p = normalizePath(src, indexPath);
+          if (mapping[p]) {
+            const info = filesMap.get(p);
+            if (info && info.text !== null) {
+              // Naive conversion: remove export statements. This will work for many small apps but not all.
+              let code = info.text.replace(/export\s+default\s+/g,'const __default_export = ').replace(/export\s+\{/g,'/*export{*/').replace(/export\s+function/g,'function');
+              // If JSX present and babel available, keep as type text/babel
+              if (containsBabelNeed || p.toLowerCase().endsWith('.jsx')) return '<script type="text/babel">' + code + '</script>';
+              return '<script>' + code + '</script>';
+            }
+          }
+          return m;
+        });
+      }
+
+      // If index does not have a head injection point, add at top
+      if (injectHead.length) {
+        if (doc.includes('</head>')) doc = doc.replace('</head>', injectHead.join('\n') + '\n</head>'); else doc = injectHead.join('\n') + '\n' + doc;
+      }
+
+      // Finally, fix relative links that start with ./ or / by trimming root
+      doc = doc.replace(/href=["']\/(?!\/)([^"']+)["']/gi, (m, p) => {
+        const key = p;
+        if (mapping[key]) return 'href="' + mapping[key] + '"';
+        return m;
+      });
+
+      // Also replace occurrences of src="./path" etc
+      doc = doc.replace(/src=["']\.\/(.*?)['"]/gi, (m, p) => {
+        const key = p;
+        if (mapping[key]) return 'src="' + mapping[key] + '"';
+        return m;
+      });
+
+      return doc;
+    }
+
+    function trimRoot(p){
+      if (zipRootName && p.startsWith(zipRootName)) return p.slice(zipRootName.length);
+      return p;
+    }
+    function normalizePath(href, indexPath){
+      // Only handle simple relative paths. If absolute URL or starts with http keep as-is.
+      if (/^https?:\/\//i.test(href) || href.startsWith('data:') || href.startsWith('blob:')) return href;
+      // Remove query/hash
+      const bare = href.split(/[?#]/)[0];
+      // If starts with / then remove leading slash
+      const p = bare.replace(/^\//, '');
+      // If path is relative like ../ or ./, resolve against indexPath
+      if (bare.startsWith('../') || bare.startsWith('./')) {
+        const baseParts = indexPath.split('/').slice(0, -1);
+        const parts = bare.split('/');
+        const res = [];
+        for (const part of parts) {
+          if (part === '..') baseParts.pop();
+          else if (part === '.' || part === '') continue;
+          else res.push(part);
+        }
+        const final = baseParts.concat(res).join('/');
+        return final;
+      }
+      return p;
+    }
+
+    function downloadAllAsZip(){
+      // Optional helper to let user download a rebuilt index
+    }
+
+    function downloadBlobAsUrl(url, name){ const a=document.createElement('a'); a.href=url; a.download=name; a.click(); }
+
+    function downloadFileUrl(blobUrl, name){ const a=document.createElement('a'); a.href=blobUrl; a.download=name; a.click(); }
+
+    // utility: expose download of modified index
+    downloadAllBtn.addEventListener('click', ()=>{
+      if (!modifiedIndexBlobUrl) return alert('Pehle "Open in iframe" karo');
+      downloadBlobAs(modifiedIndexBlobUrl, 'index.modified.html');
+    });
+
+  </script>
+</body>
+</html>

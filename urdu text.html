@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Video to Audio</title>
+</head>
+<body>
+
+<h3>Video to Audio Converter</h3>
+
+<input type="file" id="videoInput" accept="video/*">
+<br><br>
+<button onclick="convert()">Convert to MP3</button>
+<br><br>
+<a id="downloadLink"></a>
+
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/ffmpeg.min.js"></script>
+
+<script>
+const { createFFmpeg, fetchFile } = FFmpeg
+const ffmpeg = createFFmpeg({ log: false })
+
+async function convert() {
+  const fileInput = document.getElementById("videoInput")
+  if (!fileInput.files.length) return
+
+  if (!ffmpeg.isLoaded()) {
+    await ffmpeg.load()
+  }
+
+  const videoFile = fileInput.files[0]
+  ffmpeg.FS("writeFile", "input.mp4", await fetchFile(videoFile))
+
+  await ffmpeg.run("-i", "input.mp4", "output.mp3")
+
+  const data = ffmpeg.FS("readFile", "output.mp3")
+  const audioBlob = new Blob([data.buffer], { type: "audio/mp3" })
+  const audioUrl = URL.createObjectURL(audioBlob)
+
+  const link = document.getElementById("downloadLink")
+  link.href = audioUrl
+  link.download = "audio.mp3"
+  link.innerText = "Download MP3"
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pakistan Pharma Products Search</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; margin-bottom: 20px; }
+        .search-box { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; box-sizing: border-box; }
+        .search-box:focus { border-color: #27ae60; }
+        #results { margin-top: 20px; text-align: left; max-height: 500px; overflow-y: auto; }
+        .medicine-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .medicine-item:last-child { border-bottom: none; }
+        .medicine-name { font-weight: bold; color: #333; font-size: 16px; }
+        .company-tag { background: #27ae60; color: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; text-transform: uppercase; }
+        .no-result { color: #888; padding: 20px; text-align: center; }
+        .stats { margin-bottom: 10px; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Pharma Product Finder</h1>
+    <div class="stats" id="total-count">Total Medicines: Loading...</div>
+    <input type="text" id="searchInput" class="search-box" placeholder="Medicine ka naam likhein (e.g. Panadol, Risek)...">
+    
+    <div id="results">
+        </div>
+</div>
+
+<script>
+    // 10 Companies ka Data Arrays mein
+    const data = [
+        { company: "Sami", products: ["2SUM", "Abacus", "Acebro", "Actim", "Afixba", "Alkeris", "Antial", "Arcev", "Azitma", "Beceptor", "Bemdo", "Bisleri", "Breeky", "Caricef", "Cistarium", "Conspic", "Dicloran", "Dultix", "Ecasil", "Effiflox", "Empoli", "Favuza", "Fungone", "Gpride", "Grasil", "Intig", "Itaglip", "ITP", "JAKNIB", "Kinz", "Klint", "Lacasil", "Lagita", "Levijon", "Mabil", "Magura", "Mdestiv", "Melor", "Mevulak", "Mofest", "Montika", "Movax", "Moveryl", "Neege", "Neo-Antial", "Neofil", "Novidat", "Ocvir", "Onato", "ONTIV", "Orglu", "Oxidil", "Pencital", "Platrid", "Provas", "Risek", "Rosera", "SAM-CLAV", "Sedil", "Sevia", "Solfy", "Telarb", "TEpH", "Tonoflex", "Truva", "Ubrof", "Urigo", "Vory", "Zivalo"] },
+        
+        { company: "Getz Pharma", products: ["Advantec", "Agnar", "Alenta", "Amclav", "Amloget", "Arinac", "Atorget", "Azita", "Caplow", "Cipesta", "Claritek", "Clopiget", "Dapaget", "Exfelo", "Fexet", "Finone", "Gabica", "Getzid", "Glic", "Gonadil-F", "Lipiget", "Montiget", "Nebil", "Nexum", "Optra", "Orlifit", "Risek", "Rovista", "Starcox", "Tamsolin", "Treviamet", "Zavget", "Zolid"] },
+        
+        { company: "GSK", products: ["Actidil", "Amoxil", "Ampiclox", "Angised", "Augmentin", "Avamys", "Avodart", "Betnovate", "Dermovate", "Fefolvit", "Gaviscon", "Imigran", "Lamictal", "Panadol", "Panadol Extra", "Piriton", "Polyfax", "Septran", "Seretide", "Thyroxine", "Ventolin", "Zentel", "Zinnat", "Zovirax"] },
+        
+        { company: "Hilton", products: ["Alp", "Anapaz", "Artem", "Biofer", "Carlov", "Cefim", "Citanew", "Cravit", "Dapa", "Destina", "Febhil", "Ferosoft", "Fexo", "Flux", "Gevolox", "Hitop", "Jezeta", "Lefora", "Lerace", "Maxit", "Methycobal", "Myteka", "Novia", "Rolip", "Sofohil", "Transamin", "Zeegap", "Zopent"] },
+        
+        { company: "Highnoon", products: ["Airtal", "Apiban", "Artecxin", "Avotin", "Axesom", "Biforge", "Budeform", "Colofac", "Combivair", "Diajard", "Efix", "Epliron", "Fildil", "Herbesser", "Kestine", "Misar", "Nebix", "Oxaquin", "Paratol", "Pidogrel", "Prospan", "Rabecid", "Rosulin", "Skilax", "Tagipmet", "Ulsanic"] },
+        
+        { company: "Martin Dow", products: ["Anxiset", "Arimidex", "Atacand", "Concor", "Crestor", "Dormicum", "Ecosprin", "Epival", "Flagyl", "Inderal", "Lexotanil", "Meronem", "Mucaine", "Nexium", "Norvasc", "Plavix", "Prozac", "Rocephin", "Seroxat", "Valium", "Voveran", "Zestril"] },
+        
+        { company: "Bayer", products: ["Adalat", "Advantan", "Aspicard", "Baydal", "Bepanthol", "Canesten", "Ciproxin", "Diane-35", "Glucobay", "Gravibinan", "Nerisone", "Primolut N", "Progynova", "Skinoren", "Supradyn-N", "Travocort", "Xarelto", "Yaz"] },
+        
+        { company: "CCL", products: ["Abocal", "Amccl", "Amiquin", "Azmaccl", "Ceclor", "Clari-Ccl", "Diclo-Ccl", "Escccl", "Fexccl", "Gliccl", "Montccl", "Nexcccl", "Omcccl", "Parcccl", "Rostcccl", "Telcccl", "Valcccl"] },
+        
+        { company: "Atco", products: ["Acef", "Alerid", "Atasol", "Atcodil", "Atcolax", "Atconate", "Atcosone", "Atco-Z", "Cefax", "Cefin", "Ciprol", "Clarid", "Decad", "Diclor", "Esod", "Fexid", "Floxid", "Gabil", "Lipid", "Lorid", "Montid", "Nexid", "Omzid", "Parid", "Rosid", "Sultid", "Telid", "Valid"] },
+        
+        { company: "Lucky Core (ICI)", products: ["Ansaid", "Basoquin", "Citralka", "Combantrin", "Corex-D", "Deltacortril", "Entox-P", "Inderal", "Lederplex", "Lysovit", "Mucaine", "Nilstat", "Ponstan", "Ponstan Forte", "Tenormin", "Zestril"] }
+    ];
+
+    // Sabhi medicines ko ek single flat list mein convert karna search ke liye
+    let allMedicines = [];
+    data.forEach(item => {
+        item.products.forEach(prod => {
+            allMedicines.push({ name: prod, company: item.company });
+        });
+    });
+
+    // Alphabetically sort karna
+    allMedicines.sort((a, b) => a.name.localeCompare(b.name));
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+    const countDiv = document.getElementById('total-count');
+
+    countDiv.innerText = `Total Medicines in Database: ${allMedicines.length}`;
+
+    // Live Search Function
+    function performSearch() {
+        const query = searchInput.value.toLowerCase();
+        resultsDiv.innerHTML = '';
+
+        if (query === '') {
+            resultsDiv.innerHTML = '<div class="no-result">Kuch type karein search karne ke liye...</div>';
+            return;
+        }
+
+        const filtered = allMedicines.filter(m => m.name.toLowerCase().includes(query));
+
+        if (filtered.length > 0) {
+            filtered.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'medicine-item';
+                div.innerHTML = `
+                    <span class="medicine-name">${m.name}</span>
+                    <span class="company-tag">${m.company}</span>
+                `;
+                resultsDiv.appendChild(div);
+            });
+        } else {
+            resultsDiv.innerHTML = '<div class="no-result">Koi medicine nahi mili!</div>';
+        }
+    }
+
+    searchInput.addEventListener('input', performSearch);
+    
+    // Page load par empty state
+    resultsDiv.innerHTML = '<div class="no-result">Medicine search karna shuru karein...</div>';
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dual Auto Calculator</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    padding:15px;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+}
+
+.imageCard,
+.card{
+    background:#fff;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.uploadBtn{
+    display:block;
+    width:100%;
+    text-align:center;
+    padding:12px;
+    background:#4f7cff;
+    color:#fff;
+    border-radius:10px;
+    cursor:pointer;
+    margin-bottom:15px;
+    font-weight:bold;
+}
+
+.uploadBtn input{
+    display:none;
+}
+
+.imageFrame{
+    width:100%;
+    
+    
+    text-align:center;
+    overflow:hidden;
+    
+}
+
+.imageFrame img{
+    width: 100%;
+    height:auto;
+    display:none;
+    margin:auto;
+    
+}
+
+h2{
+    text-align:center;
+    margin-bottom:15px;
+    color:#333;
+}
+
+.box{
+    margin-bottom:12px;
+}
+
+label{
+    display:block;
+    margin-bottom:5px;
+    font-size:14px;
+    font-weight:bold;
+    color:#555;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:2px solid #ddd;
+    border-radius:10px;
+    font-size:16px;
+    outline:none;
+}
+
+input:focus{
+    border-color:#4f7cff;
+}
+
+.result{
+    margin-top:10px;
+    background:#f7f9ff;
+    border:2px solid #dfe7ff;
+    border-radius:12px;
+    padding:15px;
+    text-align:center;
+}
+
+.result span{
+    font-size:24px;
+    font-weight:bold;
+    color:#2d5cff;
+}
+
+.info{
+    text-align:center;
+    margin-top:8px;
+    color:#777;
+    font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Image Upload -->
+    <div class="imageCard">
+
+        <label class="uploadBtn">
+            Upload Image
+            <input type="file" id="imageInput" accept="image/*">
+        </label>
+
+        <div class="imageFrame">
+            <img id="previewImage">
+        </div>
+
+    </div>
+
+    <!-- Calculator 1 -->
+    <div class="card">
+        <h2>Calculator 1</h2>
+
+        <div class="box">
+            <label>Base X</label>
+            <input type="number" step="any" id="baseX1">
+        </div>
+
+        <div class="box">
+            <label>Base Y</label>
+            <input type="number" step="any" id="baseY1">
+        </div>
+
+        <div class="box">
+            <label>New X</label>
+            <input type="number" step="any" id="newX1">
+        </div>
+
+        <div class="result">
+            Y = <span id="result1">0.00000</span>
+        </div>
+
+        <div class="info">Auto Save + Auto Calculate</div>
+    </div>
+
+    <!-- Calculator 2 -->
+    <div class="card">
+        <h2>Calculator 2</h2>
+
+        <div class="box">
+            <label>Base X</label>
+            <input type="number" step="any" id="baseX2">
+        </div>
+
+        <div class="box">
+            <label>Base Y</label>
+            <input type="number" step="any" id="baseY2">
+        </div>
+
+        <div class="box">
+            <label>New X</label>
+            <input type="number" step="any" id="newX2">
+        </div>
+
+        <div class="result">
+            Y = <span id="result2">0.00000</span>
+        </div>
+
+        <div class="info">Auto Save + Auto Calculate</div>
+    </div>
+
+</div>
+
+<script>
+
+// Image Upload
+
+const imageInput = document.getElementById("imageInput");
+const previewImage = document.getElementById("previewImage");
+
+const savedImage = localStorage.getItem("uploadedImage");
+
+if(savedImage){
+    previewImage.src = savedImage;
+    previewImage.style.display = "block";
+}
+
+imageInput.addEventListener("change", function(){
+
+    const file = this.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        previewImage.src = e.target.result;
+        previewImage.style.display = "block";
+
+        localStorage.setItem(
+            "uploadedImage",
+            e.target.result
+        );
+    };
+
+    reader.readAsDataURL(file);
+
+});
+
+// Calculators
+
+function setupCalculator(id){
+
+    const baseX = document.getElementById("baseX" + id);
+    const baseY = document.getElementById("baseY" + id);
+    const newX = document.getElementById("newX" + id);
+    const result = document.getElementById("result" + id);
+
+    function save(){
+        localStorage.setItem("baseX" + id, baseX.value);
+        localStorage.setItem("baseY" + id, baseY.value);
+        localStorage.setItem("newX" + id, newX.value);
+    }
+
+    function calculate(){
+
+        save();
+
+        let x = parseFloat(baseX.value);
+        let y = parseFloat(baseY.value);
+        let nx = parseFloat(newX.value);
+
+        if(isNaN(x) || isNaN(y) || isNaN(nx) || x === 0){
+            result.textContent = "0.00000";
+            return;
+        }
+
+        let k = y / x;
+        let finalY = nx * k;
+
+        result.textContent = finalY.toFixed(5);
+
+        localStorage.setItem(
+            "result" + id,
+            finalY.toFixed(5)
+        );
+    }
+
+    function load(){
+
+        baseX.value = localStorage.getItem("baseX" + id) || "";
+        baseY.value = localStorage.getItem("baseY" + id) || "";
+        newX.value = localStorage.getItem("newX" + id) || "";
+
+        result.textContent =
+            localStorage.getItem("result" + id)
+            || "0.00000";
+
+        calculate();
+    }
+
+    baseX.addEventListener("input", calculate);
+    baseY.addEventListener("input", calculate);
+    newX.addEventListener("input", calculate);
+
+    load();
+}
+
+setupCalculator(1);
+setupCalculator(2);
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Color Adjuster</title>
+
+<style>
+body{
+    margin:0;
+    padding:20px;
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.panel{
+    background:#1b1b1b;
+    padding:20px;
+    border-radius:14px;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-top:14px;
+    margin-bottom:6px;
+    font-size:14px;
+}
+
+input[type="range"]{
+    width:100%;
+}
+
+canvas{
+    width:100%;
+    border-radius:12px;
+    background:#222;
+}
+
+button{
+    margin-top:20px;
+    padding:12px 18px;
+    border:none;
+    border-radius:10px;
+    background:#2d7cff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.value{
+    float:right;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Image Adjuster</h1>
+
+<div class="panel">
+
+<input type="file" id="upload" accept="image/*">
+
+<label>
+Brightness
+<span class="value" id="brightnessValue">100%</span>
+</label>
+<input type="range" id="brightness" min="0" max="200" value="100">
+
+<label>
+Contrast
+<span class="value" id="contrastValue">100%</span>
+</label>
+<input type="range" id="contrast" min="0" max="200" value="100">
+
+<label>
+Saturation
+<span class="value" id="saturationValue">100%</span>
+</label>
+<input type="range" id="saturation" min="0" max="200" value="100">
+
+<label>
+Cool / Warm
+<span class="value" id="coolValue">0</span>
+</label>
+<input type="range" id="cool" min="-100" max="100" value="0">
+
+<label>
+Sharpness
+<span class="value" id="sharpValue">0</span>
+</label>
+<input type="range" id="sharp" min="0" max="5" step="1" value="0">
+
+<button id="downloadBtn">Download High Quality</button>
+
+</div>
+
+<canvas id="canvas"></canvas>
+
+</div>
+
+<script>
+const upload = document.getElementById("upload");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const brightness = document.getElementById("brightness");
+const contrast = document.getElementById("contrast");
+const saturation = document.getElementById("saturation");
+const cool = document.getElementById("cool");
+const sharp = document.getElementById("sharp");
+
+const brightnessValue = document.getElementById("brightnessValue");
+const contrastValue = document.getElementById("contrastValue");
+const saturationValue = document.getElementById("saturationValue");
+const coolValue = document.getElementById("coolValue");
+const sharpValue = document.getElementById("sharpValue");
+
+let img = new Image();
+
+function updateValues(){
+    brightnessValue.innerText = brightness.value + "%";
+    contrastValue.innerText = contrast.value + "%";
+    saturationValue.innerText = saturation.value + "%";
+    coolValue.innerText = cool.value;
+    sharpValue.innerText = sharp.value;
+}
+
+function drawImage(){
+
+    if(!img.src) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.filter = `
+        brightness(${brightness.value}%)
+        contrast(${contrast.value}%)
+        saturate(${saturation.value}%)
+        hue-rotate(${cool.value * -0.15}deg)
+    `;
+
+    ctx.drawImage(img,0,0);
+
+    if(parseInt(sharp.value) > 0){
+        sharpen(parseInt(sharp.value));
+    }
+}
+
+function sharpen(amount){
+
+    const weights = [
+        0,-1,0,
+        -1,5,-1,
+        0,-1,0
+    ];
+
+    for(let i=0;i<amount;i++){
+
+        const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        const pixels = imageData.data;
+
+        const side = Math.round(Math.sqrt(weights.length));
+        const halfSide = Math.floor(side/2);
+
+        const src = pixels.slice(0);
+
+        for(let y=0;y<canvas.height;y++){
+
+            for(let x=0;x<canvas.width;x++){
+
+                let r=0,g=0,b=0;
+
+                for(let cy=0;cy<side;cy++){
+
+                    for(let cx=0;cx<side;cx++){
+
+                        const scy = y + cy - halfSide;
+                        const scx = x + cx - halfSide;
+
+                        if(
+                            scy >=0 &&
+                            scy < canvas.height &&
+                            scx >=0 &&
+                            scx < canvas.width
+                        ){
+
+                            const srcOffset = (scy * canvas.width + scx) * 4;
+                            const wt = weights[cy * side + cx];
+
+                            r += src[srcOffset] * wt;
+                            g += src[srcOffset + 1] * wt;
+                            b += src[srcOffset + 2] * wt;
+                        }
+                    }
+                }
+
+                const dstOffset = (y * canvas.width + x) * 4;
+
+                pixels[dstOffset] = r;
+                pixels[dstOffset + 1] = g;
+                pixels[dstOffset + 2] = b;
+            }
+        }
+
+        ctx.putImageData(imageData,0,0);
+    }
+}
+
+upload.addEventListener("change",(e)=>{
+
+    const file = e.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event){
+
+        img.onload = function(){
+            drawImage();
+        };
+
+        img.src = event.target.result;
+    };
+
+    reader.readAsDataURL(file);
+});
+
+[
+brightness,
+contrast,
+saturation,
+cool,
+sharp
+].forEach(slider=>{
+
+    slider.addEventListener("input",()=>{
+
+        updateValues();
+        drawImage();
+    });
+});
+
+document.getElementById("downloadBtn").addEventListener("click",()=>{
+
+    const link = document.createElement("a");
+
+    link.download = "high-quality-image.png";
+
+    link.href = canvas.toDataURL("image/png",1.0);
+
+    link.click();
+});
+
+updateValues();
+</script>
+
+</body>
+</html>

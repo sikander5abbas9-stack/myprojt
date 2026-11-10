@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Switcher with Back Handling</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        .page-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        #first-page {
+            z-index: 10;
+        }
+        
+        #second-page {
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- First Page Container -->
+    <div id="first-page" class="page-container">
+        <iframe id="first-iframe"></iframe>
+    </div>
+    
+    <!-- Second Page Container -->
+    <div id="second-page" class="page-container">
+        <iframe id="second-iframe"></iframe>
+    </div>
+
+    <script>
+        // ========== CONFIGURATION VARIABLES ========== //
+        const config = {
+            firstHtmlFile: '../hhhh/profile.html',
+            secondHtmlFile: '../hhhh/search.html',
+            switchToSecondButtonId: 'searchInput',
+            switchToFirstButtonId: 'back',
+            autoFocusInputId: 'searchInput',
+            transitionDuration: 300
+        };
+        // ========== END CONFIGURATION ========== //
+        
+        let currentPage = 'first';
+        let backButtonPressed = false;
+        
+        function switchPage(page) {
+            if (page === 'second') {
+                document.getElementById('first-page').style.opacity = '0';
+                document.getElementById('first-page').style.pointerEvents = 'none';
+                
+                document.getElementById('second-page').style.opacity = '1';
+                document.getElementById('second-page').style.pointerEvents = 'auto';
+                
+                setTimeout(() => {
+                    const secondIframe = document.getElementById('second-iframe');
+                    const input = secondIframe.contentDocument.getElementById(config.autoFocusInputId);
+                    if (input) {
+                        input.focus();
+                        input.select();
+                    }
+                }, config.transitionDuration);
+                
+                history.pushState({page: 'second'}, '', '#search');
+                currentPage = 'second';
+            } else {
+                document.getElementById('second-page').style.opacity = '0';
+                document.getElementById('second-page').style.pointerEvents = 'none';
+                
+                document.getElementById('first-page').style.opacity = '1';
+                document.getElementById('first-page').style.pointerEvents = 'auto';
+                
+                if (backButtonPressed) {
+                    backButtonPressed = false;
+                } else {
+                    history.replaceState({page: 'first'}, '', '#');
+                }
+                currentPage = 'first';
+            }
+        }
+        
+        window.addEventListener('message', function(event) {
+            if (event.data === 'switch-to-second') {
+                switchPage('second');
+            } else if (event.data === 'switch-to-first') {
+                switchPage('first');
+            }
+        });
+        
+        window.addEventListener('popstate', function(event) {
+            if (currentPage === 'second') {
+                backButtonPressed = true;
+                switchPage('first');
+            } else {
+                // Close the page or app when back pressed on first page
+                if (window.history.length <= 1) {
+                    // For mobile apps
+                    if (window.navigator && window.navigator.app) {
+                        window.navigator.app.exitApp();
+                    }
+                    // For browsers
+                    else {
+                        window.close();
+                        // Fallback for browsers that block window.close()
+                        alert('Press back again to exit');
+                        window.history.pushState(null, null, '#exit');
+                        setTimeout(() => { window.history.replaceState(null, null, '#'); }, 0);
+                    }
+                }
+            }
+        });
+        
+        window.addEventListener('DOMContentLoaded', function() {
+            history.replaceState({page: 'first'}, '', '#');
+            
+            document.getElementById('first-iframe').src = config.firstHtmlFile;
+            document.getElementById('second-iframe').src = config.secondHtmlFile;
+            
+            document.getElementById('first-iframe').onload = function() {
+                const script = document.createElement('script');
+                script.text = `
+                    const switchBtn = document.getElementById('${config.switchToSecondButtonId}');
+                    if (switchBtn) {
+                        switchBtn.onclick = function() {
+                            parent.postMessage('switch-to-second', '*');
+                        };
+                    }
+                `;
+                this.contentDocument.body.appendChild(script);
+            };
+            
+            document.getElementById('second-iframe').onload = function() {
+                const script = document.createElement('script');
+                script.text = `
+                    const backBtn = document.getElementById('${config.switchToFirstButtonId}');
+                    if (backBtn) {
+                        backBtn.onclick = function() {
+                            parent.postMessage('switch-to-first', '*');
+                        };
+                    }
+                    
+                    setTimeout(() => {
+                        const input = document.getElementById('${config.autoFocusInputId}');
+                        if (input) {
+                            input.focus();
+                            input.select();
+                        }
+                    }, 100);
+                `;
+                this.contentDocument.body.appendChild(script);
+            };
+            
+            // Handle Android back button for Cordova/PhoneGap
+            document.addEventListener('deviceready', function() {
+                document.addEventListener('backbutton', function(e) {
+                    if (currentPage === 'second') {
+                        e.preventDefault();
+                        switchPage('first');
+                    } else {
+                        // Exit app on second back press
+                        if (confirm('Do you want to exit?')) {
+                            navigator.app.exitApp();
+                        }
+                    }
+                }, false);
+            }, false);
+        });
+    </script>
+</body>
+</html>

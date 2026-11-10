@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Ratio Fitter with Blurred Background</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .description {
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        
+        .upload-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .ratio-section {
+            margin: 20px 0;
+        }
+        
+        .ratio-title {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .ratio-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .ratio-btn {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .ratio-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .ratio-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .preview-section {
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .preview-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .preview-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(20px);
+            transform: scale(1.1);
+            z-index: 1;
+        }
+        
+        .preview-image {
+            position: relative;
+            z-index: 2;
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-section {
+                padding: 20px;
+            }
+            
+            .ratio-buttons {
+                gap: 8px;
+            }
+            
+            .ratio-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Ratio Fitter</h1>
+        <p class="description">Upload an image, select an aspect ratio, and the image will be fitted with a blurred background filling the empty spaces.</p>
+        
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <p class="upload-text">Click to upload an image</p>
+                <p class="upload-subtext">or drag and drop your image here</p>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+            </div>
+            
+            <div class="ratio-section">
+                <h3 class="ratio-title">Select Aspect Ratio:</h3>
+                <div class="ratio-buttons">
+                    <button class="ratio-btn active" data-ratio="1">1:1 (Square)</button>
+                    <button class="ratio-btn" data-ratio="1.33">4:3 (Standard)</button>
+                    <button class="ratio-btn" data-ratio="1.77">16:9 (Widescreen)</button>
+                    <button class="ratio-btn" data-ratio="0.75">3:4 (Portrait)</button>
+                    <button class="ratio-btn" data-ratio="1.5">3:2 (Classic)</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section" id="previewSection">
+            <div class="preview-container">
+                <div class="preview-background" id="previewBackground"></div>
+                <img class="preview-image" id="previewImage" src="" alt="Preview">
+            </div>
+            <button class="download-btn" id="downloadBtn">Download Image</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewSection = document.getElementById('previewSection');
+            const previewImage = document.getElementById('previewImage');
+            const previewBackground = document.getElementById('previewBackground');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const ratioButtons = document.querySelectorAll('.ratio-btn');
+            
+            let currentImage = null;
+            let currentRatio = 1;
+            
+            // Upload area click handler
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // Drag and drop functionality
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                uploadArea.style.background = 'transparent';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                uploadArea.style.background = 'transparent';
+                
+                if (e.dataTransfer.files.length) {
+                    handleImageUpload(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // File input change handler
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    handleImageUpload(this.files[0]);
+                }
+            });
+            
+            // Ratio button click handlers
+            ratioButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    ratioButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentRatio = parseFloat(this.getAttribute('data-ratio'));
+                    
+                    if (currentImage) {
+                        applyRatioToImage(currentImage, currentRatio);
+                    }
+                });
+            });
+            
+            // Download button handler
+            downloadBtn.addEventListener('click', function() {
+                if (currentImage) {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas dimensions based on ratio
+                    const containerWidth = previewImage.parentElement.offsetWidth;
+                    const containerHeight = containerWidth / currentRatio;
+                    
+                    canvas.width = containerWidth;
+                    canvas.height = containerHeight;
+                    
+                    // Create blurred background
+                    const tempImg = new Image();
+                    tempImg.src = currentImage.src;
+                    
+                    tempImg.onload = function() {
+                        // Draw blurred background
+                        ctx.filter = 'blur(20px)';
+                        ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height);
+                        ctx.filter = 'none';
+                        
+                        // Calculate image dimensions to fit the ratio
+                        const imgRatio = tempImg.width / tempImg.height;
+                        let drawWidth, drawHeight, offsetX, offsetY;
+                        
+                        if (imgRatio > currentRatio) {
+                            // Image is wider than the target ratio
+                            drawHeight = canvas.height;
+                            drawWidth = drawHeight * imgRatio;
+                            offsetX = (canvas.width - drawWidth) / 2;
+                            offsetY = 0;
+                        } else {
+                            // Image is taller than the target ratio
+                            drawWidth = canvas.width;
+                            drawHeight = drawWidth / imgRatio;
+                            offsetX = 0;
+                            offsetY = (canvas.height - drawHeight) / 2;
+                        }
+                        
+                        // Draw the image centered
+                        ctx.drawImage(tempImg, offsetX, offsetY, drawWidth, drawHeight);
+                        
+                        // Create download link
+                        const link = document.createElement('a');
+                        link.download = 'formatted-image.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    };
+                }
+            });
+            
+            // Handle image upload
+            function handleImageUpload(file) {
+                if (!file.type.match('image.*')) {
+                    alert('Please upload an image file.');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    
+                    img.onload = function() {
+                        currentImage = img;
+                        previewSection.style.display = 'block';
+                        applyRatioToImage(img, currentRatio);
+                        
+                        // Scroll to preview section
+                        previewSection.scrollIntoView({ behavior: 'smooth' });
+                    };
+                };
+                
+                reader.readAsDataURL(file);
+            }
+            
+            // Apply selected ratio to the image
+            function applyRatioToImage(img, ratio) {
+                // Set background
+                previewBackground.style.backgroundImage = `url(${img.src})`;
+                
+                // Calculate dimensions for the image to fit the ratio
+                const containerWidth = previewImage.parentElement.offsetWidth;
+                const containerHeight = containerWidth / ratio;
+                
+                previewImage.parentElement.style.height = `${containerHeight}px`;
+                
+                const imgRatio = img.width / img.height;
+                
+                if (imgRatio > ratio) {
+                    // Image is wider than the target ratio
+                    previewImage.style.width = 'auto';
+                    previewImage.style.height = '100%';
+                } else {
+                    // Image is taller than the target ratio
+                    previewImage.style.width = '100%';
+                    previewImage.style.height = 'auto';
+                }
+                
+                previewImage.src = img.src;
+            }
+        });
+    </script>
+</body>
+</html>

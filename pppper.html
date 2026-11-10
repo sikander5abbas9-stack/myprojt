@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Presentation - Sikandar Abbas</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --paper-color: #ffffff;
+            --text-color: #000000;
+            --heading-font: 'Roboto', sans-serif;
+            --urdu-font: 'Noto Sans Arabic', serif;
+            --arabic-font: 'Amiri', serif;
+            --english-font: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            font-family: var(--urdu-font);
+        }
+
+        /* A4 Portrait Layout */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 10mm auto;
+            background: var(--paper-color);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+            page-break-after: always;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .author-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-left: 15px; /* RTL margin */
+            border: 2px solid #000;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 16pt; /* Print size */
+            font-weight: bold;
+            font-family: var(--heading-font);
+        }
+
+        .header-text p {
+            margin: 0;
+            font-size: 10pt;
+            font-style: italic;
+        }
+
+        /* Content Styles */
+        .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            display: block;
+            border-right: 5px solid #000;
+            padding-right: 10px;
+        }
+
+        .content-item {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .arabic-text {
+            font-family: var(--arabic-font);
+            font-size: 15pt;
+            color: #000;
+            display: block;
+            margin-bottom: 5px;
+            direction: rtl;
+        }
+
+        .translation-text {
+            font-family: var(--urdu-font);
+            font-size: 12pt;
+            color: #333;
+            display: block;
+        }
+
+        /* Download Button Styles */
+        .no-print {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile Adjustments */
+        @media screen and (max-width: 210mm) {
+            .page {
+                width: 95%;
+                margin: 5px auto;
+                padding: 10mm;
+            }
+            .header-text h1 { font-size: 20px; }
+        }
+
+        @media print {
+            body { background: none; }
+            .no-print { display: none; }
+            .page { margin: 0; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="no-print" onclick="downloadPDF()">Download PDF</button>
+
+    <div id="content-to-print">
+        <div class="page">
+            <div class="header">
+                <img src="https://mylife63.vercel.app/IMG_20260422_214838_34.jpg" alt="Sikandar Abbas" class="author-icon">
+                <div class="header-text">
+                    <h1>قرآنی آیات اور ترجمہ</h1>
+                    <p>Author: Sikandar Abbas</p>
+                </div>
+            </div>
+
+            <div class="section-title">1. سورۃ مریم (آیات 30 تا 36)</div>
+            
+            <div class="content-item">
+                <span class="arabic-text">قَالَ إِنِّي عَبْدُ اللَّهِ آتَانِيَ الْكِتَابَ وَجَعَلَنِي نَبِيًّا</span>
+                <span class="translation-text">(عیسیٰؑ نے) کہا: میں اللہ کا بندہ ہوں، اس نے مجھے کتاب دی ہے اور مجھے نبی بنایا ہے۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">وَجَعَلَنِي مُبَارَكًا أَيْنَ مَا كُنتُ وَأَوْصَانِي بِالصَّلَاةِ وَالزَّكَاةِ مَا دُمْتُ حَيًّا</span>
+                <span class="translation-text">اور اس نے مجھے بابرکت بنایا ہے جہاں کہیں بھی میں رہوں، اور مجھے نماز اور زکوٰۃ کا حکم دیا ہے جب تک میں زندہ رہوں۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">وَبَرًّا بِوالِدَتِي وَلَمْ يَجْعَلْنِي جَبَّارًا شَقِيًّا</span>
+                <span class="translation-text">اور مجھے اپنی والدہ کا فرمانبردار بنایا ہے اور اس نے مجھے سرکش اور بدبخت نہیں بنایا۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">وَالسَّلَامُ عَلَيَّ يَوْمَ وُلِدتُ وَيَوْمَ أَمُوتُ وَيَوْمَ أُبْعَثُ حَيًّا</span>
+                <span class="translation-text">اور مجھ پر سلام ہو جس دن میں پیدا ہوا، جس دن میں مروں گا اور جس دن میں دوبارہ زندہ کر کے اٹھایا جاؤں گا۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">ذَلِكَ عِيسَى ابْنُ مَرْيَمَ قَوْلَ الْحَقِّ الَّذِي فِيهِ يَمْتَرُونَ</span>
+                <span class="translation-text">یہ ہیں عیسیٰؑ ابن مریم، اور یہی وہ سچی بات ہے جس میں یہ لوگ شک کر رہے ہیں۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">مَا كَانَ لِلَّهِ أَن يَتَّخِذَ مِن وَلَدٍ سُبْحَانَهُ إِذَا قَضَى أَمْرًا فَإِنَّمَا يَقُولُ لَهُ كُن فَيَكُونُ</span>
+                <span class="translation-text">اللہ کی یہ شان نہیں کہ وہ کسی کو اپنا بیٹا بنائے، وہ پاک ہے، جب وہ کسی کام کا فیصلہ کرتا ہے تو بس اسے کہتا ہے "ہو جا" تو وہ ہو جاتا ہے۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">وَإِنَّ اللَّهَ رَبِّي وَرَبُّكُمْ فَاعْبُدُوهُ هَذَا صِرَاطٌ مُّسْتَقِيمٌ</span>
+                <span class="translation-text">اور (عیسیٰؑ نے کہا) بے شک اللہ ہی میرا رب ہے اور تمہارا بھی رب ہے، پس اسی کی عبادت کرو، یہی سیدھا راستہ ہے۔</span>
+            </div>
+        </div>
+
+        <div class="page">
+            <div class="section-title">2. سورۃ طہٰ (آیات 25 تا 37)</div>
+            <div class="content-item">
+                <span class="arabic-text">قَالَ رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي</span>
+                <span class="translation-text">(موسیٰؑ نے) عرض کی: اے میرے رب! میرا سینہ میرے لیے کھول دے اور میرا کام میرے لیے آسان کر دے۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي يَفْقَهُوا قَوْلِي</span>
+                <span class="translation-text">اور میری زبان کی گرہ کھول دے تاکہ وہ میری بات سمجھ سکیں۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">وَاجْعَل لِّي وَزِيرًا مِّنْ أَهْلِي هَارُونَ أَخِي</span>
+                <span class="translation-text">اور میرے گھر والوں میں سے میرا ایک مددگار (وزیر) مقرر کر دے، (یعنی) میرے بھائی ہارونؑ کو۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">اشْدُدْ بِهِ أَزْرِي وَأَشْرِكْهُ فِي أَمْرِي</span>
+                <span class="translation-text">اس کے ذریعے میری قوت کو مضبوط کر دے اور اسے میرے کام میں شریک کر دے۔</span>
+            </div>
+            <div class="content-item">
+                <span class="arabic-text">كَيْ نُسَبِّحَكَ كَثِيرًا وَنَذْكُرَكَ كَثِيرًا</span>
+                <span class="translation-text">تاکہ ہم کثرت سے تیری تسبیح بیان کریں اور کثرت سے تجھے یاد کریں۔</span>
+            </div>
+        </div>
+
+        </div>
+
+    <script>
+        function downloadPDF() {
+            const element = document.getElementById('content-to-print');
+            const opt = {
+                margin: 0,
+                filename: 'Islamic_Presentation_Sikandar.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // New Promise-based usage:
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>

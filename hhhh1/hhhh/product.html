@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="product.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #088178;
+            overflow: hidden;
+        }
+
+/* Review Section Wrapper */
+.reviews-section {
+    width: 90%;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Header with See All */
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.reviews-header h3 {
+    font-size: 20px;
+    color: #121252;
+}
+
+.see-all {
+    font-size: 14px;
+    color: #088178;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.see-all:hover {
+    color: #e65b50;
+}
+
+/* Reviews List */
+.review-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.review-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+.review-item strong {
+    color: #121252;
+    font-size: 15px;
+}
+
+.review-item small {
+    color: #555;
+    font-size: 13px;
+    display: block;
+    margin-top: 5px;
+}
+
+.review-item span {
+    color: #ffb400;
+    font-size: 14px;
+}
+
+/* Rating Stars */
+.rating-stars {
+    display: flex;
+    gap: 5px;
+    margin: 10px 0;
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.rating-stars .active {
+    color: #ffb400;
+}
+
+.rating-text {
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #121252;
+}
+
+/* Add Review Form */
+.add-review h4 {
+    margin-top: 15px;
+    color: #121252;
+    margin-bottom: 10px;
+}
+
+.add-review input,
+.add-review textarea {
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.add-review textarea {
+    height: 80px;
+    resize: none;
+}
+
+.add-review button {
+    margin-top: 10px;
+    background: #088178;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 14px;
+}
+
+.add-review button:hover {
+    background: #e65b50;
+}
+
+/* See All Reviews Modal */
+.all-reviews-modal {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-height: 70%;
+    overflow-y: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+.all-reviews-modal h4 {
+    margin-bottom: 15px;
+    color: #121252;
+}
+
+.all-reviews-modal button {
+    margin-top: 10px;
+    background: #e65b50;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.review-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #088178;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.iframe-container {
+    height: calc(100svh - 55px);
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    will-change: transform;
+}
+
+.iframe-container iframe {
+    width: 100%;
+    height: calc(100% - 50px);
+    border: none;
+    display: block;
+}
+
+
+  </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+    <div class="top-bar" id="topBar">
+    <div class="top-left">
+        <div class="icon-circle"><i class="fas fa-arrow-left"></i></div>
+    </div>
+    <div class="top-right">
+        <div class="icon-circle"><i class="fas fa-search"></i></div>
+        <div class="icon-circle"><i><img src="../icons/cart.svg" alt=""> </i></div>
+    </div>
+</div>
+    <!-- Swiper Container -->
+    <div class="swiper-container">
+        <div class="swiper-wrapper" id="swiper-wrapper"></div>
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+    
+    <div class="space">h</div>
+    
+    <div class="product-details">
+        <div class="product-info">
+            <div id="details">
+                <div class="price-section">
+                    <span id="productPrice" class="price"></span>
+                    <span id="productCutPrice" class="cut-price"></span>
+                </div>
+                <h2 id="productName"></h2>
+                <p id="productBrand"></p>
+                <div id="productRating" class="star-rating"></div>
+               
+                <div class="details-container" id="detailsContainer" style=" margin-bottom: 10px; border-radius: 8px; overflow: hidden;">
+            </div>
+        </div>
+<div class="reviews-section">
+    <div class="reviews-header">
+        <h3>Customer Reviews</h3>
+        <span class="see-all" id="seeAllTopBtn">See All</span>
+    </div>
+    
+    <div class="reviews-list" id="reviewsList"></div>
+    
+    <div id="seeAllBottomContainer" style="text-align: center; margin: 10px 0;">
+        <span class="see-all" id="seeAllBottomBtn">See All</span>
+    </div>
+    
+    <div class="add-review">
+        <h4>Add Your Review</h4>
+        
+        <div class="rating-stars" id="ratingStars">
+            <i class="fas fa-star" data-rate="1"></i>
+            <i class="fas fa-star" data-rate="2"></i>
+            <i class="fas fa-star" data-rate="3"></i>
+            <i class="fas fa-star" data-rate="4"></i>
+            <i class="fas fa-star" data-rate="5"></i>
+        </div>
+        <div id="ratingText" class="rating-text">Select Rating</div>
+        
+        <input type="text" id="reviewName" placeholder="Your Name">
+        <textarea id="reviewText" placeholder="Write your review..."></textarea>
+        
+        <button id="submitReview">Submit Review</button>
+    </div>
+</div>
+
+<div class="iframe-container" id="iframeContainer">
+    <iframe src="shop.html" title="Product Iframe" id="myIframe"></iframe>
+</div>
+    </div>
+    
+    <div>
+        <div class="price-add-to-cart">
+            <button id="bynow" class="bynow"><i class="fas fa-shopping-cart"></i> Buy Now</button>
+            <button class="add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+        </div>
+    </div>
+
+    <!-- Firebase and Swiper JS -->
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+            authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+            projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+            storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+            messagingSenderId: "246983910789",
+            appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Initialize Swiper
+        let swiper;
+        
+        // Function to initialize Swiper after images are loaded
+        function initSwiper() {
+            swiper = new Swiper('.swiper-container', {
+                loop: false,
+                longSwipesRatio: 0.2,
+                zoom: {
+                    maxRatio: 5,
+                    minRatio: 1
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            });
+        }
+
+        // Function to fetch product details based on ID from URL
+        async function loadProductDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get("id");
+            
+            if (!productId) {
+                console.error("Product ID not found in URL.");
+                return;
+            }
+            
+            try {
+                document.querySelector('.loading').style.display = 'flex';
+                
+                const productRef = doc(db, "products", productId);
+                const productSnap = await getDoc(productRef);
+                
+                if (productSnap.exists()) {
+                    const product = productSnap.data();
+                    
+                    showSliderImages(product.images);
+                    document.getElementById("productName").textContent = product.name || "No Name Available";
+                    document.getElementById("productBrand").textContent = `${product.brand || "Unknown"}`;
+                    document.getElementById("productPrice").textContent = `Price: $${product.price || "N/A"}`;
+                    document.getElementById("productCutPrice").textContent = product.cutPrice ? `$${product.cutPrice}` : "";
+                    document.getElementById("productRating").textContent = `Rating: ${product.rating || "N/A"}`;
+                  
+                    loadProductAccordion(product);
+                    document.querySelector('.product-details').style.display = 'flex';
+                    document.querySelector('body').style.overflow = 'auto';
+                } else {
+                    console.error("Product not found in Firestore.");
+                    alert("Product not found!");
+                }
+            } catch (error) {
+                console.error("Error loading product details:", error);
+                alert("Failed to load product details. Please try again.");
+            } finally {
+                document.querySelector('.loading').style.display = 'none';
+            }
+        }
+
+        // Function to display slider images using Swiper
+        function showSliderImages(images) {
+            const swiperWrapper = document.getElementById("swiper-wrapper");
+            const imageArray = images.split(',').map(img => img.trim());
+
+            // Clear previous slider images
+            swiperWrapper.innerHTML = '';
+
+            imageArray.forEach((image) => {
+                const slideDiv = document.createElement("div");
+                slideDiv.classList.add("swiper-slide");
+                slideDiv.innerHTML = `
+                    <div class="swiper-zoom-container">
+                        <img src="${image}" alt="Product Image">
+                    </div>`;
+                swiperWrapper.appendChild(slideDiv);
+            });
+
+            // Initialize Swiper after images are loaded
+            initSwiper();
+        }
+
+        // Call the function to load product details when the page loads
+        loadProductDetails();
+    </script>
+    <script>
+  async function loadProductAccordion(product) {
+    const detailsData = [
+      {
+        icon: "fa-file-lines",
+        title: "Product Details",
+        isList: true,
+        bullets: product.description?.split('\n').filter(Boolean) || ["No details available"]
+      },
+      {
+        icon: "fa-truck",
+        title: "Delivery in 3-5 days | Charges Rs. 145",
+        content: "Delivery 3-5 dinon mein hogi. Charges Rs. 145."
+      },
+      {
+        icon: "fa-box-open",
+        title: "Return allowed within 7 days",
+        content: "7 din ke andar return ki sahulat hai."
+      },
+      {
+        icon: "fa-user-check",
+        title: "Found this Cheaper Elsewhere? Report Now",
+        content: "Agar aapko ye item kahin aur sasta mila hai to report karein."
+      }
+    ];
+
+    const container = document.getElementById('detailsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    detailsData.forEach((item) => {
+      const box = document.createElement('div');
+      box.className = 'detail-box';
+      box.innerHTML = `
+        <div class="detail-left">
+          <i class="fa-solid ${item.icon} detail-icon"></i>
+          <span>${item.title}</span>
+        </div>
+        <i class="fa-solid fa-chevron-down detail-arrow"></i>
+      `;
+
+      const detail = document.createElement('div');
+      detail.className = 'detail-content';
+
+      if (item.isList && item.bullets) {
+        const ul = document.createElement('ul');
+        item.bullets.forEach(b => {
+          const li = document.createElement('li');
+          li.textContent = b;
+          ul.appendChild(li);
+        });
+        detail.appendChild(ul);
+      } else {
+        detail.textContent = item.content;
+      }
+
+      box.addEventListener('click', () => {
+        const isActive = box.classList.contains('active');
+        document.querySelectorAll('.detail-box').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.detail-content').forEach(c => c.style.display = 'none');
+
+        if (!isActive) {
+          box.classList.add('active');
+          detail.style.display = 'block';
+        }
+      });
+
+      container.appendChild(box);
+      container.appendChild(detail);
+    });
+  }
+  
+window.addEventListener('scroll', function() {
+    const topBar = document.getElementById('topBar');
+    if (window.scrollY > 60) {
+        topBar.classList.add('scrolled');
+    } else {
+        topBar.classList.remove('scrolled');
+    }
+});
+
+document.querySelector('.top-left i').addEventListener('click', () => {
+    history.back();
+});
+
+const reviews = [
+    { name: "Ali", text: "Amazing product!", rating: 5 },
+    { name: "Sara", text: "Very good service.", rating: 4 },
+    { name: "John", text: "Satisfied!", rating: 4 },
+    { name: "Ahmed", text: "Average experience.", rating: 3 },
+    { name: "Zain", text: "Excellent!", rating: 5 },
+    { name: "Maria", text: "Nice quality.", rating: 4 }
+];
+
+let showAll = false;
+
+function renderReviews() {
+    const container = document.getElementById('reviewsList');
+    container.innerHTML = '';
+    const visibleReviews = showAll ? reviews : reviews.slice(0, 3);
+    
+    visibleReviews.forEach(r => {
+        container.innerHTML += `
+            <div class="review-item">
+                <div class="review-profile">${r.name.charAt(0).toUpperCase()}</div>
+                <div>
+                    <strong>${r.name}</strong><br>
+                    <span>${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span><br>
+                    <small>${r.text}</small>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Hide bottom See All if already showing all
+    document.getElementById('seeAllBottomContainer').style.display = showAll ? 'none' : 'block';
+}
+
+// Stars Logic
+let selectedRating = 0;
+const ratingLabels = ["Terrible", "Poor", "Average", "Good", "Excellent"];
+
+document.querySelectorAll('#ratingStars i').forEach(star => {
+    star.addEventListener('click', () => {
+        selectedRating = parseInt(star.getAttribute('data-rate'));
+        document.querySelectorAll('#ratingStars i').forEach(s => {
+            s.classList.toggle('active', parseInt(s.getAttribute('data-rate')) <= selectedRating);
+        });
+        document.getElementById('ratingText').textContent = ratingLabels[selectedRating - 1] || "Select Rating";
+    });
+});
+
+// Add Review
+document.getElementById('submitReview').addEventListener('click', () => {
+    const name = document.getElementById('reviewName').value.trim() || "Anonymous";
+    const text = document.getElementById('reviewText').value.trim();
+    
+    if (!text || selectedRating === 0) {
+        alert('Please write a review and select a rating.');
+        return;
+    }
+    
+    reviews.unshift({ name, text, rating: selectedRating });
+    renderReviews();
+    document.getElementById('reviewName').value = '';
+    document.getElementById('reviewText').value = '';
+    document.getElementById('ratingText').textContent = "Select Rating";
+    selectedRating = 0;
+    document.querySelectorAll('#ratingStars i').forEach(s => s.classList.remove('active'));
+    alert('Review Submitted!');
+});
+
+// See All Buttons
+document.getElementById('seeAllTopBtn').addEventListener('click', () => {
+    showAll = true;
+    renderReviews();
+});
+
+document.getElementById('seeAllBottomBtn').addEventListener('click', () => {
+    showAll = true;
+    renderReviews();
+});
+
+// Initial Load
+renderReviews();
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupStickyIframe();
+});
+
+
+
+window.onload = function() {
+    const iframe = document.getElementById('myIframe');
+    setTimeout(() => {
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ isSticky: false }, '*');
+        }
+    }, 500);
+};
+window.addEventListener('message', function(e) {
+    if (e.data && typeof e.data.isSticky !== 'undefined') {
+        console.log('Iframe Sticky:', e.data.isSticky);
+        // Custom actions based on sticky state
+    }
+});
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const iframe = document.getElementById('myIframe');
+        let isOutOfRange = false; // current state tracker
+        
+        window.addEventListener('scroll', function() {
+            const rect = iframe.getBoundingClientRect();
+            const distanceFromTop = rect.top;
+            
+            // If iframe moves out of 60px range
+            if (distanceFromTop <= 55 && !isOutOfRange) {
+                isOutOfRange = true;
+                sendMessageToIframe(true); // message when out of range
+            }
+            
+            // If iframe comes back within 60px range
+            if (distanceFromTop > 60 && isOutOfRange) {
+                isOutOfRange = false;
+                sendMessageToIframe(false); // message when back in range
+            }
+        });
+        
+        function sendMessageToIframe(isOut) {
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ isSticky: isOut }, '*');
+                console.log("Message Sent:", isOut ? "yes" : "no");
+            }
+        }
+    });
+</script>
+
+
+</body>
+</html>

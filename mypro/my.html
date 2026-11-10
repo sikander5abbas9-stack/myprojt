@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository File Explorer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: #c9d1d9;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0d1117;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        header {
+            background: #161b22;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #30363d;
+        }
+
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        .description {
+            color: #8b949e;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 20px;
+            background: #0d1117;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #0d1117;
+            color: #c9d1d9;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.15);
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-top: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: #2ea043;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 500px;
+        }
+
+        .sidebar {
+            width: 30%;
+            padding: 20px;
+            border-right: 1px solid #30363d;
+            overflow-y: auto;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-viewer {
+            width: 70%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            color: #58a6ff;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .nav-btn {
+            padding: 8px 15px;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 0;
+        }
+
+        .nav-btn:hover {
+            background: #30363d;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tree-container {
+            padding: 10px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .tree-item {
+            padding: 8px 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            transition: background 0.2s;
+        }
+
+        .tree-item:hover {
+            background: #161b22;
+        }
+
+        .tree-item i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .tree-item.folder {
+            color: #ffa657;
+            font-weight: 500;
+        }
+
+        .tree-item.file {
+            color: #c9d1d9;
+            padding-left: 24px;
+        }
+
+        .active-file {
+            background: #1c6bba !important;
+            color: white !important;
+        }
+
+        .file-path {
+            padding: 12px 15px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #0d1117;
+            color: #c9d1d9;
+            resize: none;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.15);
+        }
+
+        .editor-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-save {
+            background: #238636;
+        }
+
+        .btn-save:hover {
+            background: #2ea043;
+        }
+
+        .btn-create {
+            background: #8957e5;
+        }
+
+        .btn-create:hover {
+            background: #9d6df5;
+        }
+
+        .btn-cancel {
+            background: #da3633;
+        }
+
+        .btn-cancel:hover {
+            background: #f85149;
+        }
+
+        .btn-commit {
+            background: #8957e5;
+        }
+
+        .btn-commit:hover {
+            background: #9d6df5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            background: #238636;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #da3633;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #8b949e;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8b949e;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #30363d;
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .file-name-input {
+            margin-bottom: 0 !important;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+
+        .file-status {
+            font-size: 14px;
+            color: #8b949e;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background: #161b22;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .changes-panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .changes-panel h3 {
+            color: #58a6ff;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .changes-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .change-item {
+            padding: 8px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .change-item:last-child {
+            border-bottom: none;
+        }
+
+        .change-type {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .change-type.create {
+            background: #238636;
+            color: white;
+        }
+
+        .change-type.modify {
+            background: #ffa657;
+            color: #0d1117;
+        }
+
+        .change-type.delete {
+            background: #da3633;
+            color: white;
+        }
+
+        .commit-message {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .commit-message:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.15);
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar, .file-viewer {
+                width: 100%;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #30363d;
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GitHub Repository File Explorer</h1>
+            <p class="description">Explore your GitHub repository structure and edit files directly in the browser</p>
+        </header>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="repo-url"><i class="fab fa-github"></i> GitHub Repository URL</label>
+                <input type="text" id="repo-url" placeholder="https://github.com/username/repository">
+            </div>
+            <div class="input-group">
+                <label for="github-token"><i class="fas fa-key"></i> GitHub Personal Access Token</label>
+                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <button id="load-repo"><i class="fas fa-folder-open"></i> Load Repository</button>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h2>
+                    <span><i class="fas fa-folder-tree"></i> Repository Structure</span>
+                </h2>
+                <div class="nav-buttons">
+                    <button id="back-button" class="nav-btn" disabled><i class="fas fa-arrow-left"></i> Back</button>
+                    <button id="refresh-button" class="nav-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button id="new-file-btn" class="nav-btn"><i class="fas fa-plus"></i> New File</button>
+                </div>
+                <div id="breadcrumb" class="nav-buttons" style="font-size: 14px; margin-bottom: 10px;">
+                    <span>Root</span>
+                </div>
+                <div id="tree-container" class="tree-container">
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>Enter a GitHub repository URL and token to load the file structure</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="file-viewer">
+                <h2><i class="fas fa-file-code"></i> File Editor</h2>
+                <div id="file-status" class="file-status">No file selected</div>
+                <div class="file-info">
+                    <input type="text" id="file-path" class="file-path file-name-input" placeholder="File name">
+                    <div class="hint">To create a folder, add "/" at the end of the name (e.g., "folder/")</div>
+                </div>
+                <div class="editor-container">
+                    <textarea id="file-content" placeholder="File content"></textarea>
+                    <div class="editor-buttons">
+                        <button id="save-file" class="btn-save" style="display: none;"><i class="fas fa-save"></i> Save Changes</button>
+                        <button id="create-file" class="btn-create"><i class="fas fa-file-plus"></i> Create File</button>
+                        <button id="cancel-edit" class="btn-cancel"><i class="fas fa-times"></i> Cancel</button>
+                        <button id="commit-all-changes" class="btn-commit"><i class="fas fa-code-branch"></i> Commit All Changes</button>
+                    </div>
+                </div>
+                
+                <!-- Changes Panel -->
+                <div id="changes-panel" class="changes-panel">
+                    <h3><i class="fas fa-code-branch"></i> Pending Changes</h3>
+                    <div id="changes-list" class="changes-list">
+                        <!-- Changes will be listed here -->
+                    </div>
+                    <input type="text" id="commit-message" class="commit-message" placeholder="Enter commit message">
+                    <button id="commit-changes" class="btn-commit"><i class="fas fa-code-branch"></i> Commit Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const repoUrlInput = document.getElementById('repo-url');
+            const githubTokenInput = document.getElementById('github-token');
+            const loadRepoBtn = document.getElementById('load-repo');
+            const treeContainer = document.getElementById('tree-container');
+            const filePathInput = document.getElementById('file-path');
+            const fileContentTextarea = document.getElementById('file-content');
+            const saveFileBtn = document.getElementById('save-file');
+            const createFileBtn = document.getElementById('create-file');
+            const cancelEditBtn = document.getElementById('cancel-edit');
+            const commitAllBtn = document.getElementById('commit-all-changes');
+            const notification = document.getElementById('notification');
+            const backButton = document.getElementById('back-button');
+            const refreshButton = document.getElementById('refresh-button');
+            const breadcrumb = document.getElementById('breadcrumb');
+            const newFileSidebarBtn = document.getElementById('new-file-btn');
+            const fileStatus = document.getElementById('file-status');
+            const changesPanel = document.getElementById('changes-panel');
+            const changesList = document.getElementById('changes-list');
+            const commitMessageInput = document.getElementById('commit-message');
+            const commitChangesBtn = document.getElementById('commit-changes');
+
+            // State
+            let currentRepo = {};
+            let currentFile = null;
+            let fileTree = [];
+            let currentPath = '';
+            let pathHistory = [];
+            let pathIndex = -1;
+            let isNewFile = false;
+            let pendingChanges = [];
+
+            // Load saved inputs from localStorage
+            function loadSavedInputs() {
+                const savedRepoUrl = localStorage.getItem('github_repo_url');
+                const savedToken = localStorage.getItem('github_token');
+                
+                if (savedRepoUrl) repoUrlInput.value = savedRepoUrl;
+                if (savedToken) githubTokenInput.value = savedToken;
+            }
+
+            // Save inputs to localStorage
+            function saveInputs() {
+                localStorage.setItem('github_repo_url', repoUrlInput.value);
+                localStorage.setItem('github_token', githubTokenInput.value);
+            }
+
+            // Event listeners
+            loadRepoBtn.addEventListener('click', loadRepository);
+            saveFileBtn.addEventListener('click', saveFile);
+            createFileBtn.addEventListener('click', createFile);
+            cancelEditBtn.addEventListener('click', cancelEdit);
+            commitAllBtn.addEventListener('click', commitAllChanges);
+            backButton.addEventListener('click', goBack);
+            refreshButton.addEventListener('click', refreshContents);
+            newFileSidebarBtn.addEventListener('click', createNewFile);
+            commitChangesBtn.addEventListener('click', commitChanges);
+
+            // File name input change listener
+            filePathInput.addEventListener('input', updateButtonStates);
+            fileContentTextarea.addEventListener('input', updateButtonStates);
+
+            // Initialize
+            loadSavedInputs();
+
+            // Update button states based on file status
+            function updateButtonStates() {
+                const fileName = filePathInput.value.trim();
+                
+                if (isNewFile) {
+                    // For new files, show Create button
+                    saveFileBtn.style.display = 'none';
+                    createFileBtn.style.display = 'flex';
+                    fileStatus.textContent = 'New file - Ready to create';
+                    fileStatus.style.color = '#8957e5';
+                } else if (currentFile) {
+                    // For existing files, show Save button if name/content changed
+                    const nameChanged = fileName !== currentFile.name;
+                    const contentChanged = fileContentTextarea.value !== currentFile.content;
+                    
+                    if (nameChanged || contentChanged) {
+                        saveFileBtn.style.display = 'flex';
+                        createFileBtn.style.display = 'none';
+                        fileStatus.textContent = 'File modified - Ready to save';
+                        fileStatus.style.color = '#ffa657';
+                    } else {
+                        saveFileBtn.style.display = 'none';
+                        createFileBtn.style.display = 'none';
+                        fileStatus.textContent = 'File loaded - No changes';
+                        fileStatus.style.color = '#8b949e';
+                    }
+                } else {
+                    // No file selected
+                    saveFileBtn.style.display = 'none';
+                    createFileBtn.style.display = 'none';
+                    fileStatus.textContent = 'No file selected';
+                    fileStatus.style.color = '#8b949e';
+                }
+                
+                // Update changes panel
+                updateChangesPanel();
+            }
+
+            // Update changes panel
+            function updateChangesPanel() {
+                if (pendingChanges.length > 0) {
+                    changesPanel.style.display = 'block';
+                    
+                    // Clear current list
+                    changesList.innerHTML = '';
+                    
+                    // Add each change to the list
+                    pendingChanges.forEach((change, index) => {
+                        const changeItem = document.createElement('div');
+                        changeItem.className = 'change-item';
+                        
+                        const typeClass = change.type === 'create' ? 'create' : 
+                                         change.type === 'modify' ? 'modify' : 'delete';
+                        
+                        changeItem.innerHTML = `
+                            <span>${change.path}</span>
+                            <span class="change-type ${typeClass}">${change.type.toUpperCase()}</span>
+                            <button class="nav-btn" onclick="removeChange(${index})" style="margin-top: 0; padding: 3px 8px;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        
+                        changesList.appendChild(changeItem);
+                    });
+                } else {
+                    changesPanel.style.display = 'none';
+                }
+            }
+
+            // Remove a change from the pending changes list
+            window.removeChange = function(index) {
+                pendingChanges.splice(index, 1);
+                updateChangesPanel();
+            };
+
+            // Load repository structure
+            function loadRepository() {
+                const repoUrl = repoUrlInput.value.trim();
+                const token = githubTokenInput.value.trim();
+
+                if (!repoUrl || !token) {
+                    showNotification('Please provide both repository URL and GitHub token', true);
+                    return;
+                }
+
+                // Save inputs to localStorage
+                saveInputs();
+
+                // Extract owner and repo from URL
+                const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+                if (!match) {
+                    showNotification('Invalid GitHub repository URL', true);
+                    return;
+                }
+
+                const owner = match[1];
+                const repo = match[2].replace(/\.git$/, '');
+
+                currentRepo = { owner, repo, token };
+                currentPath = '';
+                pathHistory = [''];
+                pathIndex = 0;
+                pendingChanges = [];
+
+                // Show loading state
+                treeContainer.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Loading repository structure...
+                    </div>
+                `;
+
+                updateBreadcrumb();
+                updateBackButton();
+                updateChangesPanel();
+
+                // Fetch repository contents
+                fetchRepositoryContents(owner, repo, token, '');
+            }
+
+            // Fetch repository contents from GitHub API
+            function fetchRepositoryContents(owner, repo, token, path = '') {
+                const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+                fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch repository contents: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Process the data to create a file tree
+                    fileTree = data;
+                    renderFileTree(data);
+                })
+                .catch(error => {
+                    showNotification(error.message, true);
+                    treeContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Error loading repository: ${error.message}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render file tree
+            function renderFileTree(data) {
+                if (!data || data.length === 0) {
+                    treeContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder"></i>
+                            <p>This directory is empty</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Sort folders first, then files
+                const sortedData = [...data].sort((a, b) => {
+                    if (a.type === b.type) {
+                        return a.name.localeCompare(b.name);
+                    }
+                    return a.type === 'dir' ? -1 : 1;
+                });
+
+                let html = '';
+                sortedData.forEach(item => {
+                    const isDir = item.type === 'dir';
+                    html += `
+                        <div class="tree-item ${isDir ? 'folder' : 'file'}" data-path="${item.path}" data-type="${item.type}" data-name="${item.name}">
+                            <i class="${isDir ? 'fas fa-folder' : 'fas fa-file'}"></i>
+                            ${item.name}
+                        </div>
+                    `;
+                });
+
+                treeContainer.innerHTML = html;
+
+                // Add event listeners to tree items
+                const treeItems = treeContainer.querySelectorAll('.tree-item');
+                treeItems.forEach(item => {
+                    item.addEventListener('click', handleTreeItemClick);
+                });
+            }
+
+            // Handle tree item click
+            function handleTreeItemClick(event) {
+                const path = event.currentTarget.getAttribute('data-path');
+                const type = event.currentTarget.getAttribute('data-type');
+
+                // Remove active class from all items
+                const treeItems = treeContainer.querySelectorAll('.tree-item');
+                treeItems.forEach(item => item.classList.remove('active-file'));
+
+                // Add active class to clicked item
+                event.currentTarget.classList.add('active-file');
+
+                if (type === 'dir') {
+                    // If it's a directory, fetch its contents
+                    currentPath = path;
+                    
+                    // Update file path input with folder name
+                    filePathInput.value = path.split('/').pop() + '/';
+                    
+                    // Add to history if we're not going back
+                    if (pathIndex === pathHistory.length - 1) {
+                        pathHistory.push(path);
+                        pathIndex++;
+                    } else {
+                        // We're navigating in a new direction, so truncate the history
+                        pathHistory = pathHistory.slice(0, pathIndex + 1);
+                        pathHistory.push(path);
+                        pathIndex = pathHistory.length - 1;
+                    }
+                    
+                    updateBreadcrumb();
+                    updateBackButton();
+                    
+                    fetchRepositoryContents(currentRepo.owner, currentRepo.repo, currentRepo.token, path);
+                } else {
+                    // If it's a file, fetch its content
+                    fetchFileContent(path);
+                }
+            }
+
+            // Go back in navigation history
+            function goBack() {
+                if (pathIndex > 0) {
+                    pathIndex--;
+                    currentPath = pathHistory[pathIndex];
+                    
+                    updateBreadcrumb();
+                    updateBackButton();
+                    
+                    fetchRepositoryContents(currentRepo.owner, currentRepo.repo, currentRepo.token, currentPath);
+                }
+            }
+
+            // Refresh current directory contents
+            function refreshContents() {
+                fetchRepositoryContents(currentRepo.owner, currentRepo.repo, currentRepo.token, currentPath);
+            }
+
+            // Update breadcrumb display
+            function updateBreadcrumb() {
+                if (!currentPath) {
+                    breadcrumb.innerHTML = '<span>Root</span>';
+                    return;
+                }
+                
+                const parts = currentPath.split('/');
+                let breadcrumbHtml = '<span onclick="navigateToPath(\'\')" style="cursor: pointer; color: #58a6ff;">Root</span>';
+                let currentPathBuilder = '';
+                
+                parts.forEach((part, index) => {
+                    currentPathBuilder += (currentPathBuilder ? '/' : '') + part;
+                    const isLast = index === parts.length - 1;
+                    
+                    if (!isLast) {
+                        breadcrumbHtml += ` <i class="fas fa-chevron-right" style="margin: 0 8px; font-size: 12px;"></i> `;
+                        breadcrumbHtml += `<span onclick="navigateToPath('${currentPathBuilder}')" style="cursor: pointer; color: #58a6ff;">${part}</span>`;
+                    } else {
+                        breadcrumbHtml += ` <i class="fas fa-chevron-right" style="margin: 0 8px; font-size: 12px;"></i> `;
+                        breadcrumbHtml += `<span>${part}</span>`;
+                    }
+                });
+                
+                breadcrumb.innerHTML = breadcrumbHtml;
+            }
+
+            // Navigate to a specific path (for breadcrumb clicks)
+            window.navigateToPath = function(path) {
+                const pathIndex = pathHistory.indexOf(path);
+                if (pathIndex !== -1) {
+                    // Path exists in history, jump to it
+                    window.pathIndex = pathIndex;
+                    currentPath = pathHistory[pathIndex];
+                } else {
+                    // Path doesn't exist in history, add it
+                    currentPath = path;
+                    pathHistory = pathHistory.slice(0, window.pathIndex + 1);
+                    pathHistory.push(path);
+                    window.pathIndex = pathHistory.length - 1;
+                }
+                
+                updateBreadcrumb();
+                updateBackButton();
+                
+                fetchRepositoryContents(currentRepo.owner, currentRepo.repo, currentRepo.token, path);
+            };
+
+            // Update back button state
+            function updateBackButton() {
+                backButton.disabled = pathIndex <= 0;
+            }
+
+            // Fetch file content
+            function fetchFileContent(path) {
+                const url = `https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/contents/${path}`;
+
+                fetch(url, {
+                    headers: {
+                        'Authorization': `token ${currentRepo.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch file content: ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Decode base64 content
+                    const content = atob(data.content.replace(/\s/g, ''));
+                    currentFile = { path: data.path, content, sha: data.sha, name: data.name };
+                    isNewFile = false;
+                    
+                    // Update UI
+                    filePathInput.value = data.name;
+                    fileContentTextarea.value = content;
+                    
+                    // Update button states
+                    updateButtonStates();
+                })
+                .catch(error => {
+                    showNotification(error.message, true);
+                });
+            }
+
+            // Create new file
+            function createNewFile() {
+                isNewFile = true;
+                currentFile = null;
+                
+                // Update UI
+                filePathInput.value = '';
+                fileContentTextarea.value = '';
+                
+                // Update button states
+                updateButtonStates();
+                
+                // Focus on file name input
+                filePathInput.focus();
+            }
+
+            // Save file changes (for existing files)
+            // Save file changes (for existing files)
+function saveFile() {
+    const fileName = filePathInput.value.trim();
+    const fileContent = fileContentTextarea.value;
+    
+    if (!fileName) {
+        showNotification('Please enter a file name', true);
+        return;
+    }
+    
+    if (!currentFile) {
+        showNotification('No file selected for saving', true);
+        return;
+    }
+    
+    // Determine if we're creating a folder or file
+    const isFolder = fileName.endsWith('/');
+    const actualFileName = isFolder ? fileName.slice(0, -1) : fileName;
+    
+    // Build the full path
+    const fullPath = currentPath ? `${currentPath}/${actualFileName}` : actualFileName;
+    
+    // Prepare content for folder (empty) or file
+    const content = isFolder ? '' : fileContent;
+    
+    // Verify encoding is working correctly
+    try {
+        const contentBase64 = btoa(unescape(encodeURIComponent(content)));
+        
+        // Debug ke liye check karein
+        console.log('Original content:', content);
+        console.log('Encoded content:', contentBase64);
+        
+        // Add to pending changes
+        pendingChanges.push({
+            type: 'modify',
+            path: fullPath,
+            content: contentBase64,
+            sha: currentFile.sha,
+            originalPath: currentFile.path
+        });
+        
+        // Update the current file
+        currentFile.sha = null;
+        currentFile.name = actualFileName;
+        currentFile.path = fullPath;
+        currentFile.content = content;
+        
+        updateButtonStates();
+        showNotification('Changes saved locally. Click "Commit All Changes" to push to GitHub.');
+        
+    } catch (error) {
+        showNotification('Error encoding file content: ' + error.message, true);
+    }
+}
+
+            // Cancel edit
+            function cancelEdit() {
+                if (currentFile) {
+                    filePathInput.value = currentFile.name;
+                    fileContentTextarea.value = currentFile.content;
+                } else {
+                    filePathInput.value = '';
+                    fileContentTextarea.value = '';
+                }
+                
+                // Update button states
+                updateButtonStates();
+            }
+
+            // Get the latest commit SHA for the branch
+            async function getLatestCommitSha(branch = 'main') {
+                try {
+                    // First try to get the branch reference
+                    const refUrl = `https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/git/refs/heads/${branch}`;
+                    const refResponse = await fetch(refUrl, {
+                        headers: {
+                            'Authorization': `token ${currentRepo.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+
+                    if (!refResponse.ok) {
+                        // If main branch doesn't exist, try master
+                        if (branch === 'main') {
+                            return await getLatestCommitSha('master');
+                        }
+                        throw new Error(`Failed to get branch reference: ${refResponse.status}`);
+                    }
+
+                    const refData = await refResponse.json();
+                    return refData.object.sha;
+                } catch (error) {
+                    throw new Error(`Failed to get latest commit: ${error.message}`);
+                }
+            }
+
+            // Commit all changes to GitHub using batch processing
+            // Commit all changes to GitHub using batch processing
+// Commit all changes to GitHub using individual file updates
+async function commitAllChanges() {
+    const commitMessage = commitMessageInput.value.trim() || prompt('Enter commit message:');
+    
+    if (!commitMessage) {
+        showNotification('Commit cancelled. No commit message provided.', true);
+        return;
+    }
+    
+    if (pendingChanges.length === 0) {
+        showNotification('No changes to commit', true);
+        return;
+    }
+    
+    showNotification(`Committing ${pendingChanges.length} changes to GitHub...`);
+    
+    try {
+        let successCount = 0;
+        let errorCount = 0;
+        
+        // Har file ko individually update karein
+        for (const change of pendingChanges) {
+            try {
+                const apiUrl = `https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/contents/${change.path}`;
+                
+                // Request body prepare karein
+                const requestBody = {
+                    message: commitMessage,
+                    content: change.content,
+                    branch: 'main' // Default branch
+                };
+                
+                // Agar modify operation hai toh SHA include karein
+                if (change.type === 'modify' && change.sha) {
+                    requestBody.sha = change.sha;
+                }
+                
+                const response = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${currentRepo.token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    
+                    // Agar main branch nahi mili toh master try karein
+                    if (errorData.message && errorData.message.includes('main')) {
+                        requestBody.branch = 'master';
+                        const retryResponse = await fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${currentRepo.token}`,
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/vnd.github.v3+json'
+                            },
+                            body: JSON.stringify(requestBody)
+                        });
+                        
+                        if (!retryResponse.ok) {
+                            throw new Error(`Failed to update ${change.path}: ${errorData.message}`);
+                        }
+                    } else {
+                        throw new Error(`Failed to update ${change.path}: ${errorData.message}`);
+                    }
+                }
+                
+                successCount++;
+                showNotification(`Progress: ${successCount}/${pendingChanges.length} files committed...`);
+                
+            } catch (fileError) {
+                errorCount++;
+                console.error(`Error updating ${change.path}:`, fileError);
+                showNotification(`Error updating ${change.path}: ${fileError.message}`, true);
+            }
+        }
+        
+        // Clear pending changes only if all successful
+        if (errorCount === 0) {
+            pendingChanges = [];
+            commitMessageInput.value = '';
+            updateChangesPanel();
+            showNotification(`Successfully committed ${successCount} files to GitHub!`);
+            
+            // Refresh the repository to show the changes
+            refreshContents();
+        } else {
+            showNotification(`Completed with ${errorCount} errors. ${successCount} files committed successfully.`, true);
+        }
+        
+    } catch (error) {
+        showNotification('Failed to commit changes: ' + error.message, true);
+        console.error('Commit error:', error);
+    }
+}
+            // Commit changes (for the changes panel)
+            function commitChanges() {
+                const commitMessage = commitMessageInput.value.trim();
+                
+                if (!commitMessage) {
+                    showNotification('Please enter a commit message', true);
+                    return;
+                }
+
+                if (pendingChanges.length === 0) {
+                    showNotification('No changes to commit', true);
+                    return;
+                }
+
+                // Use the same function as commitAllChanges
+                commitAllChanges();
+            }
+
+            // Show notification
+            function showNotification(message, isError = false) {
+                notification.textContent = message;
+                notification.className = 'notification' + (isError ? ' error' : '');
+                notification.classList.add('show');
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Sample data for demonstration purposes
+            const sampleRepoUrl = "https://github.com/username/repository";
+            const sampleToken = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            
+            // Only set sample values if no saved values exist
+            if (!localStorage.getItem('github_repo_url')) {
+                repoUrlInput.value = sampleRepoUrl;
+            }
+            
+            if (!localStorage.getItem('github_token')) {
+                githubTokenInput.value = sampleToken;
+            }
+        });
+    </script>
+</body>
+</html>

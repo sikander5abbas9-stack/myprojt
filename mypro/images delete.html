@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Floating Images</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .floating-image {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            object-fit: cover;
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.3s;
+            z-index: 10;
+        }
+        
+        .floating-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+        
+        .floating-image:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        
+        .dustbin {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 200px;
+            z-index: 100;
+        }
+        
+        .dustbin-body {
+            position: absolute;
+            bottom: 0;
+            width: 180px;
+            height: 150px;
+            background: linear-gradient(to right, #2c2c2c, #1c1c1c);
+            border-radius: 8px 8px 5px 5px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+        }
+        
+        .dustbin-mouth {
+            position: absolute;
+            bottom: 150px;
+            width: 200px;
+            height: 40px;
+            background: linear-gradient(to right, #3c3c3c, #2c2c2c);
+            border-radius: 10px 10px 0 0;
+            left: -10px;
+            transform-origin: bottom;
+            transition: transform 0.5s;
+        }
+        
+        .dustbin-open .dustbin-mouth {
+            transform: rotate(-15deg);
+        }
+        
+        .black-hole {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at center, #000 0%, #001133 70%);
+            border-radius: 50%;
+            top: 30px;
+            left: 40px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 1s;
+            box-shadow: 0 0 40px #0066ff, inset 0 0 30px #000;
+        }
+        
+        .dustbin-open .black-hole {
+            opacity: 1;
+            transform: scale(1);
+            animation: blackHolePulse 1.5s infinite alternate;
+        }
+        
+        @keyframes blackHolePulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 40px #0066ff, inset 0 0 30px #000;
+            }
+            100% {
+                transform: scale(1.1);
+                box-shadow: 0 0 60px #0099ff, inset 0 0 40px #000;
+            }
+        }
+        
+        .instruction {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .counter {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #00ffff;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: 1000;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(0, 200, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="instruction">Drag images into the dustbin to make them disappear!</div>
+        <div class="counter" id="counter">Images deleted: 0/12</div>
+        
+        <div class="controls">
+            <button class="btn" id="reset-btn"><i class="fas fa-redo"></i> Reset</button>
+            <button class="btn" id="auto-btn"><i class="fas fa-magic"></i> Auto Animate</button>
+        </div>
+        
+        <div class="dustbin" id="dustbin">
+            <div class="dustbin-body">
+                <div class="black-hole"></div>
+            </div>
+            <div class="dustbin-mouth"></div>
+        </div>
+        
+        <div class="message" id="message">All images deleted!</div>
+        
+        <!-- Images will be added by JavaScript -->
+    </div>
+
+    <script>
+        // Sample image URLs (using placeholder images)
+        const imageUrls = [
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
+            'https://images.unsplash.com/photo-1518495973542-4542c06a5843',
+            'https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5',
+            'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05',
+            'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07',
+            'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
+            'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1',
+            'https://images.unsplash.com/photo-1441974231531-c6227db76b6e',
+            'https://images.unsplash.com/photo-1426604966848-d7adac402bff',
+            'https://images.unsplash.com/photo-1501854140801-50d01698950b',
+            'https://images.unsplash.com/photo-1519681393784-d120267933ba',
+            'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd'
+        ];
+        
+        const container = document.getElementById('container');
+        const dustbin = document.getElementById('dustbin');
+        const counter = document.getElementById('counter');
+        const message = document.getElementById('message');
+        const resetBtn = document.getElementById('reset-btn');
+        const autoBtn = document.getElementById('auto-btn');
+        
+        let deletedCount = 0;
+        let images = [];
+        let isDragging = false;
+        let currentDraggedImage = null;
+        let autoMode = false;
+        
+        // Create floating images with random positions
+        function createFloatingImages() {
+            // Clear existing images
+            images.forEach(img => {
+                if (img.parentNode) {
+                    img.parentNode.removeChild(img);
+                }
+            });
+            
+            images = [];
+            deletedCount = 0;
+            counter.textContent = `Images deleted: ${deletedCount}/12`;
+            dustbin.classList.remove('dustbin-open');
+            message.style.opacity = '0';
+            
+            imageUrls.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.className = 'floating-image';
+                img.src = `${url}?auto=compress&cs=tinysrgb&dpr=2&h=150&w=150`;
+                img.alt = `Image ${index + 1}`;
+                
+                // Random initial positions
+                const left = Math.random() * (window.innerWidth - 100);
+                const top = Math.random() * (window.innerHeight - 200) + 50;
+                
+                img.style.left = `${left}px`;
+                img.style.top = `${top}px`;
+                
+                // Add drag functionality
+                img.addEventListener('mousedown', startDrag);
+                
+                container.appendChild(img);
+                images.push(img);
+            });
+            
+            // Add the global event listeners
+            document.addEventListener('mousemove', dragImage);
+            document.addEventListener('mouseup', stopDrag);
+        }
+        
+        // Drag and drop functionality
+        function startDrag(e) {
+            isDragging = true;
+            currentDraggedImage = e.target;
+            currentDraggedImage.style.zIndex = '100';
+            currentDraggedImage.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+        
+        function dragImage(e) {
+            if (!isDragging || !currentDraggedImage) return;
+            
+            const x = e.clientX - (currentDraggedImage.offsetWidth / 2);
+            const y = e.clientY - (currentDraggedImage.offsetHeight / 2);
+            
+            currentDraggedImage.style.left = `${x}px`;
+            currentDraggedImage.style.top = `${y}px`;
+            
+            // Check if image is over dustbin
+            const dustbinRect = dustbin.getBoundingClientRect();
+            const imgRect = currentDraggedImage.getBoundingClientRect();
+            
+            const imgCenterX = imgRect.left + imgRect.width / 2;
+            const imgCenterY = imgRect.top + imgRect.height / 2;
+            
+            const dustbinCenterX = dustbinRect.left + dustbinRect.width / 2;
+            const dustbinCenterY = dustbinRect.top + 80; // Black hole position
+            
+            const distance = Math.sqrt(
+                Math.pow(imgCenterX - dustbinCenterX, 2) + 
+                Math.pow(imgCenterY - dustbinCenterY, 2)
+            );
+            
+            if (distance < 100) {
+                dustbin.classList.add('dustbin-open');
+                
+                // Create suction effect with particles
+                createParticles(imgCenterX, imgCenterY, dustbinCenterX, dustbinCenterY);
+            } else {
+                dustbin.classList.remove('dustbin-open');
+            }
+        }
+        
+        function stopDrag() {
+            if (!isDragging || !currentDraggedImage) return;
+            
+            isDragging = false;
+            currentDraggedImage.style.cursor = 'grab';
+            currentDraggedImage.style.zIndex = '10';
+            
+            // Check if image is over dustbin
+            const dustbinRect = dustbin.getBoundingClientRect();
+            const imgRect = currentDraggedImage.getBoundingClientRect();
+            
+            const imgCenterX = imgRect.left + imgRect.width / 2;
+            const imgCenterY = imgRect.top + imgRect.height / 2;
+            
+            const dustbinCenterX = dustbinRect.left + dustbinRect.width / 2;
+            const dustbinCenterY = dustbinRect.top + 80; // Black hole position
+            
+            const distance = Math.sqrt(
+                Math.pow(imgCenterX - dustbinCenterX, 2) + 
+                Math.pow(imgCenterY - dustbinCenterY, 2)
+            );
+            
+            if (distance < 100) {
+                // Animate image into the black hole
+                animateImageToHole(currentDraggedImage, dustbinCenterX, dustbinCenterY);
+            }
+            
+            currentDraggedImage = null;
+            dustbin.classList.remove('dustbin-open');
+        }
+        
+        // Animate image into the black hole
+        function animateImageToHole(img, targetX, targetY) {
+            const imgRect = img.getBoundingClientRect();
+            const startX = imgRect.left + imgRect.width / 2;
+            const startY = imgRect.top + imgRect.height / 2;
+            
+            img.style.transition = 'all 1s ease-in';
+            img.style.transform = `translate(${targetX - startX}px, ${targetY - startY}px) scale(0.1) rotate(360deg)`;
+            img.style.opacity = '0';
+            
+            // Update after animation completes
+            setTimeout(() => {
+                img.style.display = 'none';
+                deletedCount++;
+                counter.textContent = `Images deleted: ${deletedCount}/12`;
+                
+                // Show message if all images are deleted
+                if (deletedCount === imageUrls.length) {
+                    message.style.opacity = '1';
+                }
+            }, 1000);
+        }
+        
+        // Create particle effect for suction
+        function createParticles(fromX, fromY, toX, toY) {
+            for (let i = 0; i < 5; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${fromX}px`;
+                particle.style.top = `${fromY}px`;
+                
+                container.appendChild(particle);
+                
+                // Animate particle toward the black hole
+                const angle = Math.atan2(toY - fromY, toX - fromX);
+                const distance = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
+                const speed = Math.random() * 2 + 1;
+                
+                const duration = distance / speed;
+                
+                particle.style.transition = `all ${duration}ms linear`;
+                setTimeout(() => {
+                    particle.style.left = `${toX}px`;
+                    particle.style.top = `${toY}px`;
+                    particle.style.opacity = '0';
+                    
+                    // Remove particle after animation
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, duration);
+                }, 10);
+            }
+        }
+        
+        // Auto animate function
+        function autoAnimate() {
+            if (autoMode) return;
+            
+            autoMode = true;
+            autoBtn.disabled = true;
+            autoBtn.textContent = 'Animating...';
+            
+            let index = 0;
+            const animateNext = () => {
+                if (index >= images.length || !autoMode) {
+                    autoMode = false;
+                    autoBtn.disabled = false;
+                    autoBtn.innerHTML = '<i class="fas fa-magic"></i> Auto Animate';
+                    return;
+                }
+                
+                const img = images[index];
+                if (img.style.display !== 'none') {
+                    // Open dustbin
+                    dustbin.classList.add('dustbin-open');
+                    
+                    // Get positions
+                    const dustbinRect = dustbin.getBoundingClientRect();
+                    const dustbinCenterX = dustbinRect.left + dustbinRect.width / 2;
+                    const dustbinCenterY = dustbinRect.top + 80;
+                    
+                    const imgRect = img.getBoundingClientRect();
+                    const imgCenterX = imgRect.left + imgRect.width / 2;
+                    const imgCenterY = imgRect.top + imgRect.height / 2;
+                    
+                    // Create particles
+                    createParticles(imgCenterX, imgCenterY, dustbinCenterX, dustbinCenterY);
+                    
+                    // Animate image
+                    animateImageToHole(img, dustbinCenterX, dustbinCenterY);
+                }
+                
+                index++;
+                setTimeout(animateNext, 800);
+            };
+            
+            animateNext();
+        }
+        
+        // Initialize the animation
+        createFloatingImages();
+        
+        // Event listeners for buttons
+        resetBtn.addEventListener('click', createFloatingImages);
+        autoBtn.addEventListener('click', autoAnimate);
+        
+        // Make images draggable on touch devices
+        document.addEventListener('touchstart', e => {
+            if (e.target.classList.contains('floating-image')) {
+                startDrag({
+                    target: e.target,
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY,
+                    preventDefault: () => e.preventDefault()
+                });
+            }
+        });
+        
+        document.addEventListener('touchmove', e => {
+            if (isDragging && currentDraggedImage) {
+                dragImage({
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY
+                });
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('touchend', stopDrag);
+    </script>
+</body>
+</html>

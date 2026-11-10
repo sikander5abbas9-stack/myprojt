@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📸 Ultimate Photo Editor</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f0f0f0;
+      padding: 20px;
+      text-align: center;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      max-width: 90%;
+    }
+    .filter-bar {
+      display: flex;
+      overflow-x: auto;
+      gap: 10px;
+      padding: 10px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 5px #ccc;
+      margin-bottom: 20px;
+      scroll-behavior: smooth;
+    }
+    .filter-btn {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      background: #eee;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .filter-btn.active {
+      background: #088178;
+      color: white;
+      border-color: #055;
+    }
+    input[type="range"] {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      background: #088178;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #06655c;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📸 Ultimate Photo Editor</h2>
+  <input type="file" id="upload" accept="image/*"><br><br>
+  <canvas id="canvas"></canvas>
+
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-btn active" data-filter="exposure">☀️ Exposure</div>
+    <div class="filter-btn" data-filter="brilliance">✨ Brilliance</div>
+    <div class="filter-btn" data-filter="highlights">🌤 Highlights</div>
+    <div class="filter-btn" data-filter="shadows">🌑 Shadows</div>
+    <div class="filter-btn" data-filter="contrast">🌓 Contrast</div>
+    <div class="filter-btn" data-filter="brightness">💡 Brightness</div>
+    <div class="filter-btn" data-filter="blackpoint">⚫ Black Point</div>
+    <div class="filter-btn" data-filter="saturation">🌈 Saturation</div>
+    <div class="filter-btn" data-filter="vibrancy">🎨 Vibrancy</div>
+    <div class="filter-btn" data-filter="warmth">🔥 Warmth</div>
+    <div class="filter-btn" data-filter="tint">🟣 Tint</div>
+    <div class="filter-btn" data-filter="vignette">📷 Vignette</div>
+  </div>
+
+  <input type="range" id="filterRange" min="0" max="200" value="100" step="1">
+
+  <div class="buttons">
+    <button onclick="applyVivid()">Apply Vivid</button>
+    <button onclick="resetFilters()">Reset</button>
+    <button onclick="downloadImage()">Download</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const upload = document.getElementById('upload');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const filterRange = document.getElementById('filterRange');
+
+    const defaultValues = {
+      exposure: 100, brilliance: 100, highlights: 100, shadows: 100,
+      contrast: 100, brightness: 100, blackpoint: 0,
+      saturation: 100, vibrancy: 100, warmth: 0, tint: 0, vignette: 0
+    };
+
+    let filterValues = { ...defaultValues };
+    let activeFilter = 'exposure';
+    let img = new Image();
+    let originalImg = null;
+
+    upload.onchange = function(e) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          originalImg = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          applyFilters();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    };
+
+    filterBtns.forEach(btn => {
+      btn.onclick = () => {
+        document.querySelector('.filter-btn.active')?.classList.remove('active');
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+
+        // Range and step
+        if (['blackpoint', 'warmth', 'tint'].includes(activeFilter)) {
+          filterRange.min = -100;
+          filterRange.max = 100;
+        } else if (activeFilter === 'vignette') {
+          filterRange.min = 0;
+          filterRange.max = 1;
+          filterRange.step = 0.01;
+        } else {
+          filterRange.min = 0;
+          filterRange.max = 200;
+          filterRange.step = 1;
+        }
+
+        filterRange.value = filterValues[activeFilter];
+        btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+      };
+    });
+
+    filterRange.oninput = () => {
+      filterValues[activeFilter] = parseFloat(filterRange.value);
+      applyFilters();
+    };
+
+    function applyFilters() {
+      if (!originalImg) return;
+      ctx.putImageData(originalImg, 0, 0);
+      let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let data = imageData.data;
+
+      const {
+        exposure, brilliance, highlights, shadows, contrast, brightness,
+        blackpoint, saturation, vibrancy, warmth, tint, vignette
+      } = filterValues;
+
+      for (let i = 0; i < data.length; i += 4) {
+        let r = data[i], g = data[i+1], b = data[i+2];
+
+        r += (exposure - 100) + (brilliance - 100);
+        g += (exposure - 100) + (brilliance - 100);
+        b += (exposure - 100) + (brilliance - 100);
+
+        const avgLight = (r + g + b) / 3;
+        if (avgLight > 127) {
+          r += (highlights - 100);
+          g += (highlights - 100);
+          b += (highlights - 100);
+        } else {
+          r += (shadows - 100);
+          g += (shadows - 100);
+          b += (shadows - 100);
+        }
+
+        r = Math.max(0, r - blackpoint);
+        g = Math.max(0, g - blackpoint);
+        b = Math.max(0, b - blackpoint);
+
+        const avg = (r + g + b) / 3;
+        r += (r - avg) * (saturation / 100 - 1);
+        g += (g - avg) * (saturation / 100 - 1);
+        b += (b - avg) * (saturation / 100 - 1);
+
+        r += warmth;
+        b -= warmth;
+
+        g += tint;
+        r -= tint / 2;
+        b -= tint / 2;
+
+        r = ((r - 128) * (contrast / 100) + 128) * (brightness / 100);
+        g = ((g - 128) * (contrast / 100) + 128) * (brightness / 100);
+        b = ((b - 128) * (contrast / 100) + 128) * (brightness / 100);
+
+        r += (r - avg) * (vibrancy / 100 - 1);
+        g += (g - avg) * (vibrancy / 100 - 1);
+        b += (b - avg) * (vibrancy / 100 - 1);
+
+        data[i] = Math.min(255, Math.max(0, r));
+        data[i+1] = Math.min(255, Math.max(0, g));
+        data[i+2] = Math.min(255, Math.max(0, b));
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      applyVignette(vignette);
+    }
+
+    function applyVignette(level) {
+      if (level <= 0) return;
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0,
+        canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 1.2
+      );
+      gradient.addColorStop(0, 'rgba(0,0,0,0)');
+      gradient.addColorStop(1, `rgba(0,0,0,${level})`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function resetFilters() {
+      filterValues = { ...defaultValues };
+      filterRange.value = filterValues[activeFilter];
+      applyFilters();
+    }
+
+    function applyVivid() {
+      filterValues.exposure = 110;
+      filterValues.contrast = 130;
+      filterValues.saturation = 150;
+      filterValues.vibrancy = 150;
+      filterValues.brightness = 110;
+      filterRange.value = filterValues[activeFilter];
+      applyFilters();
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'edited-image.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+
+</body>
+</html>

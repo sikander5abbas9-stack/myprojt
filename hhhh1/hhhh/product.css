@@ -1,0 +1,298 @@
+/* Loading Spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100svh;
+            background-color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+
+        .loading .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #088178;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Swiper Section */
+        .swiper-container {
+            width: 100%;
+            height: 60svh;
+            
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #088178;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .swiper-slide {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            }
+
+        .swiper-zoom-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .swiper-slide img {
+            width: 95%;
+            height: 95%;
+            padding-bottom: 30px;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+
+        .swiper-pagination {
+            z-index: 110;
+            padding-bottom: 30px;
+        }
+
+        .image-number {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        /* Spacer after swiper */
+        .space {
+            width: 100%;
+            height: calc(60svh - 30px);
+            background-color: #000;
+            z-index: 1;
+        }
+
+        /* Product Details */
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 30px 30px 0 0;
+            background-color: #fff;
+            position: relative;
+            z-index: 200;
+        }
+
+        .product-info {
+            width: 100%;
+            text-align: left;
+        }
+
+        #details {
+            margin: 20px;
+        }
+
+        .product-info h2 {
+            color: #333;
+            font-size: 28px;
+            margin: 10px 0;
+        }
+
+        .product-info p {
+            color: #606063;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .product-info .price {
+            font-size: 24px;
+            color: #088178;
+            font-weight: bold;
+        }
+
+        .product-info .cut-price {
+            font-size: 20px;
+            text-decoration: line-through;
+            color: #999;
+            margin-left: 10px;
+        }
+
+        /* Bottom Cart Bar */
+        .price-add-to-cart {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 0px;
+            left: 0;
+            
+            z-index: 300;
+        }
+
+        .bynow,
+        .add-to-cart {
+            background-color: #088178;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .add-to-cart:hover {
+            background-color: #e65b50;
+        }
+        
+          .detail-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    background: #fff;
+  }
+
+  .detail-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #121252;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .detail-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    color: #121252;
+  }
+
+  .detail-arrow {
+    font-size: 14px;
+    transition: transform 0.3s;
+    color: #888;
+  }
+
+  .detail-box.active .detail-arrow {
+    transform: rotate(180deg);
+  }
+
+  .detail-content {
+    display: none;
+    padding: 10px 45px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .detail-content ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+
+  .detail-content li {
+    margin-bottom: 6px;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 55px;
+    padding: 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    
+    transition: all 0.3s ease;
+    z-index: 500;
+}
+
+.top-left i {
+    font-size: 16px;
+    color: white;
+    
+    transition: color 0.3s ease;
+}
+
+.top-right {
+    display: flex;
+    gap: 12px;
+}
+.icon-circle img {
+    width: 18px;
+height: 18px;
+transform: translateY(2px);;
+
+}
+.icon-circle {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #088178;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+
+
+.top-bar.scrolled {
+    background: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.top-bar i {
+    color: #fff;
+}
+.top-bar.scrolled .top-left i {
+
+}
+
+.top-bar.scrolled .icon-circle {
+    
+}

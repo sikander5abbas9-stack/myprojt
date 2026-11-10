@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>32MP Image Converter</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    input, button { margin: 10px; padding: 10px; }
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+
+  <h1>Upload Image to Convert to 32MP</h1>
+  <input type="file" id="imageInput" accept="image/*">
+  <br>
+  <button onclick="convertTo32MP()">Convert to ~32MP</button>
+  <br><br>
+  <a id="downloadLink" style="display:none;" download="converted-32mp.jpg">Download Converted Image</a>
+  
+  <canvas id="canvas"></canvas>
+
+  <script>
+    let uploadedImage = null;
+
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          uploadedImage = img;
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function convertTo32MP() {
+      if (!uploadedImage) {
+        alert("Please upload an image first.");
+        return;
+      }
+
+      const width = 7680;
+      const height = 4320;
+
+      const canvas = document.getElementById('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(uploadedImage, 0, 0, width, height);
+
+      const downloadLink = document.getElementById('downloadLink');
+      downloadLink.href = canvas.toDataURL('image/jpeg', 0.95);
+      downloadLink.style.display = 'inline-block';
+      downloadLink.textContent = "Download Converted 32MP Image";
+    }
+  </script>
+
+</body>
+</html>

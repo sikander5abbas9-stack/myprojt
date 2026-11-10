@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Firebase Auth Example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial;
+      background: #f9f9f9;
+      padding: 30px;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      margin: 8px;
+      width: 250px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 8px;
+      background: #088178;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #profile {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Firebase Auth (CDN Example)</h2>
+
+  <div id="authSection">
+    <input type="email" id="email" placeholder="Email" /><br />
+    <input type="password" id="password" placeholder="Password" /><br />
+    <button onclick="signUp()">Sign Up</button>
+    <button onclick="signIn()">Sign In</button>
+    <br />
+    <button onclick="googleSignIn()">Sign In with Google</button>
+  </div>
+
+  <div id="profile">
+    <h3 id="welcome"></h3>
+    <img id="userPic" src="" width="100" style="border-radius:50%;" /><br />
+    <button onclick="signOut()">Sign Out</button>
+  </div>
+
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Replace with your own Firebase config
+    const firebaseConfig = {
+  apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+  authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+  projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+  storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+  messagingSenderId: "246983910789",
+  appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+};
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+
+    function signUp() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCred) => {
+          alert("Sign-Up Successful");
+        })
+        .catch((error) => alert(error.message));
+    }
+
+    function signIn() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCred) => {
+          updateUI(userCred.user);
+        })
+        .catch((error) => alert(error.message));
+    }
+
+    function googleSignIn() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          updateUI(result.user);
+        })
+        .catch((error) => alert(error.message));
+    }
+
+    function signOut() {
+      auth.signOut().then(() => {
+        document.getElementById("authSection").style.display = "block";
+        document.getElementById("profile").style.display = "none";
+      });
+    }
+
+    function updateUI(user) {
+      if (user) {
+        document.getElementById("authSection").style.display = "none";
+        document.getElementById("profile").style.display = "block";
+        document.getElementById("welcome").innerText = "Welcome, " + (user.displayName || user.email);
+        document.getElementById("userPic").src = user.photoURL || "https://via.placeholder.com/100";
+      }
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) updateUI(user);
+    });
+  </script>
+</body>
+</html>

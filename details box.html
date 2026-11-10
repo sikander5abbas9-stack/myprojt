@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Details Boxes</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fdfdfd;
+      padding: 20px;
+    }
+
+    .details-container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+
+    .detail-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .detail-box:last-child {
+      border-bottom: none;
+    }
+
+    .detail-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #121252;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .detail-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      color: #121252;
+    }
+
+    .detail-arrow {
+      font-size: 14px;
+      transition: transform 0.3s;
+      color: #888;
+    }
+
+    .detail-box.active .detail-arrow {
+      transform: rotate(180deg);
+    }
+
+    .detail-content {
+      display: none;
+      padding: 10px 45px;
+      font-size: 13px;
+      color: #333;
+      background-color: #f9f9f9;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .detail-content ul {
+      padding-left: 18px;
+      margin: 0;
+    }
+
+    .detail-content li {
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #222;
+      line-height: 1.5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="details-container" id="detailsContainer">
+    <!-- Dynamic Boxes Load Here -->
+  </div>
+
+  <script>
+    const detailsData = [
+      {
+        icon: "fa-file-lines",
+        title: "Product Details",
+        isList: true, // <-- this indicates bullet style
+        bullets: [
+          "Material: Alloy",
+          "Dimension 10 x 8 x 2 Cm",
+          "Number Of Pieces: 1 Pc",
+          "Size: Adjustable",
+          "Package Includes: 1 x Bracelet",
+          "Helpful Info: Keep Jewellery away from water and chemicals. Remove during physical activities. Store separately in a soft pouch. There might be a slight color difference due to different light and monitor effects.",
+          "Product Code: MZ108020022MOMT"
+        ]
+      },
+      {
+        icon: "fa-truck",
+        title: "Delivery in 3-5 days | Charges Rs. 145",
+        content: "Delivery 3-5 dinon mein hogi. Charges Rs. 145."
+      },
+      {
+        icon: "fa-box-open",
+        title: "Return allowed within 7 days",
+        content: "7 din ke andar return ki sahulat hai."
+      },
+      {
+        icon: "fa-user-check",
+        title: "Found this Cheaper Elsewhere? Report Now",
+        content: "Agar aapko ye item kahin aur sasta mila hai to report karein."
+      }
+    ];
+
+    const container = document.getElementById('detailsContainer');
+
+    detailsData.forEach((item, index) => {
+      const box = document.createElement('div');
+      box.className = 'detail-box';
+      box.innerHTML = `
+        <div class="detail-left">
+          <i class="fa-solid ${item.icon} detail-icon"></i>
+          <span>${item.title}</span>
+        </div>
+        <i class="fa-solid fa-chevron-down detail-arrow"></i>
+      `;
+
+      const detail = document.createElement('div');
+      detail.className = 'detail-content';
+
+      if (item.isList && item.bullets) {
+        const ul = document.createElement('ul');
+        item.bullets.forEach(b => {
+          const li = document.createElement('li');
+          li.textContent = b;
+          ul.appendChild(li);
+        });
+        detail.appendChild(ul);
+      } else {
+        detail.textContent = item.content;
+      }
+
+      box.addEventListener('click', () => {
+        const isActive = box.classList.contains('active');
+        document.querySelectorAll('.detail-box').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.detail-content').forEach(c => c.style.display = 'none');
+
+        if (!isActive) {
+          box.classList.add('active');
+          detail.style.display = 'block';
+        }
+      });
+
+      container.appendChild(box);
+      container.appendChild(detail);
+    });
+  </script>
+
+</body>
+</html>

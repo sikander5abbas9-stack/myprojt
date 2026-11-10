@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offline Swiper Gallery</title>
+
+  <!-- Local Swiper CSS -->
+  <link rel="stylesheet" href="swiper-bundle.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      font-family: sans-serif;
+    }
+
+    .swiper {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      height: 300px;
+      border-radius: 20px;
+      margin: 20px;
+    }
+
+    .slide1 { background: #e74c3c; }
+    .slide2 { background: #3498db; }
+    .slide3 { background: #2ecc71; }
+    .slide4 { background: #9b59b6; }
+    .slide5 { background: #f39c12; }
+  </style>
+</head>
+<body>
+
+  <!-- Swiper Container -->
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide slide1">Red Box</div>
+      <div class="swiper-slide slide2">Blue Box</div>
+      <div class="swiper-slide slide3">Green Box</div>
+      <div class="swiper-slide slide4">Purple Box</div>
+      <div class="swiper-slide slide5">Orange Box</div>
+    </div>
+
+    <div class="swiper-pagination"></div>
+  </div>
+
+  <!-- Local Swiper JS -->
+  <script src="swiper-bundle.min.js"></script>
+
+  <script>
+    const swiper = new Swiper('.swiper', {
+      loop: true,
+      spaceBetween: 30,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraz.pk Clone</title>
+    <!-- Using Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.0.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <link rel="stylesheet" href="style.css" type="text/css" media="all" />
+    <style>
+        /* ========== GENERAL STYLES ========== */
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 70px 0 70px 0;
+            height: 100%;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ========== BANNER STYLES WITH SWIPER ========== */
+        .banner-container {
+            width: calc(100% - 20px);
+            height: 180px;
+            margin: 15px 10px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .swiper {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .swiper-slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .swiper-pagination {
+            position: absolute;
+            bottom: 10px;
+            z-index: 10;
+        }
+
+        .swiper-pagination-bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+        }
+
+        .swiper-pagination-bullet-active::after { 
+            content: '';
+            position: absolute;
+            transform: translateX(-3.5px);
+            width: 23px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        /* ========== CATEGORIES ========== */
+        .categories {
+            padding: 15px;
+            background-color: #fff;
+            margin: 15px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title a {
+            color: #088178;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .section-title a i {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .category-item {
+            width: calc(20% - 10px);
+            text-align: center;
+            padding: 12px 5px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            font-size: 12px;
+            color: #555;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .category-item:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .category-item i {
+            font-size: 24px;
+            color: #088178;
+            margin-bottom: 8px;
+            background: #fff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        /* ========== IFRAME STYLES ========== */
+        .iframe-container {
+            
+            height: calc(100svh - 140px);
+            
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            will-change: transform;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        .iframe-sticky {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 70px;
+            z-index: 50;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .iframe-placeholder {
+            display: none;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        /* ========== MOBILE OPTIMIZATIONS ========== */
+        @media (max-width: 480px) {
+            .banner-container {
+                height: 160px;
+            }
+            .category-item {
+                width: calc(20% - 8px);
+                padding: 10px 3px;
+                font-size: 11px;
+            }
+            .category-item i {
+                font-size: 22px;
+                width: 36px;
+                height: 36px;
+            }
+         
+        }
+    </style>
+</head>
+<body>
+    <div id="top-bar">
+        <div class="search-container" onchange="openSecondPage()">
+            <div class="search-input-wrapper">
+                <i class="ri-search-line"></i>
+                <input type="search" id="searchInput" placeholder="Search in Daraz" autocomplete="off">
+            </div>
+            <button class="search-button" id="searchButton" onchange="openSecondPage()">
+                <i class="ri-search-line"></i>
+            </button>
+            <div class="cart-icon">
+                <img src="../icons/cart.svg" alt="Shopping Cart">
+                <span class="badge">3</span>
+            </div>
+        </div>
+    </div> 
+
+    <div class="main">
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main-content">
+            <!-- Banner with Swiper -->
+            <div class="banner-container">
+                <div class="swiper">
+                    <div class="swiper-wrapper" id="bannerSlider"></div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </div>
+            
+            <!-- Categories -->
+            <div class="categories">
+                <h2 class="section-title">Shop by Category <a href="#">See All <i class="ri-arrow-right-line"></i></a></h2>
+                <div class="category-list" id="categoryList"></div>
+            </div>
+
+            <!-- Iframe Container -->
+            <div class="iframe-container" id="iframeContainer">
+                <iframe src="shop.html" title="Daraz Promotion" id="myIframe"></iframe>
+            </div>
+        </div>
+
+        <!-- ========== BOTTOM BAR ========== -->
+        <div id="bottom-bar"></div>
+    </div> 
+    
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="main.js"></script>
+    <script>
+    
+    showbottomandtopbar('home')
+        // Categories data
+        const categories = [
+            { name: "Mobiles", icon: "smartphone-line" },
+            { name: "Electronics", icon: "computer-line" },
+            { name: "Fashion", icon: "t-shirt-line" },
+            { name: "Home", icon: "home-3-line" },
+            { name: "Beauty", icon: "heart-line" },
+            { name: "Groceries", icon: "shopping-basket-line" },
+            { name: "Sports", icon: "football-line" },
+            { name: "Kids", icon: "bear-smile-line" },
+            { name: "Books", icon: "book-line" },
+            { name: "More", icon: "more-2-line" }
+        ];
+        
+        window.onload = function() {
+    sendStickyMessageOnLoad();
+};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize banner
+            initBanner();
+            
+            // Initialize categories
+            initCategories();
+            
+            // Setup iframe sticky behavior
+            setupStickyIframe();
+        });
+        
+        function sendStickyMessageOnLoad() {
+    const iframe = document.getElementById('myIframe');
+    setTimeout(() => {
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ isSticky: false }, '*');
+        }
+    }, 500); // 0.5 second delay
+}
+        
+
+        function initBanner() {
+            const bannerImages = [
+                { img: "https://img.freepik.com/free-vector/flat-sale-banner-with-photo_23-2149026968.jpg", link: "#" },
+                { img: "https://img.freepik.com/free-vector/gradient-sale-banner-template_23-2148934474.jpg", link: "#" },
+                { img: "https://img.freepik.com/free-vector/gradient-black-friday-sale-banner_23-2149026965.jpg", link: "#" }
+            ];
+            
+            const swiperWrapper = document.querySelector('.swiper-wrapper');
+            
+            bannerImages.forEach(banner => {
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                slide.innerHTML = `<a href="${banner.link}"><img src="${banner.img}" alt="Promotional banner"></a>`;
+                swiperWrapper.appendChild(slide);
+            });
+            
+            new Swiper('.swiper', {
+                loop: true,
+                longSwipesRatio: 0.2,
+                threshold: 0,
+                autoplay: {
+                    delay: 3000,
+                    disableOnInteraction: false,
+                },
+                grabCursor: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                    bulletClass: 'swiper-pagination-bullet',
+                    bulletActiveClass: 'swiper-pagination-bullet-active',
+                    renderBullet: function(index, className) {
+                        return '<span class="' + className + '"></span>';
+                    },
+                },
+                navigation: {
+                    nextEl: null,
+                    prevEl: null,
+                }
+            });
+        }
+
+        function initCategories() {
+            const categoryList = document.getElementById('categoryList');
+            
+            categories.forEach(category => {
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.innerHTML = `
+                    <i class="ri-${category.icon}"></i>
+                    <span class="category-name">${category.name}</span>
+                `;
+                categoryList.appendChild(item);
+            });
+        }
+
+        function setupStickyIframe() {
+            const iframeContainer = document.getElementById('iframeContainer');
+            const iframe = document.getElementById('myIframe');
+            const topBarHeight = 0;
+            
+            // Store original position
+            let originalTop = iframeContainer.offsetTop;
+            let isSticky = false;
+            let lastScroll = 0;
+            let ticking = false;
+            
+            // Add a placeholder div to maintain space when iframe goes sticky
+            const placeholder = document.createElement('div');
+            placeholder.className = 'iframe-placeholder';
+            placeholder.style.height = `${iframeContainer.offsetHeight}px`;
+            iframeContainer.parentNode.insertBefore(placeholder, iframeContainer.nextSibling);
+            
+            function handleScroll() {
+                const scrollY = window.scrollY || window.pageYOffset;
+                const scrollDirection = scrollY > lastScroll ? 'down' : 'up';
+                lastScroll = scrollY;
+                
+                // Threshold for sticky behavior (5px buffer to prevent flickering)
+                const stickyThreshold = originalTop - topBarHeight;
+                
+                if (scrollY >= stickyThreshold && !isSticky) {
+                    // Entering sticky state
+                    isSticky = true;
+                    placeholder.style.display = 'block';
+                    iframeContainer.classList.add('iframe-sticky');
+                    sendMessageToIframe(iframe, 'yes');
+                    
+                    // Adjust scroll position to prevent jump
+                    if (scrollDirection === 'down') {
+                        window.scrollTo({
+                            top: stickyThreshold,
+                            behavior: 'auto'
+                        });
+                    }
+                } 
+                else if (scrollY < stickyThreshold && isSticky) {
+                    // Exiting sticky state
+                    isSticky = false;
+                    placeholder.style.display = 'none';
+                    iframeContainer.classList.remove('iframe-sticky');
+                    sendMessageToIframe(iframe, 'no');
+                }
+            }
+            
+            function sendMessageToIframe(iframe, message) {
+                if (iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        isSticky: message === 'yes'
+                    }, '*');
+                }
+            }
+            
+            // Initial check
+            handleScroll()
+            
+            // Optimized scroll listener
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        handleScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+            
+            // Handle resize
+            window.addEventListener('resize', function() {
+                originalTop = iframeContainer.offsetTop;
+                placeholder.style.height = `${iframeContainer.offsetHeight}px`;
+                handleScroll();
+            });
+        }
+
+        // Search functionality placeholder
+        function openSecondPage() {
+            // Implementation would go here
+        }
+        
+    </script>
+</body>
+</html>

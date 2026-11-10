@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Palette Viewer</title>
+    <!-- Bootstrap 4 CDN for Clean Layout -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px 0;
+        }
+        .color-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+        .color-box {
+            height: 120px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .color-box:hover {
+            transform: scale(1.02);
+        }
+        .color-info {
+            padding: 15px;
+        }
+        .color-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .color-hex {
+            font-family: monospace;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .section-title {
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mb-5 font-weight-bold text-dark">Your Skin Tone Color Palette</h1>
+
+    <!-- SECTION 1: BEST DARK & ELEGANT COLORS -->
+    <h3 class="section-title text-success">1. Dark & Elegant Colors (Screenshot 1)</h3>
+    <div class="row">
+        <!-- Charcoal Grey -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #36454F;"></div>
+                <div class="color-info">
+                    <div class="color-name">Charcoal Grey</div>
+                    <div class="color-hex">#36454F</div>
+                </div>
+            </div>
+        </div>
+        <!-- Burgundy -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #800020;"></div>
+                <div class="color-info">
+                    <div class="color-name">Burgundy / Wine</div>
+                    <div class="color-hex">#800020</div>
+                </div>
+            </div>
+        </div>
+        <!-- Navy Blue -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #000080;"></div>
+                <div class="color-info">
+                    <div class="color-name">Navy Blue</div>
+                    <div class="color-hex">#000080</div>
+                </div>
+            </div>
+        </div>
+        <!-- Olive Green -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #556B2F;"></div>
+                <div class="color-info">
+                    <div class="color-name">Olive Green</div>
+                    <div class="color-hex">#556B2F</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: SOFT & NATURAL COLORS -->
+    <h3 class="section-title text-info">2. Soft & Natural Colors (Screenshot 2)</h3>
+    <div class="row">
+        <!-- Jade Green -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #00A86B;"></div>
+                <div class="color-info">
+                    <div class="color-name">Jade Green</div>
+                    <div class="color-hex">#00A86B</div>
+                </div>
+            </div>
+        </div>
+        <!-- Off-White / Cream -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #FFFDD0; border-bottom: 1px solid #eee;"></div>
+                <div class="color-info">
+                    <div class="color-name">Off-White / Cream</div>
+                    <div class="color-hex">#FFFDD0</div>
+                </div>
+            </div>
+        </div>
+        <!-- Blush Pink -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #FEADB9;"></div>
+                <div class="color-info">
+                    <div class="color-name">Blush Pink</div>
+                    <div class="color-hex">#FEADB9</div>
+                </div>
+            </div>
+        </div>
+        <!-- Dusty Blue -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #8C9BA5;"></div>
+                <div class="color-info">
+                    <div class="color-name">Dusty Blue</div>
+                    <div class="color-hex">#8C9BA5</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: AVOID COLORS -->
+    <h3 class="section-title text-danger">3. Heavy / Avoid Colors (Screenshot 3)</h3>
+    <div class="row">
+        <!-- Neon Green -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #39FF14;"></div>
+                <div class="color-info">
+                    <div class="color-name">Neon Green</div>
+                    <div class="color-hex">#39FF14</div>
+                </div>
+            </div>
+        </div>
+        <!-- Shocking Pink -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #FF007F;"></div>
+                <div class="color-info">
+                    <div class="color-name">Shocking Pink</div>
+                    <div class="color-hex">#FF007F</div>
+                </div>
+            </div>
+        </div>
+        <!-- Electric Blue -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #7DF9FF;"></div>
+                <div class="color-info">
+                    <div class="color-name">Electric Blue</div>
+                    <div class="color-hex">#7DF9FF</div>
+                </div>
+            </div>
+        </div>
+        <!-- Mustard Yellow -->
+        <div class="col-md-3 col-sm-6">
+            <div class="color-card">
+                <div class="color-box" style="background-color: #E1AD01;"></div>
+                <div class="color-info">
+                    <div class="color-name">Mustard Yellow</div>
+                    <div class="color-hex">#E1AD01</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

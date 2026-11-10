@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Display Example</title>
+    <script>
+        // Function to get URL parameter by name
+        function getUrlParameter(name) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(window.location.href);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        // Function to display the term from URL when page loads
+        function displayTermFromUrl() {
+            const term = getUrlParameter('term');
+            if (term) {
+                document.getElementById('display').textContent = term;
+                document.getElementById('userInput').value = term;
+            }
+        }
+
+        // Function to handle form submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            const inputValue = document.getElementById('userInput').value.trim();
+            if (inputValue) {
+                window.location.href = window.location.pathname + '?term=' + encodeURIComponent(inputValue);
+            }
+        }
+
+        // Call display function when page loads
+        window.onload = displayTermFromUrl;
+    </script>
+</head>
+<body>
+    <h1>Input Display Example</h1>
+    
+    <form onsubmit="handleSubmit(event)">
+        <label for="userInput">Enter text:</label>
+        <input type="text" id="userInput" name="userInput">
+        <button type="submit">Submit</button>
+    </form>
+    
+    <div>
+        <h2>Display:</h2>
+        <p id="display">No input provided yet.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia iure reiciendis unde distinctio, id, in veniam delectus illo deserunt, repellat ipsum ad ducimus facilis maxime adipisci illum quibusdam aut aperiam Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, reiciendis veritatis consectetur magnam, tenetur hic, nobis, ab doloribus sed voluptatem inventore minus adipisci enim excepturi explicabo perspiciatis provident. Dolore nihil dolores quidem repellat, inventore sed. Quibusdam sint a natus minima, reiciendis similique sed et animi earum culpa ipsum non consequuntur, cupiditate dicta mollitia dolore quae blanditiis facilis doloremque illum distinctio aliquam explicabo. Blanditiis unde placeat distinctio iusto consectetur, adipisci. At reprehenderit, fugiat accusantium esse ea numquam inventore obcaecati, quod tempora excepturi vitae non est ratione voluptatibus eius facilis. Reprehenderit laudantium, iure iusto cumque itaque accusantium inventore optio eius veniam tempora! Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugiat sequi velit esse consequatur aut enim aspernatur doloremque odit eaque deleniti necessitatibus cupiditate id nisi ex, soluta incidunt cum voluptate hic? Ipsum et placeat sapiente ipsam, tempora sed beatae nulla, aperiam, quasi odio facilis quibusdam omnis veritatis reiciendis aspernatur iusto blanditiis! Cumque doloremque voluptas quod incidunt, impedit illum nemo maxime eveniet, velit error quibusdam reprehenderit consequatur qui quos corrupti. Excepturi quo minima assumenda, rerum dolorum eius tempora illo esse qui repellendus suscipit alias quae deleniti maiores eligendi cupiditate magni aliquam quidem consequatur voluptate accusamus voluptates quas perspiciatis ad? Vel reiciendis, aperiam..</p>
+    </div>
+</body>
+</html>

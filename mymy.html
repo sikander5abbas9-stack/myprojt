@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sikander Pro Ultimate Editor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/camanjs/4.1.2/caman.full.min.js"></script>
+    <style>
+        :root { --bg: #000; --panel: #1c1c1e; --accent: #0A84FF; --text: #fff; --border: #333; }
+        
+        body { 
+            font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); 
+            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+        }
+
+        /* 1. FIXED IMAGE SECTION */
+        .canvas-container { 
+            flex-shrink: 0; width: 100%; height: 45vh; background: #111; 
+            display: flex; justify-content: center; align-items: center; 
+            position: relative; border-bottom: 1px solid var(--border); z-index: 100;
+        }
+        #mainCanvas { max-width: 95%; max-height: 95%; object-fit: contain; display: none; }
+        .upload-placeholder { color: #888; text-align: center; cursor: pointer; border: 2px dashed #444; padding: 30px; border-radius: 12px; }
+        .loader { display: none; position: absolute; background: rgba(0,0,0,0.8); padding: 10px 20px; border-radius: 20px; font-size: 12px; z-index: 110; border: 1px solid var(--accent); }
+
+        /* 2. SCROLLABLE CONTROLS SECTION */
+        .editor-ui { flex-grow: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
+        
+        details { background: var(--panel); border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+        summary { padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; outline: none; }
+        summary::after { content: '▼'; font-size: 10px; color: var(--accent); }
+
+        .control-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 20px; }
+        .row { display: flex; flex-direction: column; gap: 8px; }
+        .info { display: flex; justify-content: space-between; font-size: 11px; color: #8e8e93; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* 3. TARGETED SLIDER (POINT ONLY) */
+        input[type="range"] { 
+            -webkit-appearance: none; width: 100%; height: 4px; background: #3a3a3c; 
+            border-radius: 2px; outline: none; 
+            pointer-events: none; /* Block line click */
+        }
+        
+        /* Enabling only the Thumb (Point) */
+        input[type="range"]::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 26px; height: 26px; background: #fff; 
+            border-radius: 50%; cursor: pointer; pointer-events: auto; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5); border: 1px solid #ddd;
+        }
+
+        /* Footer Buttons */
+        .footer-btns { position: fixed; bottom: 0; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; background: var(--panel); border-top: 1px solid var(--border); box-sizing: border-box; z-index: 200; }
+        .btn { padding: 14px; border-radius: 12px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .btn-reset { background: #3a3a3c; color: #fff; }
+        .btn-save { background: var(--accent); color: #fff; }
+        
+        #fileInput { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="canvas-container">
+        <div class="loader" id="loader">Processing...</div>
+        <div class="upload-placeholder" id="loadBtn" onclick="document.getElementById('fileInput').click()">
+            SELECT PHOTO TO START
+        </div>
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*">
+
+    <div class="editor-ui" id="uiPanel" style="opacity: 0.3; pointer-events: none;">
+        
+        <details open>
+            <summary>Light & Exposure</summary>
+            <div class="control-list">
+                <div class="row">
+                    <div class="info"><span>Exposure</span><span id="v_exposure">0</span></div>
+                    <input type="range" class="adj" id="exposure" min="-100" max="100" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Contrast</span><span id="v_contrast">0</span></div>
+                    <input type="range" class="adj" id="contrast" min="-100" max="100" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Gamma (Highlights)</span><span id="v_gamma">0</span></div>
+                    <input type="range" class="adj" id="gamma" min="-50" max="50" value="0">
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Color & Tone</summary>
+            <div class="control-list">
+                <div class="row">
+                    <div class="info"><span>Saturation</span><span id="v_saturation">0</span></div>
+                    <input type="range" class="adj" id="saturation" min="-100" max="100" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Vibrance</span><span id="v_vibrance">0</span></div>
+                    <input type="range" class="adj" id="vibrance" min="-100" max="100" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Hue (Temperature)</span><span id="v_hue">0</span></div>
+                    <input type="range" class="adj" id="hue" min="0" max="100" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Sepia Tone</span><span id="v_sepia">0</span></div>
+                    <input type="range" class="adj" id="sepia" min="0" max="100" value="0">
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary>Detail & Effects</summary>
+            <div class="control-list">
+                <div class="row">
+                    <div class="info"><span>Sharpen</span><span id="v_sharpen">0</span></div>
+                    <input type="range" class="adj" id="sharpen" min="0" max="100" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Stack Blur</span><span id="v_stackBlur">0</span></div>
+                    <input type="range" class="adj" id="stackBlur" min="0" max="20" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Noise (Grain)</span><span id="v_noise">0</span></div>
+                    <input type="range" class="adj" id="noise" min="0" max="50" value="0">
+                </div>
+                <div class="row">
+                    <div class="info"><span>Brightness</span><span id="v_brightness">0</span></div>
+                    <input type="range" class="adj" id="brightness" min="-50" max="50" value="0">
+                </div>
+            </div>
+        </details>
+
+    </div>
+
+    <div class="footer-btns">
+        <button class="btn btn-reset" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-save" onclick="saveImage()">Download</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mainCanvas');
+        const fileInput = document.getElementById('fileInput');
+        const loader = document.getElementById('loader');
+        let isLoaded = false;
+
+        // 1. IMAGE UPLOAD LOGIC
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const ctx = canvas.getContext('2d');
+                    // Scaling for mobile speed
+                    const maxDim = 1000;
+                    let w = img.width;
+                    let h = img.height;
+                    if(w > maxDim || h > maxDim) {
+                        const r = Math.min(maxDim/w, maxDim/h);
+                        w *= r; h *= r;
+                    }
+                    canvas.width = w; canvas.height = h;
+                    ctx.drawImage(img, 0, 0, w, h);
+                    
+                    canvas.style.display = 'block';
+                    document.getElementById('loadBtn').style.display = 'none';
+                    document.getElementById('uiPanel').style.opacity = '1';
+                    document.getElementById('uiPanel').style.pointerEvents = 'auto';
+                    isLoaded = true;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // 2. CORE ADJUSTMENT LOGIC (CAMAN)
+        function applyFilters() {
+            if(!isLoaded) return;
+            loader.style.display = 'block';
+
+            Caman('#mainCanvas', function () {
+                this.revert(false);
+                
+                // Fetching all slider values dynamically
+                const val = (id) => parseInt(document.getElementById(id).value);
+
+                if(val('exposure') !== 0) this.exposure(val('exposure'));
+                if(val('contrast') !== 0) this.contrast(val('contrast'));
+                if(val('gamma') !== 0) this.gamma(1 + (val('gamma')/100));
+                if(val('saturation') !== 0) this.saturation(val('saturation'));
+                if(val('vibrance') !== 0) this.vibrance(val('vibrance'));
+                if(val('hue') !== 0) this.hue(val('hue'));
+                if(val('sepia') !== 0) this.sepia(val('sepia'));
+                if(val('sharpen') !== 0) this.sharpen(val('sharpen'));
+                if(val('stackBlur') !== 0) this.stackBlur(val('stackBlur'));
+                if(val('noise') !== 0) this.noise(val('noise'));
+                if(val('brightness') !== 0) this.brightness(val('brightness'));
+
+                this.render(() => { loader.style.display = 'none'; });
+            });
+        }
+
+        // 3. LIVE EVENT LISTENERS (INPUT + THROTTLE)
+        let renderTimer;
+        document.querySelectorAll('.adj').forEach(slider => {
+            slider.addEventListener('input', () => {
+                // Update text value instantly
+                document.getElementById('v_' + slider.id).innerText = slider.value;
+                
+                // Apply filter with 150ms delay to keep it smooth
+                clearTimeout(renderTimer);
+                renderTimer = setTimeout(applyFilters, 150);
+            });
+        });
+
+        // 4. RESET & DOWNLOAD
+        function resetAll() {
+            document.querySelectorAll('.adj').forEach(s => {
+                s.value = 0;
+                document.getElementById('v_' + s.id).innerText = 0;
+            });
+            applyFilters();
+        }
+
+        function saveImage() {
+            if(!isLoaded) return;
+            const link = document.createElement('a');
+            link.download = 'edited_by_sikander.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>

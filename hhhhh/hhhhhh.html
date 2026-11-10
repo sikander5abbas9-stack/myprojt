@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firestore Product Grid with Skeleton</title>
+  <style>
+    #product {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+    #product-left, #product-right {
+      width: 50%;
+      height: 100%;
+    }
+    .skeleton-box {
+      width: 90%;
+      height: 150px;
+      margin: 10px auto;
+      background: #eee;
+      border-radius: 8px;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { background-color: #eee; }
+      50% { background-color: #ddd; }
+      100% { background-color: #eee; }
+    }
+    .pro {
+      margin: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .pro img {
+      width: 100%;
+      opacity: 0;
+      transition: opacity 0.5s;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="product"></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyABgd07aVz6KEOh30iSo1j70dQBluMbjgA",
+    authDomain: "gjgsjgjdhyd6yehbdt6gebsigdjgd.firebaseapp.com",
+    projectId: "gjgsjgjdhyd6yehbdt6gebsigdjgd",
+    storageBucket: "gjgsjgjdhyd6yehbdt6gebsigdjgd.appspot.com",
+    messagingSenderId: "246983910789",
+    appId: "1:246983910789:web:ec9f59c2f74a72b324d0ec"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const productDiv = document.getElementById('product');
+
+  // Create Left & Right Containers
+  const leftContainer = document.createElement('div');
+  leftContainer.id = 'product-left';
+
+  const rightContainer = document.createElement('div');
+  rightContainer.id = 'product-right';
+
+  productDiv.appendChild(leftContainer);
+  productDiv.appendChild(rightContainer);
+
+  // Show Skeleton Boxes
+  function showSkeletons() {
+    leftContainer.innerHTML = '';
+    rightContainer.innerHTML = '';
+
+    for (let i = 0; i < 6; i++) {
+      const skeleton = document.createElement('div');
+      skeleton.classList.add('skeleton-box');
+      if (i % 2 === 0) {
+        leftContainer.appendChild(skeleton);
+      } else {
+        rightContainer.appendChild(skeleton);
+      }
+    }
+  }
+  function removeSkeletons() {
+  leftContainer.querySelectorAll('.skeleton-box').forEach(s => s.remove());
+  rightContainer.querySelectorAll('.skeleton-box').forEach(s => s.remove());
+}
+
+  // Fetch & Display Products
+  function fetchAndDisplayProducts() {
+  showSkeletons(); // First show skeletons
+  
+  db.collection('products').limit(6).get().then(snapshot => {
+    const products = [];
+    snapshot.forEach(doc => {
+      products.push({ id: doc.id, data: doc.data() });
+    });
+    
+    products.sort(() => Math.random() - 0.5);
+    
+    // Remove only skeletons — NOT full content
+    removeSkeletons();
+    
+    products.forEach((product, index) => {
+      const productEl = createProductElement(product.data, product.id);
+      if (index % 2 === 0) {
+        leftContainer.appendChild(productEl);
+      } else {
+        rightContainer.appendChild(productEl);
+      }
+    });
+  });
+}
+
+  function createProductElement(product, productId) {
+  const productDiv = document.createElement('div');
+  productDiv.classList.add('pro');
+  productDiv.style.position = 'relative';
+  
+  productDiv.innerHTML = `
+    <div class="image-wrapper" style="position: relative;">
+      <div class="skeleton skeleton-image" style="width: 100%; height: 150px; background: #eee; border-radius: 8px; animation: pulse 1s infinite; position: absolute; top: 0; left: 0;"></div>
+      <img class="img" alt="${product.name}" style="opacity: 0; width: 100%; height: 150px; object-fit: cover; border-radius: 8px; transition: opacity 0.3s ease;" data-product-id="${productId}">
+    </div>
+    <div class="details">
+      <h4>₹${product.price}</h4>
+      <h5>${product.name.length > 30 ? product.name.slice(0, 30) + '...' : product.name}</h5>
+      <div class="star">
+        <div class="st">★</div><p>${product.rating}(23)</p>
+      </div>
+    </div>
+  `;
+  
+  const imgElement = productDiv.querySelector('.img');
+  const skeleton = productDiv.querySelector('.skeleton-image');
+  
+  const tempImage = new Image();
+  tempImage.src = product.image;
+  
+  tempImage.onload = () => {
+    imgElement.src = product.image;
+    imgElement.style.opacity = 1;
+    skeleton.remove();
+  };
+  
+  tempImage.onerror = () => {
+    skeleton.remove();
+    imgElement.src = 'placeholder-image.jpg';
+    imgElement.alt = `${product.name} (image not available)`;
+    imgElement.style.opacity = 1;
+  };
+  
+  productDiv.addEventListener('click', () => routing(productId));
+  
+  return productDiv;
+}
+  function truncateText(text, maxLength) {
+    return text.length > maxLength ? text.slice(0, maxLength) + '…' : text;
+  }
+
+  function routing(id) {
+    alert('Navigate to product: ' + id);
+  }
+
+  // Call on Load
+  fetchAndDisplayProducts();
+</script>
+
+</body>
+</html>

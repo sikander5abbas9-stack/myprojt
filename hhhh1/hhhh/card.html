@@ -1,0 +1,264 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Page</title>
+     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.0.0/fonts/remixicon.css" rel="stylesheet">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            
+        }
+
+        .cart-container {
+            width: 95%;
+            margin: 80px auto;
+            margin-bottom: 180px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .cart-item {
+            display: flex;
+            flex-direction: row;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            position: relative;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            margin: 0 15px 0 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .cart-details {
+            width: 220px;
+            font-weight: 500;
+        }
+
+        .cart-price {
+            color: #088178;
+            font-size: 20px;
+            font-weight: 500;
+            position: absolute;
+            bottom: 30px;
+        }
+
+        .cart-quantity {
+            display: flex;
+            height: 22px;
+            position: absolute; /* Change to absolute */
+            right: 5px; /* Align to the right */
+            bottom: 15px; /* Position from the bottom */
+            
+        }
+
+        .cart-quantity button {
+            background-color: #eee;
+            border: none;
+            padding: 1px 10px;
+            font-size: 15px;
+            border-radius: 4px;
+            
+        }
+
+        .cart-quantity span {
+            margin: 1px 5px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .bottom-nav {
+            background-color: #fff;
+            font-size: 1.5rem;
+            padding: 20px;
+            width: 80%;
+            position: fixed;
+            bottom: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+            gap: 30px;
+            display: flex;
+            flex-direction: row;
+            box-shadow: 0px -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .bottom-nav .total-price {
+            font-size: 33px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .bottom-nav button {
+            padding: 12px;
+            background-color: #088178;
+            font-size: 1.01rem;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            align-items: end;
+        }
+
+       
+    </style>
+</head>
+<body>
+  
+   <div id="top-bar">
+       <i class="fas fa-arrow-left back-arrow" onclick="history.back()"></i>
+     <div class="search-container">
+         <div class="search-input-wrapper">
+             <i class="ri-search-line"></i>
+             <input type="search" id="searchInput" placeholder="Search in Daraz" autocomplete="off">
+         </div>
+         <button class="search-button" id="searchButton">
+             <i class="ri-search-line"></i>
+         </button>
+         <div class="cart-icon">
+             <i class="fas fa-trash-alt"></i>
+             
+         </div>
+     </div>
+ </div>
+  
+    <div class="cart-container">
+        
+        <div id="cart-items"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <span class="total-price">Rs. 0</span>
+        <button onclick="buyNow()">Buy Now</button>
+    </div>
+
+<div id="bottom-bar"></div>
+
+
+<script src="main.js"></script>
+
+<script> showbottomandtopbar("cart")</script>
+    <script>
+        function addToCart(product) {
+            let cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            const existingItemIndex = cartItems.findIndex(item => item.name === product.name);
+
+            if (existingItemIndex !== -1) {
+                cartItems[existingItemIndex].quantity += 1;
+            } else {
+                const cartItem = {
+                    image: product.images.split(',')[0].trim(),
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1,
+                    selected: false
+                };
+                cartItems.push(cartItem);
+            }
+
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            alert("Product added to cart!");
+        }
+
+        function renderCartItems() {
+            const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            const cartItemsContainer = document.getElementById("cart-items");
+            cartItemsContainer.innerHTML = "";
+
+            cartItems.forEach((item, index) => {
+                const cartItem = document.createElement("div");
+                cartItem.classList.add("cart-item");
+
+                cartItem.innerHTML = `
+                    <input type="checkbox" onchange="toggleSelect(${index})" ${item.selected ? "checked" : ""}>
+                    <img src="${item.image}" alt="">
+                    <div class="cart-details">
+                        <p>${item.name.length > 40 ? item.name.slice(0, 40) + '...' : item.name}</p>
+                        <p class="cart-price">Rs. ${item.price}</p>
+                    </div>
+                    <div class="cart-quantity">
+                        <button onclick="decreaseQuantity(${index})">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="increaseQuantity(${index})">+</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(cartItem);
+            });
+
+            updateTotalPrice();
+        }
+
+        function toggleSelect(index) {
+            let cartItems = JSON.parse(localStorage.getItem("cartItems"));
+            cartItems[index].selected = !cartItems[index].selected;
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            updateTotalPrice();
+        }
+
+        function updateTotalPrice() {
+            const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            const total = cartItems
+                .filter(item => item.selected)
+                .reduce((sum, item) => sum + item.price * item.quantity, 0);
+            document.querySelector(".total-price").innerText = `Rs. ${total}`;
+        }
+
+        function decreaseQuantity(index) {
+            let cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            if (cartItems[index].quantity > 1) {
+                cartItems[index].quantity--;
+            } else {
+                cartItems.splice(index, 1);
+            }
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            renderCartItems();
+        }
+
+        function increaseQuantity(index) {
+            let cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            cartItems[index].quantity++;
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            renderCartItems();
+        }
+
+        function deleteSelectedItems() {
+            let cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            cartItems = cartItems.filter(item => !item.selected);
+            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            renderCartItems();
+        }
+
+        function buyNow() {
+            const cartItems = JSON.parse(localStorage.getItem("cartItems")) || [];
+            const selectedItems = cartItems.filter(item => item.selected);
+
+            if (selectedItems.length === 0) {
+                alert("Please select items to buy.");
+                return;
+            }
+
+            // Proceed with selected items
+            alert("Thank you for your purchase!");
+        }
+
+        document.addEventListener("DOMContentLoaded", renderCartItems);
+    </script>
+</body>
+</html>
